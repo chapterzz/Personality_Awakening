@@ -1,0 +1,10 @@
+node_modules
+.next
+dist
+coverage
+pnpm-lock.yaml
+*.min.js
+
+# 需求/任务书等保持仓库内既有排版
+PPA_*.md
+work-logs
