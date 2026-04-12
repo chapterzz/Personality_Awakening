@@ -1,9 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from './../src/app.module';
+import { AppModule } from '../src/app.module';
+import { setupOpenApi } from '../src/openapi.setup';
 
-describe('AppController (e2e)', () => {
+describe('AppModule (HTTP 集成)', () => {
   let app: INestApplication;
 
   beforeEach(async () => {
@@ -12,10 +13,32 @@ describe('AppController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    setupOpenApi(app);
     await app.init();
   });
 
-  it('/ (GET)', () => {
+  afterEach(async () => {
+    await app.close();
+  });
+
+  it('GET / 返回占位文案', () => {
     return request(app.getHttpServer()).get('/').expect(200).expect('Hello World!');
+  });
+
+  it('GET /health 返回 JSON 健康负载', async () => {
+    const res = await request(app.getHttpServer()).get('/health').expect(200);
+    expect(res.body).toEqual({ status: 'ok', service: 'ppa-api' });
+  });
+
+  it('GET /docs 暴露 Swagger UI', async () => {
+    const res = await request(app.getHttpServer()).get('/docs').expect(200);
+    expect(res.text).toContain('swagger');
+  });
+
+  it('GET /docs-json 返回 OpenAPI 文档', async () => {
+    const res = await request(app.getHttpServer()).get('/docs-json').expect(200);
+    expect(res.body.openapi).toMatch(/^3\./);
+    expect(res.body.info.title).toBe('PPA API');
+    expect(res.body.paths['/health']).toBeDefined();
   });
 });

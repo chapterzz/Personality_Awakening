@@ -19,4 +19,13 @@ describe('AppController', () => {
       expect(appController.getHello()).toBe('Hello World!');
     });
   });
+
+  describe('health', () => {
+    it('应返回固定健康负载', () => {
+      expect(appController.getHealth()).toEqual({
+        status: 'ok',
+        service: 'ppa-api',
+      });
+    });
+  });
 });

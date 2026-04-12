@@ -9,9 +9,17 @@
     "build": "pnpm -r run build",
     "lint": "pnpm -r run lint",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\""
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+    "gate:static": "pnpm run build && pnpm run lint && pnpm run format:check",
+    "test": "pnpm --filter api test",
+    "test:unit": "pnpm test && pnpm --filter web run test:unit",
+    "test:integration": "pnpm --filter api run test:e2e",
+    "test:e2e": "playwright test",
+    "test:e2e:install": "playwright install chromium",
+    "test:gate": "pnpm run gate:static && pnpm run test:unit && pnpm run test:integration"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "husky": "^9.1.7",
     "lint-staged": "^15.4.3",
     "prettier": "^3.5.3"

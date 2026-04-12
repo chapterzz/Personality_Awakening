@@ -39,11 +39,11 @@ pnpm install
 
 ## 3. 推荐分支习惯（MVP）
 
-| 分支 | 用途 |
-| :--- | :--- |
-| `main` | 可集成、可演示的稳定线 |
-| `feat/*` | 功能开发 |
-| `fix/*` | 缺陷修复 |
+| 分支     | 用途                   |
+| :------- | :--------------------- |
+| `main`   | 可集成、可演示的稳定线 |
+| `feat/*` | 功能开发               |
+| `fix/*`  | 缺陷修复               |
 
 示例：
 
@@ -66,11 +66,11 @@ git push -u origin main
 
 ## 5. 与本项目相关的约定文件
 
-| 文件 | 作用 |
-| :--- | :--- |
-| `.gitignore` | 忽略 `node_modules`、`.next`、`dist`、`.env` 等 |
-| `.gitattributes` | 统一文本换行，减少无意义 diff |
-| `.husky/pre-commit` | 提交前自动格式化（需先 `git init` + `pnpm install`） |
+| 文件                        | 作用                                                    |
+| :-------------------------- | :------------------------------------------------------ |
+| `.gitignore`                | 忽略 `node_modules`、`.next`、`dist`、`.env` 等         |
+| `.gitattributes`            | 统一文本换行，减少无意义 diff                           |
+| `.husky/pre-commit`         | 提交前自动格式化（需先 `git init` + `pnpm install`）    |
 | `scripts/prepare-husky.cjs` | `pnpm install` 时仅在存在 `.git` 时安装 Husky，避免误报 |
 
 ## 6. 常见问题

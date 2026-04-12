@@ -32,6 +32,9 @@ prisma/*.db-journal
 
 # Test / coverage
 coverage
+playwright-report
+test-results
+blob-report
 
 # Deploy / local tooling
 .vercel
