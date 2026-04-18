@@ -1,0 +1,45 @@
+# T1.3 本地依赖：Postgres + Redis。一键启动：`docker compose up -d`
+# 与 PPA_Tech_SPEC §4 一致：仅数据库可 `docker compose up -d db`
+#
+# 若本机已占用 5432/6379，在仓库根 `.env` 中设置 PPA_POSTGRES_PORT / PPA_REDIS_PORT 后重试；
+# Prisma 的 DATABASE_URL 须与主机映射端口一致（例：PPA_POSTGRES_PORT=15432 则 URL 用 :15432）。
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: ppa-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ppa
+      POSTGRES_PASSWORD: ppa
+      POSTGRES_DB: ppa
+    ports:
+      - '${PPA_POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - ppa_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ppa -d ppa']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  redis:
+    image: redis:7-alpine
+    container_name: ppa-redis
+    restart: unless-stopped
+    ports:
+      - '${PPA_REDIS_PORT:-6379}:6379'
+    volumes:
+      - ppa_redisdata:/data
+    command: ['redis-server', '--appendonly', 'yes']
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+volumes:
+  ppa_pgdata:
+  ppa_redisdata:
