@@ -10,10 +10,10 @@ out
 .turbo
 *.tsbuildinfo
 
-# Env
-.env
-.env.local
-.env.*.local
+# Env（仅忽略仓库根目录；`prisma/.env` 可为占位 URL 供 CLI validate）
+/.env
+/.env.local
+/.env.*.local
 
 # IDE / OS
 .idea

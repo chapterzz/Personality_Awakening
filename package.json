@@ -16,13 +16,18 @@
     "test:integration": "pnpm --filter api run test:e2e",
     "test:e2e": "playwright test",
     "test:e2e:install": "playwright install chromium",
-    "test:gate": "pnpm run gate:static && pnpm run test:unit && pnpm run test:integration"
+    "test:gate": "pnpm run gate:static && pnpm run test:unit && pnpm run test:integration",
+    "db:generate": "prisma generate",
+    "db:validate": "prisma validate",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push"
   },
   "devDependencies": {
     "@playwright/test": "^1.59.1",
     "husky": "^9.1.7",
     "lint-staged": "^15.4.3",
-    "prettier": "^3.5.3"
+    "prettier": "^3.5.3",
+    "prisma": "^6.8.2"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx,json,md,yml,yaml}": "prettier --write"
@@ -33,5 +38,8 @@
       "@scarf/scarf",
       "unrs-resolver"
     ]
+  },
+  "dependencies": {
+    "@prisma/client": "6.19.3"
   }
 }

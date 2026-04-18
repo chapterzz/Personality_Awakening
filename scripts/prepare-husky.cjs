@@ -11,11 +11,16 @@ if (!existsSync(path.join(root, '.git'))) {
   console.warn(
     '[prepare] 跳过 Husky：未检测到 .git。请在仓库根目录执行 `git init` 后重新运行 `pnpm install`。',
   );
-  process.exit(0);
+} else {
+  try {
+    execSync('pnpm exec husky', { stdio: 'inherit', cwd: root, shell: true });
+  } catch {
+    process.exit(1);
+  }
 }
 
 try {
-  execSync('pnpm exec husky', { stdio: 'inherit', cwd: root, shell: true });
+  execSync('pnpm exec prisma generate', { stdio: 'inherit', cwd: root, shell: true });
 } catch {
   process.exit(1);
 }

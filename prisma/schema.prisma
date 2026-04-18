@@ -1,0 +1,159 @@
+// 仓库根目录唯一 Schema（PPA_Tech_SPEC §2.1）；与 PRD §2 / §2.4 / §2.5 对齐。
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+enum AssessmentMode {
+  STANDARD
+  AVG
+}
+
+/// 学生、教师、管理员共用；游客无 User 行（PRD §1.1 / §2.1）。
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  nickname     String
+  passwordHash String   @map("password_hash")
+  role         UserRole @default(STUDENT)
+  createdAt    DateTime @default(now()) @map("created_at")
+  isDeleted    Boolean  @default(false) @map("is_deleted")
+
+  classesTaught      TestClass[]         @relation("ClassTeacher")
+  classMemberships   UserClassRelation[]
+  testResults        TestResult[]
+  temporarySessions  TemporarySession[]
+
+  @@map("users")
+}
+
+/// 班级；创建者写入 teacher_id（PRD §1.3 / §2.1）。
+model TestClass {
+  id         String @id @default(uuid()) @db.Uuid
+  name       String
+  inviteCode String @unique @map("invite_code")
+  teacherId  String @map("teacher_id") @db.Uuid
+  settings   Json   @default("{}")
+
+  teacher   User                 @relation("ClassTeacher", fields: [teacherId], references: [id])
+  members   UserClassRelation[]
+
+  @@index([teacherId])
+  @@map("test_classes")
+}
+
+model UserClassRelation {
+  userId   String   @map("user_id") @db.Uuid
+  classId  String   @map("class_id") @db.Uuid
+  joinedAt DateTime @default(now()) @map("joined_at")
+
+  user  User      @relation(fields: [userId], references: [id])
+  class TestClass @relation(fields: [classId], references: [id])
+
+  @@id([userId, classId])
+  @@map("user_class_relations")
+}
+
+/// 仅正式提交后的结果（PRD §2.1 / §2.2）。
+model TestResult {
+  id          String          @id @default(uuid()) @db.Uuid
+  userId      String          @map("user_id") @db.Uuid
+  mode        AssessmentMode
+  scores      Json
+  /// 如 INFP；列名与 PRD §2.1 一致为 `type`
+  mbtiType    String          @map("type")
+  completedAt DateTime        @map("completed_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("test_results")
+}
+
+/// 进行中测评唯一存储；注册用户全局至多一条 user_id 非空记录（PG 下 UNIQUE 允许多 NULL）（PRD §2.1 / §2.5）。
+model TemporarySession {
+  sessionId         String   @id @map("session_id")
+  userId            String?  @map("user_id") @db.Uuid
+  progressData      Json     @map("progress_data")
+  progressRevision  Int      @default(0) @map("progress_revision")
+  expiresAt         DateTime @map("expires_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@unique([userId])
+  @@index([expiresAt])
+  @@map("temporary_sessions")
+}
+
+// --- 题库 / CMS 骨架（可与 Phase 4 迭代迁移；progress_data 中 questionnaire_id / script_id 与之对应）---
+
+model StandardQuestionnaire {
+  id          String   @id
+  title       String
+  publishedAt DateTime? @map("published_at")
+  isPublished Boolean  @default(false) @map("is_published")
+
+  questions StandardQuestion[]
+
+  @@map("standard_questionnaires")
+}
+
+model StandardQuestion {
+  id              String @id
+  questionnaireId String @map("questionnaire_id")
+  prompt          String
+  sortOrder       Int    @map("sort_order")
+
+  questionnaire StandardQuestionnaire @relation(fields: [questionnaireId], references: [id], onDelete: Cascade)
+  options       StandardQuestionOption[]
+
+  @@index([questionnaireId])
+  @@map("standard_questions")
+}
+
+model StandardQuestionOption {
+  id         String  @id
+  questionId String  @map("question_id")
+  label      String
+  /// 与 progress_data.standard.answers 中 value 对齐的业务键
+  valueKey   String  @map("value_key")
+
+  question StandardQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+  @@map("standard_question_options")
+}
+
+model AvgScript {
+  id          String    @id
+  title       String
+  nodesJson   Json      @map("nodes_json")
+  publishedAt DateTime? @map("published_at")
+  isPublished Boolean   @default(false) @map("is_published")
+
+  @@map("avg_scripts")
+}
+
+model LibraryArticle {
+  id          String    @id @default(uuid()) @db.Uuid
+  title       String
+  slug        String    @unique
+  bodyMd      String    @map("body_md")
+  excerpt     String?
+  publishedAt DateTime? @map("published_at")
+  isPublished Boolean   @default(false) @map("is_published")
+
+  @@map("library_articles")
+}
