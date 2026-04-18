@@ -40,5 +40,6 @@ describe('AppModule (HTTP 集成)', () => {
     expect(res.body.openapi).toMatch(/^3\./);
     expect(res.body.info.title).toBe('PPA API');
     expect(res.body.paths['/health']).toBeDefined();
+    expect(res.body.paths['/progress']).toBeDefined();
   });
 });
