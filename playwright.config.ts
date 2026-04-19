@@ -1,9 +1,11 @@
+/**
+ * Playwright E2E 配置：测试目录、Chromium、可选本地 webServer 与 CI 策略。
+ *
+ * 默认验证 Next 学生端（3000）；API 契约以 apps/api 的 Jest/supertest 为主。
+ * 首次运行前：`pnpm exec playwright install chromium`
+ */
 import { defineConfig, devices } from '@playwright/test';
 
-/**
- * E2E：默认验证 Next.js 学生端（3000）。API 契约以 apps/api 的 Jest/supertest 为主，避免 E2E 强依赖双服务编排（可按需在 CI 中扩展 webServer）。
- * 首次运行前执行：`pnpm exec playwright install chromium`
- */
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,

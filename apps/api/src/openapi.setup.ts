@@ -1,3 +1,6 @@
+/**
+ * 注册 Swagger UI、生成 OpenAPI 文档，并为 `/progress` 配置可选 Bearer 安全方案。
+ */
 import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 

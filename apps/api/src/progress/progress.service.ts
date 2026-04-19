@@ -1,3 +1,6 @@
+/**
+ * 进行中测评进度业务：游客/注册用户读写 `TemporarySession`、乐观锁 revision（PRD §2.5）。
+ */
 import {
   BadRequestException,
   ForbiddenException,

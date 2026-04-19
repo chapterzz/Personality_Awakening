@@ -1,3 +1,6 @@
+/**
+ * Playwright：学生端首页 smoke（可见 Next 默认引导文案）。
+ */
 import { test, expect } from '@playwright/test';
 
 test.describe('smoke', () => {

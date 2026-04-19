@@ -1,3 +1,6 @@
+/**
+ * Playwright：请求 API `/health`，校验 JSON 契约（与集成测试互补）。
+ */
 import { test, expect } from '@playwright/test';
 
 test.describe('API 健康（与 web 并行起服务）', () => {

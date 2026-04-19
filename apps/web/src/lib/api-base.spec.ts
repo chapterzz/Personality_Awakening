@@ -1,3 +1,6 @@
+/**
+ * `getBrowserApiBaseUrl` 单元测试（环境变量分支）。
+ */
 import { describe, it, expect, afterEach } from 'vitest';
 import { getBrowserApiBaseUrl } from './api-base';
 

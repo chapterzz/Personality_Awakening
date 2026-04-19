@@ -1,3 +1,6 @@
+/**
+ * Tailwind CSS 内容扫描路径与主题扩展。
+ */
 import type { Config } from 'tailwindcss';
 
 const config: Config = {

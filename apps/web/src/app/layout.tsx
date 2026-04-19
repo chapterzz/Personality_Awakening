@@ -1,3 +1,6 @@
+/**
+ * 根布局：元数据、字体变量与全局样式。
+ */
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';

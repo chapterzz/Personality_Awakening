@@ -1,3 +1,6 @@
+/**
+ * Web 包 Vitest 配置：jsdom、React 插件与路径别名。
+ */
 import path from 'node:path';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';

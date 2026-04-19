@@ -1,3 +1,6 @@
+/**
+ * 根控制器：占位首页文案、健康检查与 OpenAPI 元数据路由。
+ */
 import { Controller, Get } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AppService } from './app.service';

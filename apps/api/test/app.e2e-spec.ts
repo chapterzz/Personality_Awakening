@@ -1,3 +1,6 @@
+/**
+ * App 模块 HTTP 集成测试：根路径、健康检查、Swagger 与 OpenAPI JSON。
+ */
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';

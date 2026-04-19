@@ -1,3 +1,6 @@
+/**
+ * 测评进行中进度 HTTP 接口：GET/PUT `/progress`（游客 session_id 或 JWT）。
+ */
 import {
   BadRequestException,
   Body,

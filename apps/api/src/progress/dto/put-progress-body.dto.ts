@@ -1,3 +1,6 @@
+/**
+ * PUT `/progress` 请求体：`progress_data` 与 `if_match_revision`。
+ */
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsInt, IsObject, Min } from 'class-validator';

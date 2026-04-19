@@ -1,3 +1,6 @@
+/**
+ * `/progress` API 集成测试：游客/注册用户、乐观锁 409、JWT 鉴权。
+ */
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';

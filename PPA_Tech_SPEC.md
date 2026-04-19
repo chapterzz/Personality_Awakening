@@ -106,9 +106,12 @@ planet-personality/
 删除: 实现 softDelete 中间件，并提供 cron job 定期物理删除标记为 is_deleted 的数据。
 
 ## 4. 开发环境启动步骤
+
+**详细小白向步骤**（含 Docker、连接串说明、排障）：见仓库 **`docs/本地环境调试指南.md`**。下文为摘要。
+
 安装依赖: pnpm install
 配置环境变量: 复制 .env.example 到 .env，填写 DB URL, JWT Secret。
-启动数据库: docker-compose up -d db
+启动数据库: docker-compose up -d db（或 `docker compose up -d`，与本地 Docker 版本一致即可）
 数据库迁移: 在**仓库根目录**执行 `pnpm prisma migrate dev`（Schema：`prisma/schema.prisma`）
 启动服务:
 Backend: pnpm dev:api (Port 3001)
@@ -116,6 +119,8 @@ Frontend: pnpm dev:web (Port 3000)
 访问: http://localhost:3000
 
 **Playwright（首次）**：在仓库根执行 `pnpm test:e2e:install` 安装 Chromium；E2E 使用 `pnpm test:e2e`（配置见根目录 `playwright.config.ts`）。
+
+**文档维护**：每个 Phase 完成后**按需**核对 `docs/本地环境调试指南.md` 是否需增补（新环境变量、新服务、新命令等）；约定见 **`PPA_Development_Task.md` §2.2**。
 
 ## 5. 测试策略、全环节单元覆盖与阶段门禁
 
@@ -181,7 +186,7 @@ Frontend: pnpm dev:web (Port 3000)
 组件化: 将 AVG 游戏的剧情节点、选项、精灵反应抽象为配置驱动的组件。
 性能优化: 大量精灵图片使用 <Image> 组件优化，列表虚拟化（如果班级人数超多）。
 错误边界: 测试过程中若报错，必须保留当前进度，不允许数据丢失。
-注释: 关键算法（如 MBTI 计分、维度映射）必须添加详细注释，解释心理学依据。
+注释与可读性: 每个手写源码文件须有**文件头注释**（简要说明本文件职责）；**重要函数、复杂逻辑与非显而易见分支**须有注释说明意图，保证可读性；**关键算法**（如 MBTI 计分、维度映射）必须添加详细注释，解释心理学依据（与 **`PPA_Development_Task.md` §4.1** 一致）。
 测试: 遵循 **§5**（全环节单元覆盖 + Playwright E2E + 门禁）；**每个任务模块合并前**须带齐对应 **Jest / Vitest / Playwright** 用例，并通过 **`pnpm test:gate`**；涉及 UI/跨服务时另跑 **`pnpm test:e2e`**。
 
 ## 7. 部署注意事项

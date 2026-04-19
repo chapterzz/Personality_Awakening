@@ -1,3 +1,6 @@
+/**
+ * Prisma 生成枚举与任务书/PRD 约定的一致性烟测。
+ */
 import { AssessmentMode, UserRole } from '@prisma/client';
 
 describe('T1.2 Prisma schema', () => {

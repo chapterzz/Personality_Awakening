@@ -1,5 +1,5 @@
 /**
- * 浏览器端使用的 API 基地址（与 Nest 默认 3001 对齐；可通过 NEXT_PUBLIC_API_URL 覆盖）。
+ * 浏览器端 API 基地址解析（默认对齐 Nest 3001，可由 `NEXT_PUBLIC_API_URL` 覆盖）。
  */
 export function getBrowserApiBaseUrl(): string {
   if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_URL) {

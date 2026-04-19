@@ -1,3 +1,6 @@
+/**
+ * `assertValidProgressData` 单元测试（合法/非法样例）。
+ */
 import { assertValidProgressData, ProgressDataValidationError } from './validate-progress-data';
 
 const standardMinimal = {

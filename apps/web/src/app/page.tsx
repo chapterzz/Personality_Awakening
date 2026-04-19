@@ -1,3 +1,6 @@
+/**
+ * 站点首页（Next.js 默认模板占位）。
+ */
 import Image from 'next/image';
 
 export default function Home() {

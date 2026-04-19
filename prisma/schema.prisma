@@ -1,4 +1,4 @@
-// 仓库根目录唯一 Schema（PPA_Tech_SPEC §2.1）；与 PRD §2 / §2.4 / §2.5 对齐。
+// Prisma 数据模型定义（仓库根唯一 schema；迁移源；与 PRD §2 / PPA_Tech_SPEC §2.1 对齐）。
 
 generator client {
   provider = "prisma-client-js"
@@ -34,6 +34,7 @@ model User {
   testResults        TestResult[]
   temporarySessions  TemporarySession[]
 
+  @@unique([nickname])
   @@map("users")
 }
 

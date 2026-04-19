@@ -1,3 +1,6 @@
+/**
+ * ProgressService 单元测试（revision、校验与分支行为）。
+ */
 import { Test } from '@nestjs/testing';
 import { ForbiddenException } from '@nestjs/common';
 import { ProgressService } from './progress.service';

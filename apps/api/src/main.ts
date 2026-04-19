@@ -1,3 +1,6 @@
+/**
+ * NestJS HTTP 应用入口：全局校验管道、OpenAPI、监听端口（默认 3001）。
+ */
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';

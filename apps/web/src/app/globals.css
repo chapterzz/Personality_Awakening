@@ -1,3 +1,4 @@
+/* 全局样式：Tailwind 层、CSS 变量与深色模式根变量。 */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

@@ -1,3 +1,6 @@
+/**
+ * 注册 JwtModule（全局）与 JwtUserService，供进度与认证复用。
+ */
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtUserService } from './jwt-user.service';

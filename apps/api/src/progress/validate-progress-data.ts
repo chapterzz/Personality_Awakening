@@ -1,5 +1,5 @@
 /**
- * PRD §2.4 progress_data 校验（schema_version = 1，snake_case）。
+ * PRD §2.4 `progress_data` JSON 结构校验（schema_version = 1，snake_case）。
  */
 
 export class ProgressDataValidationError extends Error {

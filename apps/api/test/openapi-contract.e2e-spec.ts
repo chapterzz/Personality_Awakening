@@ -1,3 +1,6 @@
+/**
+ * OpenAPI `/docs-json` 契约快照测试（progress security、参数声明等）。
+ */
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
