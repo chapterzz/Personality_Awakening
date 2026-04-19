@@ -155,8 +155,8 @@ Frontend: pnpm dev:web (Port 3000)
 | T1.3 Docker | — | compose 健康检查脚本（可选） | — |
 | T1.4 会话与进度 | revision 计算、progress_data 校验纯函数 | **GET/PUT 进度、409** | — |
 | T1.5 注册/登录 | 密码哈希策略、JWT payload 构造 | **注册/登录/游客转化 API** | — |
-| T1.6 基础 UI | 布局/主题相关纯逻辑与组件 | — | 关键路由 smoke（后续） |
-| T2.1–T2.7 测评引擎 | **计分、题序规则、AVG 节点解析**等纯逻辑 | 提交结果、保存进度 API | 标准/AVG 主路径（分段） |
+| T1.6 基础 UI | 布局/主题：`src/test/home-page.spec.tsx`（关键 class）、纯逻辑 | — | `e2e/smoke`、`e2e/home-layout` |
+| T2.1–T2.7 测评引擎 | **计分、题序规则、AVG 节点/分支进度**（如 `avg-branch-progress.spec.ts`）等纯逻辑 | 提交结果、保存进度 API | 标准/AVG 主路径（分段）；AVG UI 见 `e2e/avg-branch-progress` |
 | T3.x 班级与 WS | 房间名、权限判断纯函数 | Gateway 鉴权、HTTP 班级 API | **教师订阅 / 学生提交**链路与延迟抽样 |
 | T4.x 内容 / CMS | 校验器、格式化、权限 helper | Admin API | 发布后学生端拉取（关键流） |
 | T5.x 收口 | 与缺陷修复同步补回归单测 | 安全敏感 API | **T5.2 全链路 100% 通过** |

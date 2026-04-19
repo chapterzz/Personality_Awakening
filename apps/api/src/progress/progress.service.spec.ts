@@ -75,3 +75,30 @@ describe('ProgressService.putForGuest', () => {
     );
   });
 });
+
+describe('ProgressService.deleteForGuest', () => {
+  it('会话已绑定 user_id 时抛 ForbiddenException', async () => {
+    const deleteMock = jest.fn();
+    const prisma = {
+      temporarySession: {
+        findUnique: jest.fn().mockResolvedValue({
+          sessionId: 's1',
+          userId: '00000000-0000-0000-0000-000000000001',
+          progressData: {},
+          progressRevision: 1,
+          updatedAt: new Date(),
+          expiresAt: new Date(),
+        }),
+        delete: deleteMock,
+      },
+    } as unknown as PrismaService;
+
+    const moduleRef = await Test.createTestingModule({
+      providers: [ProgressService, { provide: PrismaService, useValue: prisma }],
+    }).compile();
+
+    const service = moduleRef.get(ProgressService);
+    await expect(service.deleteForGuest('s1')).rejects.toBeInstanceOf(ForbiddenException);
+    expect(deleteMock).not.toHaveBeenCalled();
+  });
+});

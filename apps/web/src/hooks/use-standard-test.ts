@@ -11,6 +11,7 @@ import {
   applyStandardAnswer,
   createInitialStandardProgress,
   shouldTriggerStandardAutosave,
+  type AvgProgressDataV1,
   type StandardProgressDataV1,
 } from '@/lib/progress-data';
 import {
@@ -20,9 +21,11 @@ import {
   ProgressRevisionConflictError,
   putProgress,
 } from '@/lib/progress-api';
+import { DEMO_AVG_SCRIPT } from '@/data/avg-demo-script';
 import type { DemoQuestion, DemoStandardConfig } from '@/data/standard-demo-questionnaire';
+import { isAvgProgressAtEndForScript } from '@/lib/avg-script';
 
-export type StandardTestPhase = 'loading' | 'ready' | 'error';
+export type StandardTestPhase = 'loading' | 'ready' | 'error' | 'wrong_mode';
 
 export type UseStandardTestResult = {
   phase: StandardTestPhase;
@@ -85,10 +88,106 @@ export function useStandardTest(config: DemoStandardConfig): UseStandardTestResu
           sessionId: sid ?? undefined,
         });
         if (cancelled) return;
-        setRevision(snap.progress_revision);
-        setProgressData(snap.progress_data);
-        setConflictNotice(false);
-        setPhase('ready');
+
+        if (snap.progress_data.mode === 'STANDARD') {
+          setRevision(snap.progress_revision);
+          setProgressData(snap.progress_data);
+          setConflictNotice(false);
+          setPhase('ready');
+          return;
+        }
+
+        if (snap.progress_data.mode === 'AVG') {
+          const avgSnap = snap.progress_data as AvgProgressDataV1;
+          if (isAvgProgressAtEndForScript(DEMO_AVG_SCRIPT, avgSnap)) {
+            const authPut = {
+              accessToken: token,
+              sessionId: token ? undefined : (sid ?? undefined),
+            };
+            const initial = createInitialStandardProgress(orderedIds, config.questionnaireId);
+            try {
+              const out = await putProgress(
+                { progress_data: initial, if_match_revision: snap.progress_revision },
+                authPut,
+              );
+              if (cancelled) return;
+              if (out.progress_data.mode !== 'STANDARD') {
+                setPhase('wrong_mode');
+                return;
+              }
+              setRevision(out.progress_revision);
+              setProgressData(out.progress_data);
+              setConflictNotice(false);
+              setPhase('ready');
+              return;
+            } catch (e) {
+              if (cancelled) return;
+              if (e instanceof ProgressRevisionConflictError) {
+                const p = e.payload.progress_data;
+                if (p.mode === 'STANDARD') {
+                  setRevision(e.payload.progress_revision);
+                  setProgressData(p);
+                  setConflictNotice(true);
+                  setPhase('ready');
+                  return;
+                }
+                if (
+                  p.mode === 'AVG' &&
+                  isAvgProgressAtEndForScript(DEMO_AVG_SCRIPT, p as AvgProgressDataV1)
+                ) {
+                  try {
+                    const out2 = await putProgress(
+                      { progress_data: initial, if_match_revision: e.payload.progress_revision },
+                      authPut,
+                    );
+                    if (cancelled) return;
+                    if (out2.progress_data.mode === 'STANDARD') {
+                      setRevision(out2.progress_revision);
+                      setProgressData(out2.progress_data);
+                      setConflictNotice(true);
+                      setPhase('ready');
+                      return;
+                    }
+                  } catch (e2) {
+                    if (cancelled) return;
+                    if (e2 instanceof ProgressRevisionConflictError) {
+                      const p2 = e2.payload.progress_data;
+                      if (p2.mode === 'STANDARD') {
+                        setRevision(e2.payload.progress_revision);
+                        setProgressData(p2);
+                        setConflictNotice(true);
+                        setPhase('ready');
+                        return;
+                      }
+                    }
+                    const msg2 =
+                      e2 instanceof ProgressHttpError
+                        ? `请求失败（HTTP ${e2.status}）`
+                        : e2 instanceof Error
+                          ? e2.message
+                          : 'transition_failed';
+                    setLoadError(msg2);
+                    setPhase('error');
+                    return;
+                  }
+                }
+              }
+              const msg =
+                e instanceof ProgressHttpError
+                  ? `请求失败（HTTP ${e.status}）`
+                  : e instanceof Error
+                    ? e.message
+                    : 'transition_failed';
+              setLoadError(msg);
+              setPhase('error');
+              return;
+            }
+          }
+          setPhase('wrong_mode');
+          return;
+        }
+
+        setPhase('wrong_mode');
       } catch (e) {
         if (cancelled) return;
         if (e instanceof ProgressNotFoundError) {
@@ -174,10 +273,23 @@ export function useStandardTest(config: DemoStandardConfig): UseStandardTestResu
       try {
         const out = await persist(next, revision);
         setRevision(out.progress_revision);
+        if (out.progress_data.mode !== 'STANDARD') {
+          setProgressData(null);
+          setPhase('wrong_mode');
+          setSaveError(null);
+          return;
+        }
         setProgressData(out.progress_data);
         setSaveError(null);
       } catch (e) {
         if (e instanceof ProgressRevisionConflictError) {
+          if (e.payload.progress_data.mode !== 'STANDARD') {
+            setProgressData(null);
+            setRevision(e.payload.progress_revision);
+            setPhase('wrong_mode');
+            setSaveError(null);
+            return;
+          }
           setProgressData(e.payload.progress_data);
           setRevision(e.payload.progress_revision);
           setConflictNotice(true);

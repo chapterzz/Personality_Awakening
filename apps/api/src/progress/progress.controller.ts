@@ -1,10 +1,11 @@
 /**
- * 测评进行中进度 HTTP 接口：GET/PUT `/progress`（游客 session_id 或 JWT）。
+ * 测评进行中进度 HTTP 接口：GET/PUT/DELETE `/progress`（游客 session_id 或 JWT）。
  */
 import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Put,
   Query,
@@ -87,5 +88,35 @@ export class ProgressController {
       });
     }
     return this.progressService.putForGuest(sessionId.trim(), body);
+  }
+
+  @Delete()
+  @ApiOperation({ summary: '删除进行中测评进度（清空 TemporarySession）' })
+  @ApiQuery({
+    name: 'session_id',
+    required: false,
+    description: '游客必填；注册用户请用 Authorize 中的 Bearer，且勿传本参数',
+  })
+  async remove(@Query('session_id') sessionId: string | undefined, @Req() req: Request) {
+    const authorization = req.headers.authorization;
+    if (authorization?.toLowerCase().startsWith('bearer ')) {
+      const userId = this.jwtUser.tryUserIdFromAuthHeader(authorization);
+      if (!userId) {
+        throw new UnauthorizedException({
+          success: false,
+          data: null,
+          message: 'invalid_token',
+        });
+      }
+      return this.progressService.deleteForUser(userId);
+    }
+    if (!sessionId || sessionId.trim() === '') {
+      throw new BadRequestException({
+        success: false,
+        data: null,
+        message: 'session_id_required_without_bearer',
+      });
+    }
+    return this.progressService.deleteForGuest(sessionId.trim());
   }
 }

@@ -23,6 +23,20 @@ export function StandardTestClient() {
     );
   }
 
+  if (t.phase === 'wrong_mode') {
+    return (
+      <div className="space-y-4 rounded-xl border border-amber-500/40 bg-amber-500/5 p-6">
+        <p className="font-medium text-foreground">当前会话为 AVG 剧情进度</p>
+        <p className="text-sm text-muted-foreground">
+          进行中的 AVG 与标准测评共用同一条会话。请先继续或完成 AVG，再体验标准测评。
+        </p>
+        <Link className={cn(buttonVariants())} href="/test/avg">
+          前往 AVG 演示
+        </Link>
+      </div>
+    );
+  }
+
   if (t.phase === 'error') {
     return (
       <div className="space-y-4 rounded-xl border border-destructive/30 bg-destructive/5 p-6">

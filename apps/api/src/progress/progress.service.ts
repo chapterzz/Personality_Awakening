@@ -257,4 +257,38 @@ export class ProgressService {
     }
     this.revisionConflict(fresh);
   }
+
+  /** 删除进行中会话行；游客仅能删 `user_id` 为空的记录（与 GET 权限一致）。 */
+  async deleteForGuest(sessionId: string) {
+    const row = await this.prisma.temporarySession.findUnique({ where: { sessionId } });
+    if (!row) {
+      throw new NotFoundException({
+        success: false,
+        data: null,
+        message: 'progress_not_found',
+      });
+    }
+    if (row.userId !== null) {
+      throw new ForbiddenException({
+        success: false,
+        data: null,
+        message: 'session_requires_login',
+      });
+    }
+    await this.prisma.temporarySession.delete({ where: { sessionId } });
+    return this.ok(null);
+  }
+
+  async deleteForUser(userId: string) {
+    const row = await this.prisma.temporarySession.findUnique({ where: { userId } });
+    if (!row) {
+      throw new NotFoundException({
+        success: false,
+        data: null,
+        message: 'progress_not_found',
+      });
+    }
+    await this.prisma.temporarySession.delete({ where: { userId } });
+    return this.ok(null);
+  }
 }

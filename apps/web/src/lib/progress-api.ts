@@ -1,25 +1,25 @@
 /**
- * 浏览器端调用 Nest `/progress`：统一解析 `{ success, data, message }`，处理 409 乐观锁冲突体。
+ * 浏览器端调用 Nest `/progress`：统一解析 `{ success, data, message }`，处理 409 乐观锁冲突体；支持 DELETE 清空进行中会话。
  */
 import { getBrowserApiBaseUrl } from './api-base';
-import type { StandardProgressDataV1 } from './progress-data';
+import type { ProgressDataV1 } from './progress-data';
 
 export type ProgressSnapshot = {
   session_id: string;
   user_id: string | null;
-  progress_data: StandardProgressDataV1;
+  progress_data: ProgressDataV1;
   progress_revision: number;
   updated_at: string;
   expires_at: string;
 };
 
 export type PutProgressBody = {
-  progress_data: StandardProgressDataV1;
+  progress_data: ProgressDataV1;
   if_match_revision: number;
 };
 
 export type ProgressConflictPayload = {
-  progress_data: StandardProgressDataV1;
+  progress_data: ProgressDataV1;
   progress_revision: number;
   updated_at: string;
 };
@@ -39,7 +39,7 @@ export function parseProgressSnapshot(raw: unknown): ProgressSnapshot {
   if (!isRecord(raw)) {
     throw new Error('invalid progress snapshot');
   }
-  const progress_data = raw.progress_data as StandardProgressDataV1;
+  const progress_data = raw.progress_data as ProgressDataV1;
   if (
     typeof raw.session_id !== 'string' ||
     (raw.user_id !== null && typeof raw.user_id !== 'string') ||
@@ -63,7 +63,7 @@ export function parseConflictPayload(raw: unknown): ProgressConflictPayload {
   if (!isRecord(raw)) {
     throw new Error('invalid conflict payload');
   }
-  const progress_data = raw.progress_data as StandardProgressDataV1;
+  const progress_data = raw.progress_data as ProgressDataV1;
   if (typeof raw.progress_revision !== 'number' || typeof raw.updated_at !== 'string') {
     throw new Error('invalid conflict payload fields');
   }
@@ -177,4 +177,40 @@ export async function putProgress(
     throw new Error('unexpected put progress response');
   }
   return parseProgressSnapshot(json.data);
+}
+
+/** 删除服务端进行中进度；无记录时抛 `ProgressNotFoundError`（404）。 */
+export async function deleteProgress(params: {
+  sessionId?: string;
+  accessToken?: string | null;
+}): Promise<void> {
+  const base = getBrowserApiBaseUrl();
+  const url = new URL(`${base.replace(/\/$/, '')}/progress`);
+  if (params.accessToken) {
+    // Bearer only
+  } else if (params.sessionId) {
+    url.searchParams.set('session_id', params.sessionId);
+  } else {
+    throw new Error('sessionId or accessToken required');
+  }
+
+  const res = await fetch(url.toString(), {
+    method: 'DELETE',
+    headers: {
+      ...(params.accessToken ? { Authorization: `Bearer ${params.accessToken}` } : {}),
+    },
+    credentials: 'omit',
+  });
+
+  const json = await parseJson(res);
+
+  if (res.status === 404) {
+    throw new ProgressNotFoundError();
+  }
+  if (!res.ok) {
+    throw new ProgressHttpError(res.status, json);
+  }
+  if (!isRecord(json) || json.success !== true) {
+    throw new Error('unexpected delete progress response');
+  }
 }

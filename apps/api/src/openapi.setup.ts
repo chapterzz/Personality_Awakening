@@ -5,8 +5,8 @@ import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 
 /**
- * `GET/PUT /progress` 支持游客（无 Bearer + session_id）或注册用户（Bearer）。
- * OpenAPI 须为这两条 operation 声明 security，Swagger UI 才会把「Authorize」里的 JWT 打进请求；
+ * `GET/PUT/DELETE /progress` 支持游客（无 Bearer + session_id）或注册用户（Bearer）。
+ * OpenAPI 须为这些 operation 声明 security，Swagger UI 才会把「Authorize」里的 JWT 打进请求；
  * 使用 `[{}, { 'access-token': [] }]`：满足其一即可（空对象 = 可不鉴权，PRD 游客路径）。
  */
 function patchProgressOptionalBearer(document: OpenAPIObject): void {
@@ -18,7 +18,7 @@ function patchProgressOptionalBearer(document: OpenAPIObject): void {
     {},
     { 'access-token': [] },
   ];
-  for (const method of ['get', 'put'] as const) {
+  for (const method of ['get', 'put', 'delete'] as const) {
     const op = progress[method];
     if (op) {
       op.security = optionalBearer;

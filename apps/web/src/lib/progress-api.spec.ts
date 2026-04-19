@@ -1,9 +1,9 @@
 /**
- * `progress-api` 响应解析单测：成功快照与 409 冲突体。
+ * `progress-api` 响应解析单测：成功快照与 409 冲突体；DELETE 请求形态。
  */
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
-import { parseConflictPayload, parseProgressSnapshot } from './progress-api';
+import { deleteProgress, parseConflictPayload, parseProgressSnapshot } from './progress-api';
 import type { StandardProgressDataV1 } from './progress-data';
 
 const sampleProgress: StandardProgressDataV1 = {
@@ -43,5 +43,25 @@ describe('parseConflictPayload', () => {
     });
     expect(c.progress_revision).toBe(7);
     expect(c.progress_data.mode).toBe('STANDARD');
+  });
+});
+
+describe('deleteProgress', () => {
+  it('使用 DELETE 并携带 session_id', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: async () => JSON.stringify({ success: true, data: null, message: null }),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    await deleteProgress({ sessionId: 'sid-abc' });
+
+    const calledUrl = fetchMock.mock.calls[0][0] as string;
+    expect(calledUrl).toContain('/progress');
+    expect(calledUrl).toContain('session_id=sid-abc');
+    expect(fetchMock.mock.calls[0][1]).toMatchObject({ method: 'DELETE' });
+
+    vi.unstubAllGlobals();
   });
 });

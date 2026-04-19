@@ -1,5 +1,6 @@
 /**
  * 站点首页：展示品牌与后续测评入口占位（T1.6 壳层验收）。
+ * 外层与 `/test/standard` 等页一致：`mx-auto max-w-2xl`，避免主栏全宽时内容挤在视口左上角。
  */
 import Link from 'next/link';
 
@@ -8,7 +9,7 @@ import { cn } from '@/lib/utils';
 
 export default function Home() {
   return (
-    <div className="flex flex-col gap-8">
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-8">
       <div className="space-y-3">
         <p className="text-sm font-medium text-muted-foreground">Personality Planet · Awakening</p>
         <h1 className="text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
@@ -21,6 +22,9 @@ export default function Home() {
       <div className="flex flex-wrap gap-3">
         <Link className={cn(buttonVariants())} href="/test/standard">
           标准测评（演示）
+        </Link>
+        <Link className={cn(buttonVariants({ variant: 'secondary' }))} href="/test/avg">
+          AVG 剧情（演示）
         </Link>
         <Link
           className={cn(buttonVariants({ variant: 'outline' }))}
