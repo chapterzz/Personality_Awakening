@@ -19,8 +19,8 @@ export default function Home() {
         </p>
       </div>
       <div className="flex flex-wrap gap-3">
-        <Link className={cn(buttonVariants())} href="/">
-          进入首页
+        <Link className={cn(buttonVariants())} href="/test/standard">
+          标准测评（演示）
         </Link>
         <Link
           className={cn(buttonVariants({ variant: 'outline' }))}
