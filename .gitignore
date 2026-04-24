@@ -26,8 +26,7 @@ Thumbs.db
 npm-debug.log*
 pnpm-debug.log*
 
-# 每日工作日志（仅本地 ~/work-logs 或本目录；不入库）
-/work-logs/
+# 每日工作日志（纳入仓库管理）
 
 # Prisma
 prisma/*.db
