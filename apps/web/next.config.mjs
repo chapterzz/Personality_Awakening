@@ -8,6 +8,19 @@ const nextConfig = {
     if (dev && !isServer && config.output) {
       config.output.chunkLoadTimeout = 300000;
     }
+    if (dev) {
+      config.watchOptions = {
+        ...(config.watchOptions ?? {}),
+        ignored: [
+          ...(Array.isArray(config.watchOptions?.ignored) ? config.watchOptions.ignored : []),
+          // Windows: watchpack/webpack 的 ignored 在 Next 校验下必须是字符串 glob
+          '**/System Volume Information/**',
+          '**\\\\System Volume Information\\\\**',
+          'D:/System Volume Information/**',
+          'D:\\\\System Volume Information\\\\**',
+        ],
+      };
+    }
     return config;
   },
 };

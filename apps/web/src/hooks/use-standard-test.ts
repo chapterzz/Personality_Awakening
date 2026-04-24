@@ -6,15 +6,17 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { getAccessToken } from '@/lib/auth-token';
-import { getOrCreateGuestSessionId } from '@/lib/guest-session-id';
+import { clearGuestSessionId, getOrCreateGuestSessionId } from '@/lib/guest-session-id';
 import {
   applyStandardAnswer,
   createInitialStandardProgress,
+  isStandardAssessmentComplete,
   shouldTriggerStandardAutosave,
   type AvgProgressDataV1,
   type StandardProgressDataV1,
 } from '@/lib/progress-data';
 import {
+  deleteProgress,
   getProgress,
   ProgressHttpError,
   ProgressNotFoundError,
@@ -90,8 +92,40 @@ export function useStandardTest(config: DemoStandardConfig): UseStandardTestResu
         if (cancelled) return;
 
         if (snap.progress_data.mode === 'STANDARD') {
+          const std = snap.progress_data;
+          if (isStandardAssessmentComplete(std)) {
+            /**
+             * 演示体验：本卷已答完时，从首页再次进入标准测评应能重新开始。
+             * 做法：删除进行中 `TemporarySession`；游客再清本地 `session_id`，下次 GET 走 404 分支写入全新初值。
+             */
+            try {
+              await deleteProgress({
+                accessToken: token,
+                sessionId: token ? undefined : (sid ?? undefined),
+              });
+            } catch (e) {
+              if (cancelled) return;
+              if (!(e instanceof ProgressNotFoundError)) {
+                const msg =
+                  e instanceof ProgressHttpError
+                    ? `请求失败（HTTP ${e.status}）`
+                    : e instanceof Error
+                      ? e.message
+                      : 'delete_progress_failed';
+                setLoadError(msg);
+                setPhase('error');
+                return;
+              }
+            }
+            if (cancelled) return;
+            if (!token) {
+              clearGuestSessionId();
+            }
+            setLoadKey((k) => k + 1);
+            return;
+          }
           setRevision(snap.progress_revision);
-          setProgressData(snap.progress_data);
+          setProgressData(std);
           setConflictNotice(false);
           setPhase('ready');
           return;

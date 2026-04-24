@@ -3,17 +3,33 @@
  */
 'use client';
 
+import { SpriteBubble } from '@/components/sprite/sprite-bubble';
 import { StandardOptionButtons } from '@/components/standard-test/standard-option-buttons';
 import { StandardQuestionCard } from '@/components/standard-test/standard-question-card';
 import { StandardTestProgressBar } from '@/components/standard-test/standard-test-progress-bar';
 import { Button, buttonVariants } from '@/components/ui/button';
+import { getHesitationLine, getMutexLine } from '@/data/sprite-lines';
 import { DEMO_STANDARD_CONFIG } from '@/data/standard-demo-questionnaire';
+import { useSpriteInteraction } from '@/hooks/use-sprite-interaction';
 import { useStandardTest } from '@/hooks/use-standard-test';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { useEffect } from 'react';
 
 export function StandardTestClient() {
   const t = useStandardTest(DEMO_STANDARD_CONFIG);
+  const sprite = useSpriteInteraction({
+    getHesitationLine,
+    getMutexLine,
+  });
+
+  const choiceActive =
+    t.phase === 'ready' && !t.isComplete && Boolean(t.currentQuestion) && !t.saving;
+  const choiceContextId = t.currentQuestion?.id ?? 'standard-none';
+
+  useEffect(() => {
+    sprite.setChoiceContext({ contextId: choiceContextId, active: choiceActive });
+  }, [choiceActive, choiceContextId, sprite.setChoiceContext]);
 
   if (t.phase === 'loading') {
     return (
@@ -57,6 +73,12 @@ export function StandardTestClient() {
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
+      <div className="pointer-events-none fixed bottom-6 right-6 z-50 w-[min(92vw,420px)]">
+        {sprite.prompt && (
+          <SpriteBubble text={sprite.prompt.text} onClose={() => sprite.dismissPrompt()} />
+        )}
+      </div>
+
       <div className="space-y-1">
         <p className="text-sm font-medium text-muted-foreground">标准模式 · 演示问卷</p>
         <h1 className="text-2xl font-bold tracking-tight text-foreground">性格倾向小测</h1>
@@ -111,7 +133,16 @@ export function StandardTestClient() {
           <StandardOptionButtons
             options={t.currentQuestion.options}
             disabled={t.saving}
-            onSelect={(id) => void t.selectOption(id)}
+            onSelect={(id) => {
+              const opt = t.currentQuestion?.options.find((o) => o.id === id);
+              if (opt) {
+                sprite.recordChoice(
+                  { dimension: opt.dimension, side: opt.side, weight: opt.weight },
+                  t.currentQuestion.id,
+                );
+              }
+              void t.selectOption(id);
+            }}
           />
         </StandardQuestionCard>
       )}

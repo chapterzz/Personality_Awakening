@@ -7,15 +7,31 @@ import { AvgDialogueBubbles } from '@/components/avg-test/avg-dialogue-bubbles';
 import { AvgOptionButtons } from '@/components/avg-test/avg-option-buttons';
 import { AvgStoryProgressBar } from '@/components/avg-test/avg-story-progress-bar';
 import { AvgStoryStage } from '@/components/avg-test/avg-story-stage';
+import { SpriteBubble } from '@/components/sprite/sprite-bubble';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { DEMO_AVG_SCRIPT } from '@/data/avg-demo-script';
+import { getHesitationLine, getMutexLine } from '@/data/sprite-lines';
 import { useAvgTest } from '@/hooks/use-avg-test';
+import { useSpriteInteraction } from '@/hooks/use-sprite-interaction';
 import { getBackgroundClassName } from '@/lib/avg-script';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { useEffect } from 'react';
 
 export function AvgTestClient() {
   const t = useAvgTest(DEMO_AVG_SCRIPT);
+  const sprite = useSpriteInteraction({
+    getHesitationLine,
+    getMutexLine,
+  });
+
+  const isChoiceNode = Boolean(t.currentNode && !t.isComplete && t.currentNode.kind === 'choice');
+  const choiceActive = t.phase === 'ready' && isChoiceNode && !t.saving;
+  const choiceContextId = t.progressData?.avg.node_id ?? 'avg-none';
+
+  useEffect(() => {
+    sprite.setChoiceContext({ contextId: choiceContextId, active: choiceActive });
+  }, [choiceActive, choiceContextId, sprite.setChoiceContext]);
 
   if (t.phase === 'loading') {
     return (
@@ -72,6 +88,12 @@ export function AvgTestClient() {
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
+      <div className="pointer-events-none fixed bottom-6 right-6 z-50 w-[min(92vw,420px)]">
+        {sprite.prompt && (
+          <SpriteBubble text={sprite.prompt.text} onClose={() => sprite.dismissPrompt()} />
+        )}
+      </div>
+
       <div className="space-y-1">
         <p className="text-sm font-medium text-muted-foreground">AVG 模式 · 演示剧情</p>
         <h1 className="text-2xl font-bold tracking-tight text-foreground">星港夜话</h1>
@@ -141,7 +163,19 @@ export function AvgTestClient() {
               <AvgOptionButtons
                 options={t.currentNode.options}
                 disabled={t.saving}
-                onSelect={(id) => void t.selectOption(id)}
+                onSelect={(id) => {
+                  const opt =
+                    t.currentNode?.kind === 'choice'
+                      ? t.currentNode.options.find((o) => o.id === id)
+                      : undefined;
+                  if (opt?.dimension != null && opt.side != null && opt.weight != null) {
+                    sprite.recordChoice(
+                      { dimension: opt.dimension, side: opt.side, weight: opt.weight },
+                      t.progressData?.avg.node_id,
+                    );
+                  }
+                  void t.selectOption(id);
+                }}
               />
             </div>
           </div>

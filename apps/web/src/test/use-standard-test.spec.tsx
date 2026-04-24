@@ -11,15 +11,22 @@ import {
   createInitialAvgProgress,
   createInitialStandardProgress,
   type AvgProgressDataV1,
+  type StandardProgressDataV1,
 } from '@/lib/progress-data';
-import type { ProgressSnapshot } from '@/lib/progress-api';
+import { ProgressNotFoundError, type ProgressSnapshot } from '@/lib/progress-api';
 
 vi.mock('@/lib/auth-token', () => ({
   getAccessToken: () => null,
 }));
 
+const { clearGuestSessionIdMock } = vi.hoisted(() => ({
+  clearGuestSessionIdMock: vi.fn(),
+}));
 vi.mock('@/lib/guest-session-id', () => ({
   getOrCreateGuestSessionId: () => 'guest-test-sid',
+  clearGuestSessionId: () => {
+    clearGuestSessionIdMock();
+  },
 }));
 
 vi.mock('@/lib/progress-api', async (importOriginal) => {
@@ -28,6 +35,7 @@ vi.mock('@/lib/progress-api', async (importOriginal) => {
     ...actual,
     getProgress: vi.fn(),
     putProgress: vi.fn(),
+    deleteProgress: vi.fn(),
   };
 });
 
@@ -42,16 +50,40 @@ const MIN_STANDARD_CONFIG: DemoStandardConfig = {
       id: 'q01',
       text: 'Q1?',
       options: [
-        { id: 'q01_A', label: 'A' },
-        { id: 'q01_B', label: 'B' },
+        {
+          id: 'q01_A',
+          label: 'A',
+          dimension: 'EI' as const,
+          side: 'E' as const,
+          weight: 2 as const,
+        },
+        {
+          id: 'q01_B',
+          label: 'B',
+          dimension: 'EI' as const,
+          side: 'I' as const,
+          weight: 2 as const,
+        },
       ],
     },
     q02: {
       id: 'q02',
       text: 'Q2?',
       options: [
-        { id: 'q02_A', label: 'A' },
-        { id: 'q02_B', label: 'B' },
+        {
+          id: 'q02_A',
+          label: 'A',
+          dimension: 'SN' as const,
+          side: 'S' as const,
+          weight: 2 as const,
+        },
+        {
+          id: 'q02_B',
+          label: 'B',
+          dimension: 'SN' as const,
+          side: 'N' as const,
+          weight: 2 as const,
+        },
       ],
     },
   },
@@ -92,6 +124,8 @@ describe('useStandardTest', () => {
   beforeEach(() => {
     vi.mocked(progressApi.getProgress).mockReset();
     vi.mocked(progressApi.putProgress).mockReset();
+    vi.mocked(progressApi.deleteProgress).mockReset();
+    clearGuestSessionIdMock.mockReset();
   });
 
   it('GET 为 AVG 收束态时调用 putProgress 写入标准初值并进入 ready', async () => {
@@ -148,5 +182,39 @@ describe('useStandardTest', () => {
       expect(screen.getByTestId('phase')).toHaveTextContent('ready');
     });
     expect(progressApi.putProgress).not.toHaveBeenCalled();
+  });
+
+  it('GET 为 STANDARD 且本卷已答完时先 delete、清游客 id，再 404 进入全新初值', async () => {
+    const stdComplete: StandardProgressDataV1 = {
+      schema_version: 1,
+      mode: 'STANDARD',
+      questionnaire_id: 'demo-standard-v1',
+      standard: {
+        current_index: 2,
+        ordered_question_ids: ['q01', 'q02'],
+        answers: { q01: 'q01_A', q02: 'q02_B' },
+        answered_count: 2,
+      },
+    };
+    vi.mocked(progressApi.getProgress)
+      .mockResolvedValueOnce({
+        ...avgClosingSnapshot,
+        progress_data: stdComplete,
+        progress_revision: 5,
+      })
+      .mockRejectedValueOnce(new ProgressNotFoundError());
+    vi.mocked(progressApi.deleteProgress).mockResolvedValue(undefined);
+
+    render(<PhaseProbe />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('phase')).toHaveTextContent('ready');
+    });
+    expect(progressApi.deleteProgress).toHaveBeenCalledWith({
+      accessToken: null,
+      sessionId: 'guest-test-sid',
+    });
+    expect(clearGuestSessionIdMock).toHaveBeenCalled();
+    expect(progressApi.getProgress).toHaveBeenCalledTimes(2);
   });
 });

@@ -25,6 +25,13 @@ export type AvgChoiceOption = {
   id: string;
   label: string;
   next_id: string;
+  /**
+   * T2.3 互斥检测用的“维度信号”（MVP 仅前端演示数据）。
+   * 说明：正式版可由 CMS/T4.7 或题库服务下发配置；T2.4 计分服务不依赖本字段。
+   */
+  dimension?: AvgChapterTag;
+  side?: 'E' | 'I' | 'S' | 'N' | 'T' | 'F' | 'J' | 'P';
+  weight?: 1 | 2 | 3;
 };
 
 /** 选项分支节点 */
@@ -90,8 +97,22 @@ export const DEMO_AVG_SCRIPT: AvgScriptConfig = {
         },
       ],
       options: [
-        { id: 'opt_out', label: '更常约朋友、参加活动', next_id: 'path_e' },
-        { id: 'opt_in', label: '更常独处或小范围相处', next_id: 'path_i' },
+        {
+          id: 'opt_out',
+          label: '更常约朋友、参加活动',
+          next_id: 'path_e',
+          dimension: 'EI',
+          side: 'E',
+          weight: 2,
+        },
+        {
+          id: 'opt_in',
+          label: '更常独处或小范围相处',
+          next_id: 'path_i',
+          dimension: 'EI',
+          side: 'I',
+          weight: 2,
+        },
       ],
     },
     path_e: {
