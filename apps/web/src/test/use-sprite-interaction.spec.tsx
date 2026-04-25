@@ -17,7 +17,7 @@ function Probe(props: { ctxId: string; active: boolean }) {
   // 通过 props 驱动 context 变化（避免在 render 阶段触发 setState）
   useEffect(() => {
     t.setChoiceContext({ contextId: props.ctxId, active: props.active });
-  }, [props.active, props.ctxId, t.setChoiceContext]);
+  }, [props.active, props.ctxId, t]);
 
   return <p data-testid="prompt">{t.prompt?.text ?? ''}</p>;
 }
@@ -33,7 +33,7 @@ function MutexProbe() {
 
   useEffect(() => {
     t.setChoiceContext({ contextId: 'q01', active: true });
-  }, [t.setChoiceContext]);
+  }, [t]);
 
   return (
     <div>

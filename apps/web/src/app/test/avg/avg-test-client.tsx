@@ -31,7 +31,7 @@ export function AvgTestClient() {
 
   useEffect(() => {
     sprite.setChoiceContext({ contextId: choiceContextId, active: choiceActive });
-  }, [choiceActive, choiceContextId, sprite.setChoiceContext]);
+  }, [choiceActive, choiceContextId, sprite]);
 
   if (t.phase === 'loading') {
     return (

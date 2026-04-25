@@ -10,6 +10,9 @@ import { setupOpenApi } from '../src/openapi.setup';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { JwtUserService } from '../src/auth/jwt-user.service';
 
+// Windows / 首次冷启动下 Nest + Prisma 初始化可能超过 Jest 默认 5s。
+jest.setTimeout(30_000);
+
 const standardBody = (revision: number) => ({
   progress_data: {
     schema_version: 1,

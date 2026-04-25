@@ -23,13 +23,13 @@ export function StandardTestClient() {
     getMutexLine,
   });
 
-  const choiceActive =
-    t.phase === 'ready' && !t.isComplete && Boolean(t.currentQuestion) && !t.saving;
-  const choiceContextId = t.currentQuestion?.id ?? 'standard-none';
+  const q = t.currentQuestion;
+  const choiceActive = t.phase === 'ready' && !t.isComplete && Boolean(q) && !t.saving;
+  const choiceContextId = q?.id ?? 'standard-none';
 
   useEffect(() => {
     sprite.setChoiceContext({ contextId: choiceContextId, active: choiceActive });
-  }, [choiceActive, choiceContextId, sprite.setChoiceContext]);
+  }, [choiceActive, choiceContextId, sprite]);
 
   if (t.phase === 'loading') {
     return (
@@ -125,20 +125,18 @@ export function StandardTestClient() {
         </div>
       )}
 
-      {!t.isComplete && t.currentQuestion && (
+      {!t.isComplete && q && (
         <StandardQuestionCard indexLabel={`第 ${displayNum} / ${t.totalQuestions} 题`}>
-          <p className="text-lg font-medium leading-relaxed text-foreground">
-            {t.currentQuestion.text}
-          </p>
+          <p className="text-lg font-medium leading-relaxed text-foreground">{q.text}</p>
           <StandardOptionButtons
-            options={t.currentQuestion.options}
+            options={q.options}
             disabled={t.saving}
             onSelect={(id) => {
-              const opt = t.currentQuestion?.options.find((o) => o.id === id);
+              const opt = q.options.find((o) => o.id === id);
               if (opt) {
                 sprite.recordChoice(
                   { dimension: opt.dimension, side: opt.side, weight: opt.weight },
-                  t.currentQuestion.id,
+                  q.id,
                 );
               }
               void t.selectOption(id);
@@ -147,7 +145,7 @@ export function StandardTestClient() {
         </StandardQuestionCard>
       )}
 
-      {!t.isComplete && !t.currentQuestion && (
+      {!t.isComplete && !q && (
         <p className="text-sm text-destructive">当前题目配置缺失，请刷新页面或联系管理员。</p>
       )}
 

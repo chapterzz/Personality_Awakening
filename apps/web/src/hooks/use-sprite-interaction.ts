@@ -11,7 +11,6 @@ import {
   HESITATION_MS,
   detectMutexTrigger,
   pruneHistory,
-  shouldPromptHesitation,
   type AnswerEvent,
   type OptionSignal,
 } from '@/lib/sprite-interaction';
