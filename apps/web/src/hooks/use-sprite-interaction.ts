@@ -92,8 +92,8 @@ export function useSpriteInteraction(
       const now = Date.now();
       choiceRef.current = { contextId: ctx.contextId, active: ctx.active, enteredAtMs: now };
 
-      // 上下文变化：清掉旧提示并重置计时
-      setPrompt(null);
+      // 上下文变化：重置“犹豫提示”并重新计时；互斥提示应允许跨题显示一段时间供用户看见。
+      setPrompt((prev) => (prev?.kind === 'hesitation' ? null : prev));
 
       if (!ctx.active) {
         clearTimer();
