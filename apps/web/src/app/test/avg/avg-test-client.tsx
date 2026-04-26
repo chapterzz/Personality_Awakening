@@ -14,16 +14,22 @@ import { getHesitationLine, getMutexLine } from '@/data/sprite-lines';
 import { useAvgTest } from '@/hooks/use-avg-test';
 import { useSpriteInteraction } from '@/hooks/use-sprite-interaction';
 import { getBackgroundClassName } from '@/lib/avg-script';
+import { buildAvgSignals, fetchMbtiReport, ReportScoringError } from '@/lib/report-scoring';
+import { saveReportSnapshot } from '@/lib/report-storage';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export function AvgTestClient() {
   const t = useAvgTest(DEMO_AVG_SCRIPT);
+  const router = useRouter();
   const sprite = useSpriteInteraction({
     getHesitationLine,
     getMutexLine,
   });
+  const [buildingReport, setBuildingReport] = useState(false);
+  const [reportError, setReportError] = useState<string | null>(null);
 
   const isChoiceNode = Boolean(t.currentNode && !t.isComplete && t.currentNode.kind === 'choice');
   const choiceActive = t.phase === 'ready' && isChoiceNode && !t.saving;
@@ -90,6 +96,30 @@ export function AvgTestClient() {
     ? getBackgroundClassName(DEMO_AVG_SCRIPT, t.currentNode.background_key)
     : getBackgroundClassName(DEMO_AVG_SCRIPT, 'night');
 
+  const handleBuildReport = async () => {
+    if (!t.progressData || t.progressData.mode !== 'AVG') return;
+    try {
+      setBuildingReport(true);
+      setReportError(null);
+      const signals = buildAvgSignals(t.progressData, DEMO_AVG_SCRIPT);
+      const result = await fetchMbtiReport({ mode: 'AVG', signals });
+      saveReportSnapshot({
+        mode: 'AVG',
+        result,
+        generated_at: new Date().toISOString(),
+      });
+      router.push('/report?mode=AVG');
+    } catch (error) {
+      if (error instanceof ReportScoringError) {
+        setReportError('生成报告失败，请稍后重试。');
+      } else {
+        setReportError('生成报告失败，请检查网络后重试。');
+      }
+    } finally {
+      setBuildingReport(false);
+    }
+  };
+
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
       <div>
@@ -147,12 +177,23 @@ export function AvgTestClient() {
             <AvgDialogueBubbles lines={t.currentNode.lines} />
             <p className="mt-6 text-center text-sm font-medium text-foreground">本段剧情已完成</p>
             <p className="mt-2 text-center text-sm text-muted-foreground">
-              你可以重新开始一轮测试。重新开始将丢弃当前测试结果。
+              你可以查看结果报告，或重新开始一轮测试。
             </p>
+            {reportError && (
+              <p className="mt-2 text-center text-sm text-destructive">{reportError}</p>
+            )}
             <div className="mt-6 flex justify-center">
               <Button
                 type="button"
-                disabled={t.saving}
+                disabled={buildingReport || t.saving}
+                onClick={() => void handleBuildReport()}
+              >
+                {buildingReport ? '正在生成报告…' : '查看结果报告'}
+              </Button>
+              <span className="w-3" />
+              <Button
+                type="button"
+                disabled={buildingReport || t.saving}
                 onClick={() => {
                   const ok = window.confirm('重新开始将丢弃当前测试结果，确定重新开始吗？');
                   if (ok) {
