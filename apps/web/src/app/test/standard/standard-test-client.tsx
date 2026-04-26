@@ -33,20 +33,40 @@ export function StandardTestClient() {
 
   if (t.phase === 'loading') {
     return (
-      <div className="flex min-h-[40vh] items-center justify-center text-muted-foreground">
-        加载进度…
+      <div className="mx-auto flex max-w-2xl flex-col gap-4">
+        <div>
+          <Link
+            className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'inline-flex')}
+            href="/"
+          >
+            返回首页
+          </Link>
+        </div>
+        <div className="flex min-h-[40vh] items-center justify-center text-muted-foreground">
+          加载进度…
+        </div>
       </div>
     );
   }
 
   if (t.phase === 'error') {
     return (
-      <div className="space-y-4 rounded-xl border border-destructive/30 bg-destructive/5 p-6">
-        <p className="font-medium text-destructive">无法加载测评进度</p>
-        <p className="text-sm text-muted-foreground">{t.loadError}</p>
-        <Button type="button" onClick={() => t.reload()}>
-          重试
-        </Button>
+      <div className="mx-auto flex max-w-2xl flex-col gap-4">
+        <div>
+          <Link
+            className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'inline-flex')}
+            href="/"
+          >
+            返回首页
+          </Link>
+        </div>
+        <div className="space-y-4 rounded-xl border border-destructive/30 bg-destructive/5 p-6">
+          <p className="font-medium text-destructive">无法加载测评进度</p>
+          <p className="text-sm text-muted-foreground">{t.loadError}</p>
+          <Button type="button" onClick={() => t.reload()}>
+            重试
+          </Button>
+        </div>
       </div>
     );
   }
@@ -59,6 +79,14 @@ export function StandardTestClient() {
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
+      <div>
+        <Link
+          className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'inline-flex')}
+          href="/"
+        >
+          返回首页
+        </Link>
+      </div>
       <div className="pointer-events-none fixed bottom-6 right-6 z-50 w-[min(92vw,420px)]">
         {sprite.prompt && (
           <SpriteBubble text={sprite.prompt.text} onClose={() => sprite.dismissPrompt()} />
