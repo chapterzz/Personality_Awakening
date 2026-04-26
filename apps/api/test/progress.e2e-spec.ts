@@ -25,7 +25,7 @@ const standardBody = (revision: number) => ({
   if_match_revision: revision,
 });
 
-/** 与演示 AVG 收束态一致：用于验证同一会话可再 PUT 切到 STANDARD（学生端迁移逻辑的后端契约）。 */
+/** 与演示 AVG 收束态一致：用于验证同一会话可独立创建 STANDARD 进度（mode 隔离）。 */
 const avgAtClosingBody = (revision: number) => ({
   progress_data: {
     schema_version: 1,
@@ -82,7 +82,7 @@ describe('Progress API (T1.4)', () => {
 
   afterEach(async () => {
     await prisma.temporarySession.deleteMany({
-      where: { sessionId: { startsWith: 'e2e-' } },
+      where: { guestSessionId: { startsWith: 'e2e-' } },
     });
     await prisma.user.deleteMany({
       where: { nickname: { startsWith: 'e2e-user-' } },
@@ -92,16 +92,44 @@ describe('Progress API (T1.4)', () => {
   it('GET /progress 游客 404', async () => {
     await request(app.getHttpServer())
       .get('/progress')
-      .query({ session_id: 'e2e-missing-' + randomUUID() })
+      .query({ mode: 'STANDARD', session_id: 'e2e-missing-' + randomUUID() })
       .expect(404);
   });
 
-  it('游客：AVG 收束快照 PUT 后可再 PUT 切到 STANDARD（乐观锁衔接）', async () => {
+  it('mode 缺失/非法时返回 400', async () => {
+    const sessionId = 'e2e-guest-' + randomUUID();
+    await request(app.getHttpServer())
+      .get('/progress')
+      .query({ session_id: sessionId })
+      .expect(400);
+    await request(app.getHttpServer())
+      .get('/progress')
+      .query({ mode: 'NOPE', session_id: sessionId })
+      .expect(400);
+  });
+
+  it('PUT mode 与 progress_data.mode 不一致返回 400', async () => {
+    const sessionId = 'e2e-guest-' + randomUUID();
+    await request(app.getHttpServer())
+      .put('/progress')
+      .query({ mode: 'STANDARD', session_id: sessionId })
+      .send({
+        progress_data: {
+          schema_version: 1,
+          mode: 'AVG',
+          avg: { script_id: 'demo-avg-v1', node_id: 'intro' },
+        },
+        if_match_revision: 0,
+      })
+      .expect(400);
+  });
+
+  it('游客：已有 AVG 进度时仍可独立创建 STANDARD', async () => {
     const sessionId = 'e2e-guest-' + randomUUID();
 
     const putAvg = await request(app.getHttpServer())
       .put('/progress')
-      .query({ session_id: sessionId })
+      .query({ mode: 'AVG', session_id: sessionId })
       .send(avgAtClosingBody(0))
       .expect(200);
     expect(putAvg.body.data.progress_data.mode).toBe('AVG');
@@ -109,15 +137,15 @@ describe('Progress API (T1.4)', () => {
 
     const putStd = await request(app.getHttpServer())
       .put('/progress')
-      .query({ session_id: sessionId })
-      .send(freshStandardDemoBody(1))
+      .query({ mode: 'STANDARD', session_id: sessionId })
+      .send(freshStandardDemoBody(0))
       .expect(200);
     expect(putStd.body.data.progress_data.mode).toBe('STANDARD');
-    expect(putStd.body.data.progress_revision).toBe(2);
+    expect(putStd.body.data.progress_revision).toBe(1);
 
     const get1 = await request(app.getHttpServer())
       .get('/progress')
-      .query({ session_id: sessionId })
+      .query({ mode: 'STANDARD', session_id: sessionId })
       .expect(200);
     expect(get1.body.data.progress_data.mode).toBe('STANDARD');
   });
@@ -127,7 +155,7 @@ describe('Progress API (T1.4)', () => {
 
     const put1 = await request(app.getHttpServer())
       .put('/progress')
-      .query({ session_id: sessionId })
+      .query({ mode: 'STANDARD', session_id: sessionId })
       .send(standardBody(0))
       .expect(200);
     expect(put1.body.success).toBe(true);
@@ -135,13 +163,13 @@ describe('Progress API (T1.4)', () => {
 
     const get1 = await request(app.getHttpServer())
       .get('/progress')
-      .query({ session_id: sessionId })
+      .query({ mode: 'STANDARD', session_id: sessionId })
       .expect(200);
     expect(get1.body.data.progress_revision).toBe(1);
 
     const conflict = await request(app.getHttpServer())
       .put('/progress')
-      .query({ session_id: sessionId })
+      .query({ mode: 'STANDARD', session_id: sessionId })
       .send(standardBody(0))
       .expect(409);
     expect(conflict.body.success).toBe(false);
@@ -150,7 +178,7 @@ describe('Progress API (T1.4)', () => {
 
     const put2 = await request(app.getHttpServer())
       .put('/progress')
-      .query({ session_id: sessionId })
+      .query({ mode: 'STANDARD', session_id: sessionId })
       .send(standardBody(1))
       .expect(200);
     expect(put2.body.data.progress_revision).toBe(2);
@@ -168,6 +196,7 @@ describe('Progress API (T1.4)', () => {
     const put1 = await request(app.getHttpServer())
       .put('/progress')
       .set('Authorization', `Bearer ${token}`)
+      .query({ mode: 'STANDARD' })
       .send(standardBody(0))
       .expect(200);
     expect(put1.body.data.user_id).toBe(user.id);
@@ -176,12 +205,14 @@ describe('Progress API (T1.4)', () => {
     await request(app.getHttpServer())
       .put('/progress')
       .set('Authorization', `Bearer ${token}`)
+      .query({ mode: 'STANDARD' })
       .send(standardBody(0))
       .expect(409);
 
     await request(app.getHttpServer())
       .put('/progress')
       .set('Authorization', `Bearer ${token}`)
+      .query({ mode: 'STANDARD' })
       .send(standardBody(1))
       .expect(200);
   });
@@ -190,6 +221,7 @@ describe('Progress API (T1.4)', () => {
     await request(app.getHttpServer())
       .get('/progress')
       .set('Authorization', 'Bearer not-a-jwt')
+      .query({ mode: 'STANDARD' })
       .expect(401);
   });
 
@@ -197,6 +229,7 @@ describe('Progress API (T1.4)', () => {
     await request(app.getHttpServer())
       .put('/progress')
       .set('Authorization', 'Bearer not-a-jwt')
+      .query({ mode: 'STANDARD' })
       .send(standardBody(0))
       .expect(401);
   });
@@ -205,27 +238,34 @@ describe('Progress API (T1.4)', () => {
     const sessionId = 'e2e-guest-' + randomUUID();
     await request(app.getHttpServer())
       .put('/progress')
-      .query({ session_id: sessionId })
+      .query({ mode: 'STANDARD', session_id: sessionId })
       .send(standardBody(0))
       .expect(200);
 
     const del = await request(app.getHttpServer())
       .delete('/progress')
-      .query({ session_id: sessionId })
+      .query({ mode: 'STANDARD', session_id: sessionId })
       .expect(200);
     expect(del.body.success).toBe(true);
     expect(del.body.data).toBeNull();
 
     await request(app.getHttpServer())
       .get('/progress')
-      .query({ session_id: sessionId })
+      .query({ mode: 'STANDARD', session_id: sessionId })
       .expect(404);
+  });
+
+  it('DELETE mode 缺失返回 400', async () => {
+    await request(app.getHttpServer())
+      .delete('/progress')
+      .query({ session_id: 'e2e-missing-' + randomUUID() })
+      .expect(400);
   });
 
   it('DELETE /progress 游客：无记录时 404', async () => {
     await request(app.getHttpServer())
       .delete('/progress')
-      .query({ session_id: 'e2e-missing-' + randomUUID() })
+      .query({ mode: 'STANDARD', session_id: 'e2e-missing-' + randomUUID() })
       .expect(404);
   });
 
@@ -240,18 +280,21 @@ describe('Progress API (T1.4)', () => {
     await request(app.getHttpServer())
       .put('/progress')
       .set('Authorization', `Bearer ${token}`)
+      .query({ mode: 'STANDARD' })
       .send(standardBody(0))
       .expect(200);
 
     const del = await request(app.getHttpServer())
       .delete('/progress')
       .set('Authorization', `Bearer ${token}`)
+      .query({ mode: 'STANDARD' })
       .expect(200);
     expect(del.body.success).toBe(true);
 
     await request(app.getHttpServer())
       .get('/progress')
       .set('Authorization', `Bearer ${token}`)
+      .query({ mode: 'STANDARD' })
       .expect(404);
   });
 
@@ -259,6 +302,7 @@ describe('Progress API (T1.4)', () => {
     await request(app.getHttpServer())
       .delete('/progress')
       .set('Authorization', 'Bearer not-a-jwt')
+      .query({ mode: 'STANDARD' })
       .expect(401);
   });
 
@@ -272,7 +316,7 @@ describe('Progress API (T1.4)', () => {
     const sessionId = 'e2e-guest-' + randomUUID();
     await request(app.getHttpServer())
       .put('/progress')
-      .query({ session_id: sessionId })
+      .query({ mode: 'STANDARD', session_id: sessionId })
       .send({
         progress_data: {
           schema_version: 99,
@@ -295,8 +339,9 @@ describe('Progress API (T1.4)', () => {
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     await prisma.temporarySession.create({
       data: {
-        sessionId,
+        guestSessionId: sessionId,
         userId: user.id,
+        mode: 'STANDARD',
         progressData: {
           schema_version: 1,
           mode: 'STANDARD',
@@ -309,11 +354,11 @@ describe('Progress API (T1.4)', () => {
 
     await request(app.getHttpServer())
       .get('/progress')
-      .query({ session_id: sessionId })
+      .query({ mode: 'STANDARD', session_id: sessionId })
       .expect(403);
     await request(app.getHttpServer())
       .put('/progress')
-      .query({ session_id: sessionId })
+      .query({ mode: 'STANDARD', session_id: sessionId })
       .send(standardBody(1))
       .expect(403);
   });
@@ -329,16 +374,89 @@ describe('Progress API (T1.4)', () => {
     await request(app.getHttpServer())
       .put('/progress')
       .set('Authorization', `Bearer ${token}`)
+      .query({ mode: 'STANDARD' })
       .send(standardBody(0))
       .expect(200);
 
     const guestSid = 'e2e-guest-' + randomUUID();
     const guestPut = await request(app.getHttpServer())
       .put('/progress')
-      .query({ session_id: guestSid })
+      .query({ mode: 'STANDARD', session_id: guestSid })
       .send(standardBody(0))
       .expect(200);
     expect(guestPut.body.data.user_id).toBeNull();
     expect(guestPut.body.data.progress_revision).toBe(1);
+  });
+
+  it('游客同一 session 可同时持有 STANDARD 与 AVG 进度，revision 独立', async () => {
+    const sessionId = 'e2e-guest-' + randomUUID();
+
+    const putStd1 = await request(app.getHttpServer())
+      .put('/progress')
+      .query({ mode: 'STANDARD', session_id: sessionId })
+      .send(standardBody(0))
+      .expect(200);
+    expect(putStd1.body.data.progress_revision).toBe(1);
+
+    const putAvg1 = await request(app.getHttpServer())
+      .put('/progress')
+      .query({ mode: 'AVG', session_id: sessionId })
+      .send(avgAtClosingBody(0))
+      .expect(200);
+    expect(putAvg1.body.data.progress_revision).toBe(1);
+
+    const putStd2 = await request(app.getHttpServer())
+      .put('/progress')
+      .query({ mode: 'STANDARD', session_id: sessionId })
+      .send(standardBody(1))
+      .expect(200);
+    expect(putStd2.body.data.progress_revision).toBe(2);
+
+    const getAvg = await request(app.getHttpServer())
+      .get('/progress')
+      .query({ mode: 'AVG', session_id: sessionId })
+      .expect(200);
+    expect(getAvg.body.data.progress_revision).toBe(1);
+  });
+
+  it('注册用户可同时持有 STANDARD 与 AVG 进度，revision 独立', async () => {
+    const user = await prisma.user.create({
+      data: {
+        nickname: 'e2e-user-' + randomUUID().slice(0, 8),
+        passwordHash: 'test-hash',
+      },
+    });
+    const token = jwtUser.signAccessTokenForTests(user.id);
+
+    const putStd1 = await request(app.getHttpServer())
+      .put('/progress')
+      .set('Authorization', `Bearer ${token}`)
+      .query({ mode: 'STANDARD' })
+      .send(standardBody(0))
+      .expect(200);
+    expect(putStd1.body.data.progress_revision).toBe(1);
+
+    const putAvg1 = await request(app.getHttpServer())
+      .put('/progress')
+      .set('Authorization', `Bearer ${token}`)
+      .query({ mode: 'AVG' })
+      .send(avgAtClosingBody(0))
+      .expect(200);
+    expect(putAvg1.body.data.progress_revision).toBe(1);
+
+    const putStd2 = await request(app.getHttpServer())
+      .put('/progress')
+      .set('Authorization', `Bearer ${token}`)
+      .query({ mode: 'STANDARD' })
+      .send(standardBody(1))
+      .expect(200);
+    expect(putStd2.body.data.progress_revision).toBe(2);
+
+    const getAvg = await request(app.getHttpServer())
+      .get('/progress')
+      .set('Authorization', `Bearer ${token}`)
+      .query({ mode: 'AVG' })
+      .expect(200);
+    expect(getAvg.body.data.progress_revision).toBe(1);
   });
 });

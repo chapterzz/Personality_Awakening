@@ -41,20 +41,6 @@ export function AvgTestClient() {
     );
   }
 
-  if (t.phase === 'wrong_mode') {
-    return (
-      <div className="space-y-4 rounded-xl border border-amber-500/40 bg-amber-500/5 p-6">
-        <p className="font-medium text-foreground">当前会话为标准测评进度</p>
-        <p className="text-sm text-muted-foreground">
-          未完成的标准测评与 AVG 演示共用同一条进行中会话。请先继续或完成标准测评，再体验 AVG。
-        </p>
-        <Link className={cn(buttonVariants())} href="/test/standard">
-          前往标准测评
-        </Link>
-      </div>
-    );
-  }
-
   if (t.phase === 'script_mismatch') {
     return (
       <div className="space-y-4 rounded-xl border border-destructive/30 bg-destructive/5 p-6">
@@ -137,7 +123,23 @@ export function AvgTestClient() {
           <div className="rounded-xl border border-border/60 bg-background/90 p-6 shadow-sm backdrop-blur-md">
             <AvgDialogueBubbles lines={t.currentNode.lines} />
             <p className="mt-6 text-center text-sm font-medium text-foreground">本段剧情已完成</p>
+            <p className="mt-2 text-center text-sm text-muted-foreground">
+              你可以重新开始一轮测试。重新开始将丢弃当前测试结果。
+            </p>
             <div className="mt-6 flex justify-center">
+              <Button
+                type="button"
+                disabled={t.saving}
+                onClick={() => {
+                  const ok = window.confirm('重新开始将丢弃当前测试结果，确定重新开始吗？');
+                  if (ok) {
+                    void t.restart();
+                  }
+                }}
+              >
+                重新开始
+              </Button>
+              <span className="w-3" />
               <Link className={cn(buttonVariants())} href="/">
                 返回首页
               </Link>

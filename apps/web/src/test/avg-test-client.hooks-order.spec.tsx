@@ -1,5 +1,5 @@
 /**
- * AvgTestClient 回归：phase 从 loading -> wrong_mode/ready 切换时不应触发「Rendered more hooks...」。
+ * AvgTestClient 回归：phase 从 loading -> ready 切换时不应触发「Rendered more hooks...」。
  * 目的：拦截未来把 hook 写到早返回之后的回归。
  */
 import type { ReactNode } from 'react';
@@ -57,11 +57,11 @@ vi.mock('@/hooks/use-avg-test', () => ({
 }));
 
 describe('AvgTestClient hooks order', () => {
-  it('loading -> wrong_mode rerender should not log Rendered more hooks', () => {
+  it('loading -> ready rerender should not log Rendered more hooks', () => {
     const err = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     useAvgTestMock.mockReturnValueOnce({ ...BASE, phase: 'loading' as const });
-    useAvgTestMock.mockReturnValueOnce({ ...BASE, phase: 'wrong_mode' as const });
+    useAvgTestMock.mockReturnValueOnce({ ...BASE, phase: 'ready' as const });
 
     const { rerender } = render(<AvgTestClient />);
     expect(() => rerender(<AvgTestClient />)).not.toThrow();

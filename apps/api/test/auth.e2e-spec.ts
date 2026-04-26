@@ -47,7 +47,7 @@ describe('Auth API (T1.5)', () => {
       where: { user: { nickname: { startsWith: 'e2e-auth-' } } },
     });
     await prisma.temporarySession.deleteMany({
-      where: { sessionId: { startsWith: 'e2e-auth-' } },
+      where: { guestSessionId: { startsWith: 'e2e-auth-' } },
     });
     await prisma.user.deleteMany({
       where: { nickname: { startsWith: 'e2e-auth-' } },
@@ -108,7 +108,7 @@ describe('Auth API (T1.5)', () => {
 
     await request(app.getHttpServer())
       .put('/progress')
-      .query({ session_id: sessionId })
+      .query({ mode: 'STANDARD', session_id: sessionId })
       .send({
         progress_data: standardProgress,
         if_match_revision: 0,
@@ -120,8 +120,8 @@ describe('Auth API (T1.5)', () => {
       .send({ nickname, password: 'password-ok-1', guest_session_id: sessionId })
       .expect(201);
 
-    const row = await prisma.temporarySession.findUnique({ where: { sessionId } });
-    expect(row?.userId).toBe(reg.body.data.user.user_id);
+    const rows = await prisma.temporarySession.findMany({ where: { guestSessionId: sessionId } });
+    expect(rows.every((r) => r.userId === reg.body.data.user.user_id)).toBe(true);
 
     const tr = await prisma.testResult.findFirst({ where: { userId: reg.body.data.user.user_id } });
     expect(tr).toBeNull();
@@ -133,7 +133,7 @@ describe('Auth API (T1.5)', () => {
 
     await request(app.getHttpServer())
       .put('/progress')
-      .query({ session_id: sessionId })
+      .query({ mode: 'STANDARD', session_id: sessionId })
       .send({
         progress_data: standardProgress,
         if_match_revision: 0,
@@ -160,7 +160,7 @@ describe('Auth API (T1.5)', () => {
     expect(results).toHaveLength(1);
     expect(results[0].mbtiType).toBe('ESTJ');
 
-    const gone = await prisma.temporarySession.findUnique({ where: { sessionId } });
-    expect(gone).toBeNull();
+    const gone = await prisma.temporarySession.findMany({ where: { guestSessionId: sessionId } });
+    expect(gone).toHaveLength(0);
   });
 });

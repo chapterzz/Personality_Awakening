@@ -82,6 +82,11 @@ describe('useAvgTest', () => {
     await waitFor(() => {
       expect(screen.getByTestId('phase')).toHaveTextContent('ready');
     });
+    expect(progressApi.getProgress).toHaveBeenCalledWith({
+      mode: 'AVG',
+      accessToken: null,
+      sessionId: 'guest-test-sid',
+    });
     expect(screen.getByTestId('node')).toHaveTextContent('energy_choice');
     expect(progressApi.putProgress).not.toHaveBeenCalled();
   });
@@ -127,5 +132,10 @@ describe('useAvgTest', () => {
     });
     expect(screen.getByTestId('node')).toHaveTextContent('path_i');
     expect(progressApi.putProgress).toHaveBeenCalledOnce();
+    expect(vi.mocked(progressApi.putProgress).mock.calls[0]?.[1]).toMatchObject({
+      mode: 'AVG',
+      accessToken: null,
+      sessionId: 'guest-test-sid',
+    });
   });
 });

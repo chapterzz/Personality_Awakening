@@ -3,6 +3,7 @@
  */
 import { Test } from '@nestjs/testing';
 import { ForbiddenException } from '@nestjs/common';
+import { AssessmentMode } from '@prisma/client';
 import { ProgressService } from './progress.service';
 import { PrismaService } from '../prisma/prisma.service';
 import type { PutProgressBodyDto } from './dto/put-progress-body.dto';
@@ -20,8 +21,10 @@ const validGuestBody: PutProgressBodyDto = {
 describe('ProgressService.putForGuest', () => {
   it('会话不存在且 if_match_revision=0 时调用 create，不抛 ForbiddenException', async () => {
     const createMock = jest.fn().mockResolvedValue({
-      sessionId: 's-new',
+      id: '11111111-1111-1111-1111-111111111111',
+      guestSessionId: 's-new',
       userId: null,
+      mode: AssessmentMode.STANDARD,
       progressData: validGuestBody.progress_data,
       progressRevision: 1,
       updatedAt: new Date('2026-04-18T12:00:00.000Z'),
@@ -30,7 +33,7 @@ describe('ProgressService.putForGuest', () => {
 
     const prisma = {
       temporarySession: {
-        findUnique: jest.fn().mockResolvedValue(null),
+        findFirst: jest.fn().mockResolvedValue(null),
         create: createMock,
         updateMany: jest.fn(),
       },
@@ -41,7 +44,7 @@ describe('ProgressService.putForGuest', () => {
     }).compile();
 
     const service = moduleRef.get(ProgressService);
-    const out = await service.putForGuest('s-new', { ...validGuestBody });
+    const out = await service.putForGuest('s-new', AssessmentMode.STANDARD, { ...validGuestBody });
 
     expect(createMock).toHaveBeenCalledTimes(1);
     expect(out.success).toBe(true);
@@ -54,9 +57,11 @@ describe('ProgressService.putForGuest', () => {
   it('会话已绑定 user_id 时抛 ForbiddenException', async () => {
     const prisma = {
       temporarySession: {
-        findUnique: jest.fn().mockResolvedValue({
-          sessionId: 's1',
+        findFirst: jest.fn().mockResolvedValue({
+          id: '11111111-1111-1111-1111-111111111112',
+          guestSessionId: 's1',
           userId: '00000000-0000-0000-0000-000000000001',
+          mode: AssessmentMode.STANDARD,
           progressData: {},
           progressRevision: 1,
           updatedAt: new Date(),
@@ -70,9 +75,9 @@ describe('ProgressService.putForGuest', () => {
     }).compile();
 
     const service = moduleRef.get(ProgressService);
-    await expect(service.putForGuest('s1', validGuestBody)).rejects.toBeInstanceOf(
-      ForbiddenException,
-    );
+    await expect(
+      service.putForGuest('s1', AssessmentMode.STANDARD, validGuestBody),
+    ).rejects.toBeInstanceOf(ForbiddenException);
   });
 });
 
@@ -81,9 +86,11 @@ describe('ProgressService.deleteForGuest', () => {
     const deleteMock = jest.fn();
     const prisma = {
       temporarySession: {
-        findUnique: jest.fn().mockResolvedValue({
-          sessionId: 's1',
+        findFirst: jest.fn().mockResolvedValue({
+          id: '11111111-1111-1111-1111-111111111113',
+          guestSessionId: 's1',
           userId: '00000000-0000-0000-0000-000000000001',
+          mode: AssessmentMode.STANDARD,
           progressData: {},
           progressRevision: 1,
           updatedAt: new Date(),
@@ -98,7 +105,9 @@ describe('ProgressService.deleteForGuest', () => {
     }).compile();
 
     const service = moduleRef.get(ProgressService);
-    await expect(service.deleteForGuest('s1')).rejects.toBeInstanceOf(ForbiddenException);
+    await expect(service.deleteForGuest('s1', AssessmentMode.STANDARD)).rejects.toBeInstanceOf(
+      ForbiddenException,
+    );
     expect(deleteMock).not.toHaveBeenCalled();
   });
 });

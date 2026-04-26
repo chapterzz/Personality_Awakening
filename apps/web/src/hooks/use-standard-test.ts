@@ -1,33 +1,27 @@
 /**
- * 标准模式测评：加载进度、答题、按 PRD 每 5 题（及完成时）PUT 保存，`if_match_revision` 与 409 采用服务端快照（PRD §2.5 MVP）。
+ * 标准模式测评：仅按 STANDARD mode 读写进度；为避免跨页面/跨模式切换丢进度，答题后即时 PUT 保存（PRD §2.5）。
  */
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { getAccessToken } from '@/lib/auth-token';
-import { clearGuestSessionId, getOrCreateGuestSessionId } from '@/lib/guest-session-id';
+import { getOrCreateGuestSessionId } from '@/lib/guest-session-id';
 import {
   applyStandardAnswer,
   createInitialStandardProgress,
-  isStandardAssessmentComplete,
-  shouldTriggerStandardAutosave,
-  type AvgProgressDataV1,
   type StandardProgressDataV1,
 } from '@/lib/progress-data';
 import {
-  deleteProgress,
   getProgress,
   ProgressHttpError,
   ProgressNotFoundError,
   ProgressRevisionConflictError,
   putProgress,
 } from '@/lib/progress-api';
-import { DEMO_AVG_SCRIPT } from '@/data/avg-demo-script';
 import type { DemoQuestion, DemoStandardConfig } from '@/data/standard-demo-questionnaire';
-import { isAvgProgressAtEndForScript } from '@/lib/avg-script';
 
-export type StandardTestPhase = 'loading' | 'ready' | 'error' | 'wrong_mode';
+export type StandardTestPhase = 'loading' | 'ready' | 'error';
 
 export type UseStandardTestResult = {
   phase: StandardTestPhase;
@@ -47,6 +41,8 @@ export type UseStandardTestResult = {
   answeredCount: number;
   currentQuestion: DemoQuestion | null;
   isComplete: boolean;
+  /** 完成态重新开始一轮（覆盖服务端 STANDARD 进度，丢弃当前进度）。 */
+  restart: () => Promise<void>;
   selectOption: (optionId: string | number) => Promise<void>;
 };
 
@@ -86,142 +82,23 @@ export function useStandardTest(config: DemoStandardConfig): UseStandardTestResu
         setGuestSessionId(sid);
 
         const snap = await getProgress({
+          mode: 'STANDARD',
           accessToken: token,
           sessionId: sid ?? undefined,
         });
         if (cancelled) return;
 
-        if (snap.progress_data.mode === 'STANDARD') {
-          const std = snap.progress_data;
-          if (isStandardAssessmentComplete(std)) {
-            /**
-             * 演示体验：本卷已答完时，从首页再次进入标准测评应能重新开始。
-             * 做法：删除进行中 `TemporarySession`；游客再清本地 `session_id`，下次 GET 走 404 分支写入全新初值。
-             */
-            try {
-              await deleteProgress({
-                accessToken: token,
-                sessionId: token ? undefined : (sid ?? undefined),
-              });
-            } catch (e) {
-              if (cancelled) return;
-              if (!(e instanceof ProgressNotFoundError)) {
-                const msg =
-                  e instanceof ProgressHttpError
-                    ? `请求失败（HTTP ${e.status}）`
-                    : e instanceof Error
-                      ? e.message
-                      : 'delete_progress_failed';
-                setLoadError(msg);
-                setPhase('error');
-                return;
-              }
-            }
-            if (cancelled) return;
-            if (!token) {
-              clearGuestSessionId();
-            }
-            setLoadKey((k) => k + 1);
-            return;
-          }
-          setRevision(snap.progress_revision);
-          setProgressData(std);
-          setConflictNotice(false);
-          setPhase('ready');
+        if (snap.progress_data.mode !== 'STANDARD') {
+          setLoadError('unexpected_progress_mode');
+          setPhase('error');
           return;
         }
 
-        if (snap.progress_data.mode === 'AVG') {
-          const avgSnap = snap.progress_data as AvgProgressDataV1;
-          if (isAvgProgressAtEndForScript(DEMO_AVG_SCRIPT, avgSnap)) {
-            const authPut = {
-              accessToken: token,
-              sessionId: token ? undefined : (sid ?? undefined),
-            };
-            const initial = createInitialStandardProgress(orderedIds, config.questionnaireId);
-            try {
-              const out = await putProgress(
-                { progress_data: initial, if_match_revision: snap.progress_revision },
-                authPut,
-              );
-              if (cancelled) return;
-              if (out.progress_data.mode !== 'STANDARD') {
-                setPhase('wrong_mode');
-                return;
-              }
-              setRevision(out.progress_revision);
-              setProgressData(out.progress_data);
-              setConflictNotice(false);
-              setPhase('ready');
-              return;
-            } catch (e) {
-              if (cancelled) return;
-              if (e instanceof ProgressRevisionConflictError) {
-                const p = e.payload.progress_data;
-                if (p.mode === 'STANDARD') {
-                  setRevision(e.payload.progress_revision);
-                  setProgressData(p);
-                  setConflictNotice(true);
-                  setPhase('ready');
-                  return;
-                }
-                if (
-                  p.mode === 'AVG' &&
-                  isAvgProgressAtEndForScript(DEMO_AVG_SCRIPT, p as AvgProgressDataV1)
-                ) {
-                  try {
-                    const out2 = await putProgress(
-                      { progress_data: initial, if_match_revision: e.payload.progress_revision },
-                      authPut,
-                    );
-                    if (cancelled) return;
-                    if (out2.progress_data.mode === 'STANDARD') {
-                      setRevision(out2.progress_revision);
-                      setProgressData(out2.progress_data);
-                      setConflictNotice(true);
-                      setPhase('ready');
-                      return;
-                    }
-                  } catch (e2) {
-                    if (cancelled) return;
-                    if (e2 instanceof ProgressRevisionConflictError) {
-                      const p2 = e2.payload.progress_data;
-                      if (p2.mode === 'STANDARD') {
-                        setRevision(e2.payload.progress_revision);
-                        setProgressData(p2);
-                        setConflictNotice(true);
-                        setPhase('ready');
-                        return;
-                      }
-                    }
-                    const msg2 =
-                      e2 instanceof ProgressHttpError
-                        ? `请求失败（HTTP ${e2.status}）`
-                        : e2 instanceof Error
-                          ? e2.message
-                          : 'transition_failed';
-                    setLoadError(msg2);
-                    setPhase('error');
-                    return;
-                  }
-                }
-              }
-              const msg =
-                e instanceof ProgressHttpError
-                  ? `请求失败（HTTP ${e.status}）`
-                  : e instanceof Error
-                    ? e.message
-                    : 'transition_failed';
-              setLoadError(msg);
-              setPhase('error');
-              return;
-            }
-          }
-          setPhase('wrong_mode');
-          return;
-        }
-
-        setPhase('wrong_mode');
+        const std = snap.progress_data;
+        setRevision(snap.progress_revision);
+        setProgressData(std);
+        setConflictNotice(false);
+        setPhase('ready');
       } catch (e) {
         if (cancelled) return;
         if (e instanceof ProgressNotFoundError) {
@@ -278,6 +155,7 @@ export function useStandardTest(config: DemoStandardConfig): UseStandardTestResu
       return putProgress(
         { progress_data: next, if_match_revision: ifMatch },
         {
+          mode: 'STANDARD',
           accessToken: useUser ? token : null,
           sessionId: useUser ? undefined : (guestSessionId ?? undefined),
         },
@@ -285,6 +163,49 @@ export function useStandardTest(config: DemoStandardConfig): UseStandardTestResu
     },
     [guestSessionId],
   );
+
+  const restart = useCallback(async () => {
+    if (phase !== 'ready' || saving) return;
+    const current = progressData;
+    if (!current) return;
+
+    const ordered = current.standard.ordered_question_ids ?? orderedIds;
+    const initial = createInitialStandardProgress(ordered, config.questionnaireId);
+
+    setSaving(true);
+    setConflictNotice(false);
+    try {
+      const out = await persist(initial, revision);
+      setRevision(out.progress_revision);
+      if (out.progress_data.mode !== 'STANDARD') {
+        setSaveError('保存失败：服务端返回了非 STANDARD 进度');
+        return;
+      }
+      setProgressData(out.progress_data);
+      setSaveError(null);
+    } catch (e) {
+      if (e instanceof ProgressRevisionConflictError) {
+        const p = e.payload.progress_data;
+        if (p.mode !== 'STANDARD') {
+          setRevision(e.payload.progress_revision);
+          setSaveError('保存失败：服务端返回了非 STANDARD 进度');
+          return;
+        }
+        setProgressData(p);
+        setRevision(e.payload.progress_revision);
+        setConflictNotice(true);
+        setSaveError(null);
+        return;
+      }
+      if (e instanceof ProgressHttpError) {
+        setSaveError(`保存失败（HTTP ${e.status}），请检查网络或稍后重试`);
+      } else {
+        setSaveError('保存失败，请稍后重试');
+      }
+    } finally {
+      setSaving(false);
+    }
+  }, [config.questionnaireId, orderedIds, persist, phase, progressData, revision, saving]);
 
   const selectOption = useCallback(
     async (optionId: string | number) => {
@@ -297,20 +218,13 @@ export function useStandardTest(config: DemoStandardConfig): UseStandardTestResu
       setProgressData(next);
       setSaveError(null);
 
-      const ac = next.standard.answered_count ?? Object.keys(next.standard.answers).length;
-      if (!shouldTriggerStandardAutosave(ac, totalQuestions)) {
-        return;
-      }
-
       setSaving(true);
       setConflictNotice(false);
       try {
         const out = await persist(next, revision);
         setRevision(out.progress_revision);
         if (out.progress_data.mode !== 'STANDARD') {
-          setProgressData(null);
-          setPhase('wrong_mode');
-          setSaveError(null);
+          setSaveError('保存失败：服务端返回了非 STANDARD 进度');
           return;
         }
         setProgressData(out.progress_data);
@@ -318,10 +232,8 @@ export function useStandardTest(config: DemoStandardConfig): UseStandardTestResu
       } catch (e) {
         if (e instanceof ProgressRevisionConflictError) {
           if (e.payload.progress_data.mode !== 'STANDARD') {
-            setProgressData(null);
             setRevision(e.payload.progress_revision);
-            setPhase('wrong_mode');
-            setSaveError(null);
+            setSaveError('保存失败：服务端返回了非 STANDARD 进度');
             return;
           }
           setProgressData(e.payload.progress_data);
@@ -339,7 +251,7 @@ export function useStandardTest(config: DemoStandardConfig): UseStandardTestResu
         setSaving(false);
       }
     },
-    [orderedIds, persist, phase, progressData, revision, saving, totalQuestions],
+    [orderedIds, persist, phase, progressData, revision, saving],
   );
 
   return {
@@ -357,6 +269,7 @@ export function useStandardTest(config: DemoStandardConfig): UseStandardTestResu
     answeredCount,
     currentQuestion,
     isComplete,
+    restart,
     selectOption,
   };
 }

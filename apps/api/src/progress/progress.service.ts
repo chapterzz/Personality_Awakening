@@ -1,5 +1,5 @@
 /**
- * 进行中测评进度业务：游客/注册用户读写 `TemporarySession`、乐观锁 revision（PRD §2.5）。
+ * 进行中测评进度业务：游客/注册用户按 mode 读写 `TemporarySession`、乐观锁 revision（PRD §2.5）。
  */
 import {
   BadRequestException,
@@ -9,7 +9,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { AssessmentMode, Prisma } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { PutProgressBodyDto } from './dto/put-progress-body.dto';
@@ -35,7 +35,7 @@ export class ProgressService {
   constructor(private readonly prisma: PrismaService) {}
 
   private toSnapshot(row: {
-    sessionId: string;
+    guestSessionId: string;
     userId: string | null;
     progressData: unknown;
     progressRevision: number;
@@ -43,7 +43,7 @@ export class ProgressService {
     expiresAt: Date;
   }): ProgressSnapshotDto {
     return {
-      session_id: row.sessionId,
+      session_id: row.guestSessionId,
       user_id: row.userId,
       progress_data: row.progressData,
       progress_revision: row.progressRevision,
@@ -90,8 +90,10 @@ export class ProgressService {
     }
   }
 
-  async getForGuest(sessionId: string) {
-    const row = await this.prisma.temporarySession.findUnique({ where: { sessionId } });
+  async getForGuest(sessionId: string, mode: AssessmentMode) {
+    const row = await this.prisma.temporarySession.findFirst({
+      where: { guestSessionId: sessionId, mode },
+    });
     if (!row) {
       throw new NotFoundException({
         success: false,
@@ -109,8 +111,8 @@ export class ProgressService {
     return this.ok(this.toSnapshot(row));
   }
 
-  async getForUser(userId: string) {
-    const row = await this.prisma.temporarySession.findUnique({ where: { userId } });
+  async getForUser(userId: string, mode: AssessmentMode) {
+    const row = await this.prisma.temporarySession.findFirst({ where: { userId, mode } });
     if (!row) {
       throw new NotFoundException({
         success: false,
@@ -121,11 +123,13 @@ export class ProgressService {
     return this.ok(this.toSnapshot(row));
   }
 
-  async putForGuest(sessionId: string, body: PutProgressBodyDto) {
+  async putForGuest(sessionId: string, mode: AssessmentMode, body: PutProgressBodyDto) {
     const progressPayload = this.validatePayload(body.progress_data);
     const expiresAt = nextExpiresAt();
 
-    const existing = await this.prisma.temporarySession.findUnique({ where: { sessionId } });
+    const existing = await this.prisma.temporarySession.findFirst({
+      where: { guestSessionId: sessionId, mode },
+    });
 
     if (existing && existing.userId !== null) {
       throw new ForbiddenException({
@@ -146,8 +150,9 @@ export class ProgressService {
       try {
         const created = await this.prisma.temporarySession.create({
           data: {
-            sessionId,
+            guestSessionId: sessionId,
             userId: null,
+            mode,
             progressData: progressPayload,
             progressRevision: 1,
             expiresAt,
@@ -156,7 +161,9 @@ export class ProgressService {
         return this.ok(this.toSnapshot(created));
       } catch (e) {
         if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
-          const row = await this.prisma.temporarySession.findUnique({ where: { sessionId } });
+          const row = await this.prisma.temporarySession.findFirst({
+            where: { guestSessionId: sessionId, mode },
+          });
           if (row) {
             this.revisionConflict(row);
           }
@@ -167,7 +174,8 @@ export class ProgressService {
 
     const updated = await this.prisma.temporarySession.updateMany({
       where: {
-        sessionId,
+        guestSessionId: sessionId,
+        mode,
         userId: null,
         progressRevision: body.if_match_revision,
       },
@@ -179,11 +187,15 @@ export class ProgressService {
     });
 
     if (updated.count === 1) {
-      const row = await this.prisma.temporarySession.findUniqueOrThrow({ where: { sessionId } });
+      const row = await this.prisma.temporarySession.findFirstOrThrow({
+        where: { guestSessionId: sessionId, mode },
+      });
       return this.ok(this.toSnapshot(row));
     }
 
-    const row = await this.prisma.temporarySession.findUnique({ where: { sessionId } });
+    const row = await this.prisma.temporarySession.findFirst({
+      where: { guestSessionId: sessionId, mode },
+    });
     if (!row) {
       throw new NotFoundException({
         success: false,
@@ -194,11 +206,11 @@ export class ProgressService {
     this.revisionConflict(row);
   }
 
-  async putForUser(userId: string, body: PutProgressBodyDto) {
+  async putForUser(userId: string, mode: AssessmentMode, body: PutProgressBodyDto) {
     const progressPayload = this.validatePayload(body.progress_data);
     const expiresAt = nextExpiresAt();
 
-    const existing = await this.prisma.temporarySession.findUnique({ where: { userId } });
+    const existing = await this.prisma.temporarySession.findFirst({ where: { userId, mode } });
 
     if (!existing) {
       if (body.if_match_revision !== 0) {
@@ -211,8 +223,9 @@ export class ProgressService {
       try {
         const created = await this.prisma.temporarySession.create({
           data: {
-            sessionId: randomUUID(),
+            guestSessionId: randomUUID(),
             userId,
+            mode,
             progressData: progressPayload,
             progressRevision: 1,
             expiresAt,
@@ -221,7 +234,7 @@ export class ProgressService {
         return this.ok(this.toSnapshot(created));
       } catch (e) {
         if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
-          const row = await this.prisma.temporarySession.findUnique({ where: { userId } });
+          const row = await this.prisma.temporarySession.findFirst({ where: { userId, mode } });
           if (row) {
             this.revisionConflict(row);
           }
@@ -233,6 +246,7 @@ export class ProgressService {
     const updated = await this.prisma.temporarySession.updateMany({
       where: {
         userId,
+        mode,
         progressRevision: body.if_match_revision,
       },
       data: {
@@ -243,11 +257,11 @@ export class ProgressService {
     });
 
     if (updated.count === 1) {
-      const row = await this.prisma.temporarySession.findUniqueOrThrow({ where: { userId } });
+      const row = await this.prisma.temporarySession.findFirstOrThrow({ where: { userId, mode } });
       return this.ok(this.toSnapshot(row));
     }
 
-    const fresh = await this.prisma.temporarySession.findUnique({ where: { userId } });
+    const fresh = await this.prisma.temporarySession.findFirst({ where: { userId, mode } });
     if (!fresh) {
       throw new NotFoundException({
         success: false,
@@ -259,8 +273,10 @@ export class ProgressService {
   }
 
   /** 删除进行中会话行；游客仅能删 `user_id` 为空的记录（与 GET 权限一致）。 */
-  async deleteForGuest(sessionId: string) {
-    const row = await this.prisma.temporarySession.findUnique({ where: { sessionId } });
+  async deleteForGuest(sessionId: string, mode: AssessmentMode) {
+    const row = await this.prisma.temporarySession.findFirst({
+      where: { guestSessionId: sessionId, mode },
+    });
     if (!row) {
       throw new NotFoundException({
         success: false,
@@ -275,12 +291,12 @@ export class ProgressService {
         message: 'session_requires_login',
       });
     }
-    await this.prisma.temporarySession.delete({ where: { sessionId } });
+    await this.prisma.temporarySession.delete({ where: { id: row.id } });
     return this.ok(null);
   }
 
-  async deleteForUser(userId: string) {
-    const row = await this.prisma.temporarySession.findUnique({ where: { userId } });
+  async deleteForUser(userId: string, mode: AssessmentMode) {
+    const row = await this.prisma.temporarySession.findFirst({ where: { userId, mode } });
     if (!row) {
       throw new NotFoundException({
         success: false,
@@ -288,7 +304,7 @@ export class ProgressService {
         message: 'progress_not_found',
       });
     }
-    await this.prisma.temporarySession.delete({ where: { userId } });
+    await this.prisma.temporarySession.delete({ where: { id: row.id } });
     return this.ok(null);
   }
 }

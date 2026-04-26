@@ -1,5 +1,5 @@
 /**
- * useStandardTest 加载逻辑单测：AVG 已收束时自动 PUT 标准初值（防「仅测纯函数漏掉跨 mode 串联」类回归）。
+ * useStandardTest 加载逻辑单测：STANDARD mode 独立读写；完成态不再自动 reset（由用户手动重开）。
  * 须放在 `src/test/`，勿放在 `app/` 下以免 Next 将 spec 误当作路由。
  */
 import { render, screen, waitFor } from '@testing-library/react';
@@ -7,26 +7,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { DemoStandardConfig } from '@/data/standard-demo-questionnaire';
 import { useStandardTest } from '@/hooks/use-standard-test';
-import {
-  createInitialAvgProgress,
-  createInitialStandardProgress,
-  type AvgProgressDataV1,
-  type StandardProgressDataV1,
-} from '@/lib/progress-data';
-import { ProgressNotFoundError, type ProgressSnapshot } from '@/lib/progress-api';
+import { createInitialStandardProgress, type StandardProgressDataV1 } from '@/lib/progress-data';
+import type { ProgressSnapshot } from '@/lib/progress-api';
 
 vi.mock('@/lib/auth-token', () => ({
   getAccessToken: () => null,
 }));
 
-const { clearGuestSessionIdMock } = vi.hoisted(() => ({
-  clearGuestSessionIdMock: vi.fn(),
-}));
 vi.mock('@/lib/guest-session-id', () => ({
   getOrCreateGuestSessionId: () => 'guest-test-sid',
-  clearGuestSessionId: () => {
-    clearGuestSessionIdMock();
-  },
 }));
 
 vi.mock('@/lib/progress-api', async (importOriginal) => {
@@ -94,24 +83,23 @@ const metaTimes = {
   expires_at: '2030-01-01T00:00:00.000Z',
 };
 
-const avgAtClosing: AvgProgressDataV1 = {
+const stdInProgress: StandardProgressDataV1 = {
   schema_version: 1,
-  mode: 'AVG',
-  questionnaire_id: 'demo-avg-v1',
-  avg: {
-    script_id: 'demo-avg-v1',
-    node_id: 'closing',
-    chapter: 'EI',
-    answers: { energy_choice: 'opt_in' },
-    visited_node_ids: ['intro', 'energy_choice', 'path_i', 'closing'],
+  mode: 'STANDARD',
+  questionnaire_id: 'demo-standard-v1',
+  standard: {
+    current_index: 1,
+    ordered_question_ids: ['q01', 'q02'],
+    answers: { q01: 'q01_A' },
+    answered_count: 1,
   },
 };
 
-const avgClosingSnapshot: ProgressSnapshot = {
+const standardSnapshot: ProgressSnapshot = {
   session_id: 'guest-test-sid',
   user_id: null,
-  progress_data: avgAtClosing,
-  progress_revision: 3,
+  progress_data: stdInProgress,
+  progress_revision: 2,
   ...metaTimes,
 };
 
@@ -125,41 +113,20 @@ describe('useStandardTest', () => {
     vi.mocked(progressApi.getProgress).mockReset();
     vi.mocked(progressApi.putProgress).mockReset();
     vi.mocked(progressApi.deleteProgress).mockReset();
-    clearGuestSessionIdMock.mockReset();
   });
 
-  it('GET 为 AVG 收束态时调用 putProgress 写入标准初值并进入 ready', async () => {
-    vi.mocked(progressApi.getProgress).mockResolvedValue(avgClosingSnapshot);
-    const initialStd = createInitialStandardProgress(
-      [...MIN_STANDARD_CONFIG.orderedQuestionIds],
-      MIN_STANDARD_CONFIG.questionnaireId,
-    );
-    vi.mocked(progressApi.putProgress).mockResolvedValue({
-      ...avgClosingSnapshot,
-      progress_data: initialStd,
-      progress_revision: 4,
-    });
+  it('GET 为 STANDARD 时进入 ready，且请求携带 mode=STANDARD', async () => {
+    vi.mocked(progressApi.getProgress).mockResolvedValue(standardSnapshot);
 
     render(<PhaseProbe />);
 
     await waitFor(() => {
       expect(screen.getByTestId('phase')).toHaveTextContent('ready');
     });
-    expect(progressApi.putProgress).toHaveBeenCalledOnce();
-  });
-
-  it('GET 为 AVG 进行中时为 wrong_mode 且不调用 putProgress', async () => {
-    const mid: ProgressSnapshot = {
-      ...avgClosingSnapshot,
-      progress_data: createInitialAvgProgress('demo-avg-v1', 'intro', 'EI'),
-      progress_revision: 1,
-    };
-    vi.mocked(progressApi.getProgress).mockResolvedValue(mid);
-
-    render(<PhaseProbe />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('phase')).toHaveTextContent('wrong_mode');
+    expect(progressApi.getProgress).toHaveBeenCalledWith({
+      mode: 'STANDARD',
+      accessToken: null,
+      sessionId: 'guest-test-sid',
     });
     expect(progressApi.putProgress).not.toHaveBeenCalled();
   });
@@ -171,7 +138,7 @@ describe('useStandardTest', () => {
     );
     std.standard.current_index = 2;
     vi.mocked(progressApi.getProgress).mockResolvedValue({
-      ...avgClosingSnapshot,
+      ...standardSnapshot,
       progress_data: std,
       progress_revision: 2,
     });
@@ -184,7 +151,7 @@ describe('useStandardTest', () => {
     expect(progressApi.putProgress).not.toHaveBeenCalled();
   });
 
-  it('GET 为 STANDARD 且本卷已答完时先 delete、清游客 id，再 404 进入全新初值', async () => {
+  it('GET 为 STANDARD 且本卷已答完时不自动 delete/reset（由用户手动重开）', async () => {
     const stdComplete: StandardProgressDataV1 = {
       schema_version: 1,
       mode: 'STANDARD',
@@ -196,25 +163,18 @@ describe('useStandardTest', () => {
         answered_count: 2,
       },
     };
-    vi.mocked(progressApi.getProgress)
-      .mockResolvedValueOnce({
-        ...avgClosingSnapshot,
-        progress_data: stdComplete,
-        progress_revision: 5,
-      })
-      .mockRejectedValueOnce(new ProgressNotFoundError());
-    vi.mocked(progressApi.deleteProgress).mockResolvedValue(undefined);
+    vi.mocked(progressApi.getProgress).mockResolvedValueOnce({
+      ...standardSnapshot,
+      progress_data: stdComplete,
+      progress_revision: 5,
+    });
 
     render(<PhaseProbe />);
 
     await waitFor(() => {
       expect(screen.getByTestId('phase')).toHaveTextContent('ready');
     });
-    expect(progressApi.deleteProgress).toHaveBeenCalledWith({
-      accessToken: null,
-      sessionId: 'guest-test-sid',
-    });
-    expect(clearGuestSessionIdMock).toHaveBeenCalled();
-    expect(progressApi.getProgress).toHaveBeenCalledTimes(2);
+    expect(progressApi.deleteProgress).not.toHaveBeenCalled();
+    expect(progressApi.getProgress).toHaveBeenCalledTimes(1);
   });
 });

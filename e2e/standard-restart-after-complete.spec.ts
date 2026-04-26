@@ -1,6 +1,6 @@
 /**
- * 端到端：标准测评完成态 seed 后，首访 `/test/standard` 会触发自动 reset（删进度 + 清游客 session），
- * 从首页再次进入仍应从第 1 题开始，且不出现“本卷已完成”卡死态。
+ * 端到端：标准测评完成态 seed 后，进入 `/test/standard` 展示「重新开始」入口，
+ * 确认后应从第 1 题开始，且不再展示“本卷已完成”卡死态。
  */
 import { randomUUID } from 'crypto';
 
@@ -44,7 +44,7 @@ async function assertGuestProgressIsStandardComplete(
   sessionId: string,
 ) {
   const getRes = await request.get(
-    `${API_BASE}/progress?session_id=${encodeURIComponent(sessionId)}`,
+    `${API_BASE}/progress?mode=STANDARD&session_id=${encodeURIComponent(sessionId)}`,
   );
   if (!getRes.ok()) {
     throw new Error(`seed GET failed ${getRes.status()}: ${await getRes.text()}`);
@@ -83,20 +83,17 @@ async function assertGuestProgressIsStandardComplete(
 
 async function deleteProgressAllowMissing(request: APIRequestContext, sessionId: string) {
   const del = await request.delete(
-    `${API_BASE}/progress?session_id=${encodeURIComponent(sessionId)}`,
+    `${API_BASE}/progress?mode=STANDARD&session_id=${encodeURIComponent(sessionId)}`,
   );
   expect([200, 404]).toContain(del.status());
 }
 
 test.describe('标准测评完成后可重新开始', () => {
-  test('完成态 seed -> 首访自动 reset -> 回首页 -> 再进入仍从第 1 题开始', async ({
-    page,
-    request,
-  }) => {
+  test('完成态 seed -> 展示重开入口 -> 确认后从第 1 题开始', async ({ page, request }) => {
     const sessionId = `e2e-pw-${randomUUID()}`;
 
     const putRes = await request.put(
-      `${API_BASE}/progress?session_id=${encodeURIComponent(sessionId)}`,
+      `${API_BASE}/progress?mode=STANDARD&session_id=${encodeURIComponent(sessionId)}`,
       {
         data: {
           progress_data: stdCompleteProgress,
@@ -118,17 +115,12 @@ test.describe('标准测评完成后可重新开始', () => {
     await expect(page.getByRole('heading', { name: '性格倾向小测' })).toBeVisible({
       timeout: 30_000,
     });
-    await expect(page.getByText('本卷已完成')).toHaveCount(0);
-    await expect(page.getByText(/第\s*1\s*\/\s*12\s*题/)).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText('本卷已完成')).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole('button', { name: '重新开始' })).toBeVisible({ timeout: 30_000 });
 
-    // 未完成态页面不提供「返回首页」入口（仅完成态展示），这里用直达首页模拟“离开再回来”的用户路径。
-    await page.goto('/');
-    await expect(page.getByRole('heading', { name: '性格星球：觉醒计划' })).toBeVisible();
+    page.once('dialog', (dialog) => dialog.accept());
+    await page.getByRole('button', { name: '重新开始' }).click();
 
-    await page.getByRole('link', { name: '标准测评（演示）' }).click();
-    await expect(page.getByRole('heading', { name: '性格倾向小测' })).toBeVisible({
-      timeout: 30_000,
-    });
     await expect(page.getByText('本卷已完成')).toHaveCount(0);
     await expect(page.getByText(/第\s*1\s*\/\s*12\s*题/)).toBeVisible({ timeout: 30_000 });
 

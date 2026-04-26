@@ -55,10 +55,11 @@ describe('deleteProgress', () => {
     });
     vi.stubGlobal('fetch', fetchMock);
 
-    await deleteProgress({ sessionId: 'sid-abc' });
+    await deleteProgress({ mode: 'STANDARD', sessionId: 'sid-abc' });
 
     const calledUrl = fetchMock.mock.calls[0][0] as string;
     expect(calledUrl).toContain('/progress');
+    expect(calledUrl).toContain('mode=STANDARD');
     expect(calledUrl).toContain('session_id=sid-abc');
     expect(fetchMock.mock.calls[0][1]).toMatchObject({ method: 'DELETE' });
 

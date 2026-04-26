@@ -26,6 +26,9 @@ Thumbs.db
 npm-debug.log*
 pnpm-debug.log*
 
+# Local temp
+.temp
+
 # 每日工作日志（纳入仓库管理）
 
 # Prisma

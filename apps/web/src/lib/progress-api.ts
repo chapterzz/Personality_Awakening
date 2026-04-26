@@ -2,7 +2,7 @@
  * 浏览器端调用 Nest `/progress`：统一解析 `{ success, data, message }`，处理 409 乐观锁冲突体；支持 DELETE 清空进行中会话。
  */
 import { getBrowserApiBaseUrl } from './api-base';
-import type { ProgressDataV1 } from './progress-data';
+import type { ProgressDataV1, ProgressMode } from './progress-data';
 
 export type ProgressSnapshot = {
   session_id: string;
@@ -85,11 +85,13 @@ async function parseJson(res: Response): Promise<unknown> {
 }
 
 export async function getProgress(params: {
+  mode: ProgressMode;
   sessionId?: string;
   accessToken?: string | null;
 }): Promise<ProgressSnapshot> {
   const base = getBrowserApiBaseUrl();
   const url = new URL(`${base.replace(/\/$/, '')}/progress`);
+  url.searchParams.set('mode', params.mode);
   if (params.accessToken) {
     // 注册用户：仅 Bearer
   } else if (params.sessionId) {
@@ -138,10 +140,11 @@ export class ProgressHttpError extends Error {
 
 export async function putProgress(
   body: PutProgressBody,
-  params: { sessionId?: string; accessToken?: string | null },
+  params: { mode: ProgressMode; sessionId?: string; accessToken?: string | null },
 ): Promise<ProgressSnapshot> {
   const base = getBrowserApiBaseUrl();
   const url = new URL(`${base.replace(/\/$/, '')}/progress`);
+  url.searchParams.set('mode', params.mode);
   if (params.accessToken) {
     // Bearer only
   } else if (params.sessionId) {
@@ -181,11 +184,13 @@ export async function putProgress(
 
 /** 删除服务端进行中进度；无记录时抛 `ProgressNotFoundError`（404）。 */
 export async function deleteProgress(params: {
+  mode: ProgressMode;
   sessionId?: string;
   accessToken?: string | null;
 }): Promise<void> {
   const base = getBrowserApiBaseUrl();
   const url = new URL(`${base.replace(/\/$/, '')}/progress`);
+  url.searchParams.set('mode', params.mode);
   if (params.accessToken) {
     // Bearer only
   } else if (params.sessionId) {

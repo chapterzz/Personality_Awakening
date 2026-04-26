@@ -81,10 +81,12 @@ model TestResult {
   @@map("test_results")
 }
 
-/// 进行中测评唯一存储；注册用户全局至多一条 user_id 非空记录（PG 下 UNIQUE 允许多 NULL）（PRD §2.1 / §2.5）。
+/// 进行中测评存储：同一身份可同时持有 STANDARD 与 AVG 两条会话，按 mode 隔离 revision（PRD §2.5）。
 model TemporarySession {
-  sessionId         String   @id @map("session_id")
+  id                String         @id @default(uuid()) @db.Uuid
+  guestSessionId    String         @map("guest_session_id")
   userId            String?  @map("user_id") @db.Uuid
+  mode              AssessmentMode
   progressData      Json     @map("progress_data")
   progressRevision  Int      @default(0) @map("progress_revision")
   expiresAt         DateTime @map("expires_at")
@@ -93,7 +95,8 @@ model TemporarySession {
 
   user User? @relation(fields: [userId], references: [id])
 
-  @@unique([userId])
+  @@unique([userId, mode])
+  @@unique([guestSessionId, mode])
   @@index([expiresAt])
   @@map("temporary_sessions")
 }

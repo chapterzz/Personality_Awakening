@@ -39,20 +39,6 @@ export function StandardTestClient() {
     );
   }
 
-  if (t.phase === 'wrong_mode') {
-    return (
-      <div className="space-y-4 rounded-xl border border-amber-500/40 bg-amber-500/5 p-6">
-        <p className="font-medium text-foreground">当前会话为 AVG 剧情进度</p>
-        <p className="text-sm text-muted-foreground">
-          进行中的 AVG 与标准测评共用同一条会话。请先继续或完成 AVG，再体验标准测评。
-        </p>
-        <Link className={cn(buttonVariants())} href="/test/avg">
-          前往 AVG 演示
-        </Link>
-      </div>
-    );
-  }
-
   if (t.phase === 'error') {
     return (
       <div className="space-y-4 rounded-xl border border-destructive/30 bg-destructive/5 p-6">
@@ -83,7 +69,7 @@ export function StandardTestClient() {
         <p className="text-sm font-medium text-muted-foreground">标准模式 · 演示问卷</p>
         <h1 className="text-2xl font-bold tracking-tight text-foreground">性格倾向小测</h1>
         <p className="text-sm text-muted-foreground">
-          进度将每答满 5 题自动同步服务端（含登录后续答）。当前身份：
+          每次作答都会自动同步服务端进度（含登录后续答）。当前身份：
           <span className="ml-1 font-medium text-foreground">
             {t.authMode === 'user' ? '已登录（Bearer）' : '游客（session_id）'}
           </span>
@@ -119,9 +105,27 @@ export function StandardTestClient() {
           <p className="mt-2 text-sm text-muted-foreground">
             演示流程结束。正式提交与报告将在后续里程碑接入。
           </p>
-          <Link className={cn(buttonVariants(), 'mt-6 inline-flex')} href="/">
-            返回首页
-          </Link>
+          <p className="mt-2 text-sm text-muted-foreground">
+            你可以重新开始一轮测试。重新开始将丢弃当前测试结果。
+          </p>
+          <div className="mt-6 flex justify-center">
+            <Button
+              type="button"
+              disabled={t.saving}
+              onClick={() => {
+                const ok = window.confirm('重新开始将丢弃当前测试结果，确定重新开始吗？');
+                if (ok) {
+                  void t.restart();
+                }
+              }}
+            >
+              重新开始
+            </Button>
+            <span className="w-3" />
+            <Link className={cn(buttonVariants(), 'inline-flex')} href="/">
+              返回首页
+            </Link>
+          </div>
         </div>
       )}
 

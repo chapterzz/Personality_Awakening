@@ -1,6 +1,5 @@
 /**
- * 端到端：服务端已为 AVG 收束态时，标准测评页应自动迁移为 STANDARD 并展示题目（非 wrong_mode）。
- * 与 Vitest 单测互补：此处覆盖真实 fetch + Next 页面；单测覆盖 hook 分支。
+ * 端到端：同一游客已有 AVG 进度时，标准测评页仍可独立进入（mode 隔离，非 wrong_mode）。
  */
 import { randomUUID } from 'crypto';
 
@@ -27,7 +26,7 @@ test.describe('AVG 收束后会话进入标准测评', () => {
     const sessionId = `e2e-pw-${randomUUID()}`;
 
     const putRes = await request.put(
-      `${API_BASE}/progress?session_id=${encodeURIComponent(sessionId)}`,
+      `${API_BASE}/progress?mode=AVG&session_id=${encodeURIComponent(sessionId)}`,
       {
         data: {
           progress_data: avgAtClosingProgress,
@@ -51,7 +50,7 @@ test.describe('AVG 收束后会话进入标准测评', () => {
     await expect(page.getByText('当前会话为 AVG 剧情进度')).toHaveCount(0);
 
     const del = await request.delete(
-      `${API_BASE}/progress?session_id=${encodeURIComponent(sessionId)}`,
+      `${API_BASE}/progress?mode=AVG&session_id=${encodeURIComponent(sessionId)}`,
     );
     expect(del.ok()).toBeTruthy();
   });

@@ -1,5 +1,5 @@
 /**
- * AVG 剧情：加载进度、节点确认后 PUT（与 T2.1 相同的 `if_match_revision` / 409 处理，PRD §2.5）。
+ * AVG 剧情：仅按 AVG mode 读写进度，节点确认后 PUT（含 `if_match_revision` / 409 处理，PRD §2.5）。
  */
 'use client';
 
@@ -17,36 +17,17 @@ import { getOrCreateGuestSessionId } from '@/lib/guest-session-id';
 import {
   applyAvgAdvance,
   createInitialAvgProgress,
-  isStandardAssessmentComplete,
   type AvgProgressDataV1,
 } from '@/lib/progress-data';
 import {
   getProgress,
-  type ProgressSnapshot,
   ProgressHttpError,
   ProgressNotFoundError,
   ProgressRevisionConflictError,
   putProgress,
 } from '@/lib/progress-api';
 
-/** 标准卷已结束后，同一会话用 PUT 切换为 AVG 起点（演示跨模式；正式提交仍走 TestResult）。 */
-async function putInitialAvgReplacingStandard(
-  config: AvgScriptConfig,
-  ifMatch: number,
-  auth: { accessToken: string | null; sessionId?: string },
-): Promise<ProgressSnapshot> {
-  const start = getAvgNode(config, config.start_node_id);
-  const initial = createInitialAvgProgress(config.script_id, config.start_node_id, start?.chapter);
-  return putProgress(
-    { progress_data: initial, if_match_revision: ifMatch },
-    {
-      accessToken: auth.accessToken,
-      sessionId: auth.sessionId,
-    },
-  );
-}
-
-export type AvgTestPhase = 'loading' | 'ready' | 'error' | 'wrong_mode' | 'script_mismatch';
+export type AvgTestPhase = 'loading' | 'ready' | 'error' | 'script_mismatch';
 
 export type UseAvgTestResult = {
   phase: AvgTestPhase;
@@ -65,6 +46,8 @@ export type UseAvgTestResult = {
   stepIndex: number;
   /** 脚本中选项节点总数；无选项节点时回退为全节点数（兼容异常脚本） */
   totalSteps: number;
+  /** 完成态重新开始一轮（覆盖服务端 AVG 进度，丢弃当前进度）。 */
+  restart: () => Promise<void>;
   continueDialogue: () => Promise<void>;
   selectOption: (optionId: string) => Promise<void>;
 };
@@ -105,108 +88,20 @@ export function useAvgTest(config: AvgScriptConfig): UseAvgTestResult {
         setGuestSessionId(sid);
 
         const snap = await getProgress({
+          mode: 'AVG',
           accessToken: token,
           sessionId: sid ?? undefined,
         });
         if (cancelled) return;
 
-        if (snap.progress_data.mode === 'STANDARD') {
-          if (!isStandardAssessmentComplete(snap.progress_data)) {
-            setPhase('wrong_mode');
-            return;
-          }
-          const auth = { accessToken: token, sessionId: sid ?? undefined };
-          try {
-            const out = await putInitialAvgReplacingStandard(config, snap.progress_revision, auth);
-            if (cancelled) return;
-            setRevision(out.progress_revision);
-            if (out.progress_data.mode === 'AVG') {
-              setProgressData(out.progress_data);
-            }
-            setConflictNotice(false);
-            setPhase('ready');
-          } catch (e) {
-            if (cancelled) return;
-            if (e instanceof ProgressRevisionConflictError) {
-              const p = e.payload.progress_data;
-              if (p.mode === 'AVG') {
-                if (p.avg.script_id !== config.script_id) {
-                  setPhase('script_mismatch');
-                  return;
-                }
-                setRevision(e.payload.progress_revision);
-                setProgressData(p);
-                setConflictNotice(true);
-                setPhase('ready');
-                return;
-              }
-              if (p.mode === 'STANDARD' && isStandardAssessmentComplete(p)) {
-                try {
-                  const out2 = await putInitialAvgReplacingStandard(
-                    config,
-                    e.payload.progress_revision,
-                    auth,
-                  );
-                  if (cancelled) return;
-                  setRevision(out2.progress_revision);
-                  if (out2.progress_data.mode === 'AVG') {
-                    setProgressData(out2.progress_data);
-                  }
-                  setConflictNotice(true);
-                  setPhase('ready');
-                } catch (e2) {
-                  if (cancelled) return;
-                  if (e2 instanceof ProgressRevisionConflictError) {
-                    const p2 = e2.payload.progress_data;
-                    if (p2.mode === 'AVG') {
-                      if (p2.avg.script_id !== config.script_id) {
-                        setPhase('script_mismatch');
-                        return;
-                      }
-                      setRevision(e2.payload.progress_revision);
-                      setProgressData(p2);
-                      setConflictNotice(true);
-                      setPhase('ready');
-                      return;
-                    }
-                  }
-                  const msg =
-                    e2 instanceof ProgressHttpError
-                      ? `请求失败（HTTP ${e2.status}）`
-                      : e2 instanceof Error
-                        ? e2.message
-                        : 'transition_failed';
-                  setLoadError(msg);
-                  setPhase('error');
-                }
-                return;
-              }
-              setPhase('wrong_mode');
-              return;
-            }
-            const msg =
-              e instanceof ProgressHttpError
-                ? `请求失败（HTTP ${e.status}）`
-                : e instanceof Error
-                  ? e.message
-                  : 'transition_failed';
-            setLoadError(msg);
-            setPhase('error');
-          }
-          return;
-        }
-
-        if (
-          snap.progress_data.mode === 'AVG' &&
-          snap.progress_data.avg.script_id !== config.script_id
-        ) {
-          setPhase('script_mismatch');
-          return;
-        }
-
         if (snap.progress_data.mode !== 'AVG') {
           setLoadError('unexpected_progress_mode');
           setPhase('error');
+          return;
+        }
+
+        if (snap.progress_data.avg.script_id !== config.script_id) {
+          setPhase('script_mismatch');
           return;
         }
 
@@ -253,6 +148,7 @@ export function useAvgTest(config: AvgScriptConfig): UseAvgTestResult {
       return putProgress(
         { progress_data: next, if_match_revision: ifMatch },
         {
+          mode: 'AVG',
           accessToken: useUser ? token : null,
           sessionId: useUser ? undefined : (guestSessionId ?? undefined),
         },
@@ -261,6 +157,59 @@ export function useAvgTest(config: AvgScriptConfig): UseAvgTestResult {
     [guestSessionId],
   );
 
+  const restart = useCallback(async () => {
+    if (phase !== 'ready' || saving) return;
+    if (!progressData) return;
+
+    const start = getAvgNode(config, config.start_node_id);
+    const initial = createInitialAvgProgress(
+      config.script_id,
+      config.start_node_id,
+      start?.chapter,
+    );
+
+    setSaving(true);
+    setConflictNotice(false);
+    try {
+      const out = await persist(initial, revision);
+      setRevision(out.progress_revision);
+      if (out.progress_data.mode !== 'AVG') {
+        setSaveError('保存失败：服务端返回了非 AVG 进度');
+        return;
+      }
+      if (out.progress_data.avg.script_id !== config.script_id) {
+        setSaveError('保存失败：剧情版本不一致');
+        return;
+      }
+      setProgressData(out.progress_data);
+      setSaveError(null);
+    } catch (e) {
+      if (e instanceof ProgressRevisionConflictError) {
+        const p = e.payload.progress_data;
+        if (p.mode !== 'AVG') {
+          setSaveError('保存失败：服务端返回了非 AVG 进度');
+          return;
+        }
+        if (p.avg.script_id !== config.script_id) {
+          setSaveError('保存失败：剧情版本不一致');
+          return;
+        }
+        setProgressData(p);
+        setRevision(e.payload.progress_revision);
+        setConflictNotice(true);
+        setSaveError(null);
+        return;
+      }
+      if (e instanceof ProgressHttpError) {
+        setSaveError(`保存失败（HTTP ${e.status}），请检查网络或稍后重试`);
+      } else {
+        setSaveError('保存失败，请稍后重试');
+      }
+    } finally {
+      setSaving(false);
+    }
+  }, [config, persist, phase, progressData, revision, saving]);
+
   const saveAndSync = useCallback(
     async (next: AvgProgressDataV1) => {
       setSaving(true);
@@ -268,15 +217,19 @@ export function useAvgTest(config: AvgScriptConfig): UseAvgTestResult {
       try {
         const out = await persist(next, revision);
         setRevision(out.progress_revision);
-        if (out.progress_data.mode === 'AVG') {
-          setProgressData(out.progress_data);
+        if (out.progress_data.mode !== 'AVG') {
+          setSaveError('保存失败：服务端返回了非 AVG 进度');
+          return;
         }
+        setProgressData(out.progress_data);
         setSaveError(null);
       } catch (e) {
         if (e instanceof ProgressRevisionConflictError) {
-          if (e.payload.progress_data.mode === 'AVG') {
-            setProgressData(e.payload.progress_data);
+          if (e.payload.progress_data.mode !== 'AVG') {
+            setSaveError('保存失败：服务端返回了非 AVG 进度');
+            return;
           }
+          setProgressData(e.payload.progress_data);
           setRevision(e.payload.progress_revision);
           setConflictNotice(true);
           setSaveError(null);
@@ -372,6 +325,7 @@ export function useAvgTest(config: AvgScriptConfig): UseAvgTestResult {
     isComplete,
     stepIndex,
     totalSteps,
+    restart,
     continueDialogue,
     selectOption,
   };

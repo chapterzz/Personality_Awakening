@@ -8,7 +8,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Prisma, User, UserRole } from '@prisma/client';
+import { AssessmentMode, Prisma, User, UserRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtUserService } from './jwt-user.service';
 import { RegisterDto } from './dto/register.dto';
@@ -90,15 +90,17 @@ export class AuthService {
     const sessionId = dto.guest_session_id.trim();
 
     return this.prisma.$transaction(async (tx) => {
-      const guest = await tx.temporarySession.findUnique({ where: { sessionId } });
-      if (!guest) {
+      const guestRows = await tx.temporarySession.findMany({
+        where: { guestSessionId: sessionId },
+      });
+      if (guestRows.length === 0) {
         throw new NotFoundException({
           success: false,
           data: null,
           message: 'guest_session_not_found',
         });
       }
-      if (guest.userId !== null) {
+      if (guestRows.some((row) => row.userId !== null)) {
         throw new BadRequestException({
           success: false,
           data: null,
@@ -127,19 +129,20 @@ export class AuthService {
       }
 
       if (dto.finalize_submission && dto.submission) {
+        const mode = dto.submission.mode;
         await tx.testResult.create({
           data: {
             userId: user.id,
-            mode: dto.submission.mode,
+            mode,
             scores: dto.submission.scores as Prisma.InputJsonValue,
             mbtiType: dto.submission.mbti_type,
             completedAt: new Date(),
           },
         });
-        await tx.temporarySession.delete({ where: { sessionId } });
+        await tx.temporarySession.deleteMany({ where: { guestSessionId: sessionId, mode } });
       } else {
-        await tx.temporarySession.update({
-          where: { sessionId },
+        await tx.temporarySession.updateMany({
+          where: { guestSessionId: sessionId },
           data: { userId: user.id },
         });
       }
