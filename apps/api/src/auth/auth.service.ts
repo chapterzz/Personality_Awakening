@@ -8,7 +8,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { AssessmentMode, Prisma, User, UserRole } from '@prisma/client';
+import { Prisma, User, UserRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtUserService } from './jwt-user.service';
 import { RegisterDto } from './dto/register.dto';
