@@ -11,17 +11,23 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { getHesitationLine, getMutexLine } from '@/data/sprite-lines';
 import { DEMO_STANDARD_CONFIG } from '@/data/standard-demo-questionnaire';
 import { useSpriteInteraction } from '@/hooks/use-sprite-interaction';
+import { buildStandardSignals, fetchMbtiReport, ReportScoringError } from '@/lib/report-scoring';
+import { saveReportSnapshot } from '@/lib/report-storage';
 import { useStandardTest } from '@/hooks/use-standard-test';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export function StandardTestClient() {
   const t = useStandardTest(DEMO_STANDARD_CONFIG);
+  const router = useRouter();
   const sprite = useSpriteInteraction({
     getHesitationLine,
     getMutexLine,
   });
+  const [buildingReport, setBuildingReport] = useState(false);
+  const [reportError, setReportError] = useState<string | null>(null);
 
   const q = t.currentQuestion;
   const choiceActive = t.phase === 'ready' && !t.isComplete && Boolean(q) && !t.saving;
@@ -77,6 +83,30 @@ export function StandardTestClient() {
   const idx = t.progressData?.standard.current_index ?? 0;
   const displayNum = Math.min(idx + 1, ordered.length);
 
+  const handleBuildReport = async () => {
+    if (!t.progressData || t.progressData.mode !== 'STANDARD') return;
+    try {
+      setBuildingReport(true);
+      setReportError(null);
+      const signals = buildStandardSignals(t.progressData, DEMO_STANDARD_CONFIG);
+      const result = await fetchMbtiReport({ mode: 'STANDARD', signals });
+      saveReportSnapshot({
+        mode: 'STANDARD',
+        result,
+        generated_at: new Date().toISOString(),
+      });
+      router.push('/report?mode=STANDARD');
+    } catch (error) {
+      if (error instanceof ReportScoringError) {
+        setReportError('生成报告失败，请稍后重试。');
+      } else {
+        setReportError('生成报告失败，请检查网络后重试。');
+      }
+    } finally {
+      setBuildingReport(false);
+    }
+  };
+
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
       <div>
@@ -131,15 +161,24 @@ export function StandardTestClient() {
         <div className="rounded-xl border border-border bg-card p-8 text-center shadow-sm">
           <p className="text-lg font-semibold text-foreground">本卷已完成</p>
           <p className="mt-2 text-sm text-muted-foreground">
-            演示流程结束。正式提交与报告将在后续里程碑接入。
+            你已完成本轮标准模式测评，现在可生成并查看结果报告。
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
             你可以重新开始一轮测试。重新开始将丢弃当前测试结果。
           </p>
+          {reportError && <p className="mt-2 text-sm text-destructive">{reportError}</p>}
           <div className="mt-6 flex justify-center">
             <Button
               type="button"
-              disabled={t.saving}
+              disabled={buildingReport || t.saving}
+              onClick={() => void handleBuildReport()}
+            >
+              {buildingReport ? '正在生成报告…' : '查看结果报告'}
+            </Button>
+            <span className="w-3" />
+            <Button
+              type="button"
+              disabled={buildingReport || t.saving}
               onClick={() => {
                 const ok = window.confirm('重新开始将丢弃当前测试结果，确定重新开始吗？');
                 if (ok) {
