@@ -7,10 +7,11 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ProgressModule } from './progress/progress.module';
+import { QuestionnaireModule } from './questionnaire/questionnaire.module';
 import { ScoringModule } from './scoring/scoring.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, ProgressModule, ScoringModule],
+  imports: [PrismaModule, AuthModule, ProgressModule, ScoringModule, QuestionnaireModule],
   controllers: [AppController],
   providers: [AppService],
 })

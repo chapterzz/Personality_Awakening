@@ -1,5 +1,6 @@
 /**
- * 标准模式测评页（客户端）：演示题库 + 进度条/题卡/选项 + 每 5 题保存与 409 处理。
+ * 标准模式测评页（客户端）：自适应题库 + 进度条/题卡/选项 + 自动保存与 409 处理。
+ * T2.7 使用 useAdaptiveStandardTest 从服务端获取题序，支持筛选轮→追问轮。
  */
 'use client';
 
@@ -9,18 +10,19 @@ import { StandardQuestionCard } from '@/components/standard-test/standard-questi
 import { StandardTestProgressBar } from '@/components/standard-test/standard-test-progress-bar';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { getHesitationLine, getMutexLine } from '@/data/sprite-lines';
-import { DEMO_STANDARD_CONFIG } from '@/data/standard-demo-questionnaire';
 import { useSpriteInteraction } from '@/hooks/use-sprite-interaction';
 import { buildStandardSignals, fetchMbtiReport, ReportScoringError } from '@/lib/report-scoring';
 import { saveReportSnapshot } from '@/lib/report-storage';
-import { useStandardTest } from '@/hooks/use-standard-test';
+import { useAdaptiveStandardTest } from '@/hooks/use-adaptive-standard-test';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+const QUESTIONNAIRE_ID = 'adaptive-demo-v1';
+
 export function StandardTestClient() {
-  const t = useStandardTest(DEMO_STANDARD_CONFIG);
+  const t = useAdaptiveStandardTest(QUESTIONNAIRE_ID);
   const router = useRouter();
   const sprite = useSpriteInteraction({
     getHesitationLine,
@@ -49,7 +51,7 @@ export function StandardTestClient() {
           </Link>
         </div>
         <div className="flex min-h-[40vh] items-center justify-center text-muted-foreground">
-          加载进度…
+          加载问卷与进度…
         </div>
       </div>
     );
@@ -77,9 +79,7 @@ export function StandardTestClient() {
     );
   }
 
-  const ordered = t.progressData?.standard.ordered_question_ids ?? [
-    ...DEMO_STANDARD_CONFIG.orderedQuestionIds,
-  ];
+  const ordered = t.progressData?.standard.ordered_question_ids ?? [];
   const idx = t.progressData?.standard.current_index ?? 0;
   const displayNum = Math.min(idx + 1, ordered.length);
 
@@ -88,7 +88,11 @@ export function StandardTestClient() {
     try {
       setBuildingReport(true);
       setReportError(null);
-      const signals = buildStandardSignals(t.progressData, DEMO_STANDARD_CONFIG);
+      const signals = buildStandardSignals(t.progressData, {
+        questionnaireId: QUESTIONNAIRE_ID,
+        orderedQuestionIds: ordered,
+        questions: t.questionsMap,
+      });
       const result = await fetchMbtiReport({ mode: 'STANDARD', signals });
       saveReportSnapshot({
         mode: 'STANDARD',
@@ -124,7 +128,7 @@ export function StandardTestClient() {
       </div>
 
       <div className="space-y-1">
-        <p className="text-sm font-medium text-muted-foreground">标准模式 · 演示问卷</p>
+        <p className="text-sm font-medium text-muted-foreground">标准模式 · 自适应题库</p>
         <h1 className="text-2xl font-bold tracking-tight text-foreground">性格倾向小测</h1>
         <p className="text-sm text-muted-foreground">
           每次作答都会自动同步服务端进度（含登录后续答）。当前身份：

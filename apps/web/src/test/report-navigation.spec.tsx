@@ -41,9 +41,9 @@ vi.mock('@/hooks/use-sprite-interaction', () => ({
   }),
 }));
 
-const useStandardTestMock = vi.fn();
-vi.mock('@/hooks/use-standard-test', () => ({
-  useStandardTest: (...args: unknown[]) => useStandardTestMock(...args),
+const useAdaptiveStandardTestMock = vi.fn();
+vi.mock('@/hooks/use-adaptive-standard-test', () => ({
+  useAdaptiveStandardTest: (...args: unknown[]) => useAdaptiveStandardTestMock(...args),
 }));
 
 const useAvgTestMock = vi.fn();
@@ -67,7 +67,7 @@ vi.mock('@/lib/report-storage', () => ({
 
 describe('report navigation', () => {
   it('标准模式完成态可生成报告并跳转', async () => {
-    useStandardTestMock.mockReturnValue({
+    useAdaptiveStandardTestMock.mockReturnValue({
       phase: 'ready',
       loadError: null,
       saveError: null,
@@ -77,11 +77,11 @@ describe('report navigation', () => {
       progressData: {
         schema_version: 1,
         mode: 'STANDARD',
-        questionnaire_id: 'demo-standard-v1',
+        questionnaire_id: 'adaptive-demo-v1',
         standard: {
           current_index: 12,
-          answers: { q01: 'q01_A' },
-          ordered_question_ids: ['q01'],
+          answers: { sq01: 'sq01_A' },
+          ordered_question_ids: ['sq01'],
           answered_count: 1,
         },
       },
@@ -92,6 +92,7 @@ describe('report navigation', () => {
       answeredCount: 1,
       currentQuestion: null,
       isComplete: true,
+      questionsMap: {},
       restart: async () => {},
       selectOption: async () => {},
     });

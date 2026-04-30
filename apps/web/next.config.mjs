@@ -4,6 +4,13 @@
  */
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  /** 图片优化配置：本地 public/ 资源自动优化，CDN 域名在此预留 */
+  images: {
+    remotePatterns: [
+      // CDN 域名上线时取消注释并填写实际域名
+      // { protocol: 'https', hostname: 'cdn.example.com' },
+    ],
+  },
   webpack: (config, { dev, isServer }) => {
     if (dev && !isServer && config.output) {
       config.output.chunkLoadTimeout = 300000;

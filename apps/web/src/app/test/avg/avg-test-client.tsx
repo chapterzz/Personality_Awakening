@@ -13,7 +13,7 @@ import { DEMO_AVG_SCRIPT } from '@/data/avg-demo-script';
 import { getHesitationLine, getMutexLine } from '@/data/sprite-lines';
 import { useAvgTest } from '@/hooks/use-avg-test';
 import { useSpriteInteraction } from '@/hooks/use-sprite-interaction';
-import { getBackgroundClassName } from '@/lib/avg-script';
+import { getBackgroundDescriptor } from '@/lib/avg-script';
 import { buildAvgSignals, fetchMbtiReport, ReportScoringError } from '@/lib/report-scoring';
 import { saveReportSnapshot } from '@/lib/report-storage';
 import { cn } from '@/lib/utils';
@@ -92,9 +92,9 @@ export function AvgTestClient() {
     );
   }
 
-  const bg = t.currentNode
-    ? getBackgroundClassName(DEMO_AVG_SCRIPT, t.currentNode.background_key)
-    : getBackgroundClassName(DEMO_AVG_SCRIPT, 'night');
+  const bgDescriptor = t.currentNode
+    ? getBackgroundDescriptor(DEMO_AVG_SCRIPT, t.currentNode.background_key)
+    : getBackgroundDescriptor(DEMO_AVG_SCRIPT, 'night');
 
   const handleBuildReport = async () => {
     if (!t.progressData || t.progressData.mode !== 'AVG') return;
@@ -167,7 +167,7 @@ export function AvgTestClient() {
 
       {t.saving && <p className="text-sm text-muted-foreground">正在保存…</p>}
 
-      <AvgStoryStage backgroundClassName={bg}>
+      <AvgStoryStage background={bgDescriptor}>
         {!t.currentNode && (
           <p className="text-sm text-destructive">当前节点配置缺失，请刷新页面。</p>
         )}

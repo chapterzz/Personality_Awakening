@@ -1,5 +1,6 @@
 /**
- * AVG 剧情纯函数单测：背景 key 回退、与标准模式衔接的「已收束」判定。
+ * AVG 剧情纯函数单测：背景 key 回退、结构化背景描述符、与标准模式衔接的「已收束」判定。
+ * T2.6 新增 getBackgroundDescriptor 测试。
  */
 import { describe, expect, it } from 'vitest';
 
@@ -8,6 +9,7 @@ import { DEMO_AVG_SCRIPT } from '@/data/avg-demo-script';
 import {
   countChoiceNodes,
   getBackgroundClassName,
+  getBackgroundDescriptor,
   isAvgProgressAtEndForScript,
 } from './avg-script';
 import { createInitialAvgProgress, type AvgProgressDataV1 } from './progress-data';
@@ -18,9 +20,34 @@ describe('countChoiceNodes', () => {
   });
 });
 
-describe('getBackgroundClassName', () => {
-  it('返回已配置渐变类名', () => {
+describe('getBackgroundDescriptor', () => {
+  it('纯渐变 string 条目返回仅 gradientClassName', () => {
+    const desc = getBackgroundDescriptor(DEMO_AVG_SCRIPT, 'night');
+    expect(desc.gradientClassName).toContain('indigo');
+    expect(desc.imageUrl).toBeUndefined();
+    expect(desc.lottieUrl).toBeUndefined();
+  });
+
+  it('结构化条目返回 gradientClassName + imageUrl', () => {
+    const desc = getBackgroundDescriptor(DEMO_AVG_SCRIPT, 'dawn');
+    expect(desc.gradientClassName).toContain('amber');
+    expect(desc.imageUrl).toContain('dawn-placeholder');
+  });
+
+  it('未知 key 回退默认渐变', () => {
+    const desc = getBackgroundDescriptor(DEMO_AVG_SCRIPT, 'missing');
+    expect(desc.gradientClassName).toContain('slate');
+    expect(desc.imageUrl).toBeUndefined();
+  });
+});
+
+describe('getBackgroundClassName（兼容接口）', () => {
+  it('纯渐变条目返回渐变类名', () => {
     expect(getBackgroundClassName(DEMO_AVG_SCRIPT, 'night')).toContain('indigo');
+  });
+
+  it('结构化条目返回 gradientClassName', () => {
+    expect(getBackgroundClassName(DEMO_AVG_SCRIPT, 'dawn')).toContain('amber');
   });
 
   it('未知 key 时回退默认渐变', () => {

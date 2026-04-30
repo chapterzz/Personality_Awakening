@@ -26,8 +26,46 @@ export function isAvgProgressAtEndForScript(
   return n !== undefined && isAvgEndNode(n);
 }
 
+/**
+ * 结构化背景描述符：渐变始终存在作为 fallback，图片/Lottie 可选。
+ * T2.6 资源懒加载基础设施。
+ */
+export type BackgroundDescriptor = {
+  /** Tailwind 渐变类字符串（始终存在，作为 base/fallback） */
+  gradientClassName: string;
+  /** 图片 URL，如有配置 */
+  imageUrl?: string;
+  /** Lottie 动画 JSON URL，如有配置 */
+  lottieUrl?: string;
+};
+
+/**
+ * 从脚本配置中解析结构化背景描述符。
+ * 支持两种 backgrounds 值形式：
+ * - string：纯 Tailwind 渐变类名（向后兼容）
+ * - AvgBackgroundEntry：结构化配置（渐变 + 图片/Lottie）
+ */
+export function getBackgroundDescriptor(
+  config: AvgScriptConfig,
+  backgroundKey: string,
+): BackgroundDescriptor {
+  const entry = config.backgrounds[backgroundKey];
+  if (!entry) {
+    return { gradientClassName: 'from-slate-900 to-slate-950' };
+  }
+  if (typeof entry === 'string') {
+    return { gradientClassName: entry };
+  }
+  return {
+    gradientClassName: entry.gradientClassName ?? 'from-slate-900 to-slate-950',
+    imageUrl: entry.imageUrl,
+    lottieUrl: entry.lottieUrl,
+  };
+}
+
+/** @deprecated 使用 getBackgroundDescriptor 代替；保留仅返回渐变类名的兼容接口 */
 export function getBackgroundClassName(config: AvgScriptConfig, backgroundKey: string): string {
-  return config.backgrounds[backgroundKey] ?? 'from-slate-900 to-slate-950';
+  return getBackgroundDescriptor(config, backgroundKey).gradientClassName;
 }
 
 /** 脚本中「选项分支」节点数量，用于进度条只统计需玩家做选择的关键步（对白「继续」不计入）。 */

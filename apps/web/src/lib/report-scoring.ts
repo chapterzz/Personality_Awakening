@@ -2,7 +2,7 @@
  * 结果页评分数据：从 STANDARD/AVG 进度提取 MBTI 信号并调用后端 `/scoring/mbti`。
  */
 import type { AvgScriptConfig } from '@/data/avg-demo-script';
-import type { DemoStandardConfig } from '@/data/standard-demo-questionnaire';
+import type { QuestionnaireConfig } from '@/data/questionnaire-types';
 import { getBrowserApiBaseUrl } from '@/lib/api-base';
 import type { AvgProgressDataV1, StandardProgressDataV1 } from '@/lib/progress-data';
 
@@ -45,7 +45,7 @@ export class ReportScoringError extends Error {
  */
 export function buildStandardSignals(
   progress: StandardProgressDataV1,
-  config: DemoStandardConfig,
+  config: QuestionnaireConfig,
 ): MbtiSignal[] {
   const answers = progress.standard.answers;
   const ordered = progress.standard.ordered_question_ids ?? [...config.orderedQuestionIds];

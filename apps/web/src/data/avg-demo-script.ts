@@ -53,11 +53,24 @@ export type AvgEndNode = {
 
 export type AvgNode = AvgDialogueNode | AvgChoiceNode | AvgEndNode;
 
+/**
+ * 背景配置条目：支持纯渐变类名（string）或结构化对象（图片/Lottie + 渐变 fallback）。
+ * T2.6 资源懒加载基础设施。
+ */
+export type AvgBackgroundEntry = {
+  /** Tailwind 渐变类名，作为 fallback 或叠加层 */
+  gradientClassName?: string;
+  /** 图片 URL（本地 /assets/... 或远程 CDN） */
+  imageUrl?: string;
+  /** Lottie 动画 JSON URL */
+  lottieUrl?: string;
+};
+
 export type AvgScriptConfig = {
   script_id: string;
   start_node_id: string;
-  /** 背景 key → Tailwind 渐变类名（避免演示依赖外链图床） */
-  backgrounds: Record<string, string>;
+  /** 背景 key → Tailwind 渐变类名（string）或结构化背景配置（AvgBackgroundEntry） */
+  backgrounds: Record<string, string | AvgBackgroundEntry>;
   nodes: Record<string, AvgNode>;
 };
 
@@ -73,7 +86,11 @@ export const DEMO_AVG_SCRIPT: AvgScriptConfig = {
   backgrounds: {
     night: 'from-indigo-950 via-slate-900 to-slate-950',
     aurora: 'from-emerald-950/80 via-teal-900/90 to-slate-950',
-    dawn: 'from-amber-950/90 via-orange-900/80 to-slate-950',
+    /** T2.6 演示：结构化背景配置，含渐变 fallback + 占位图片 */
+    dawn: {
+      gradientClassName: 'from-amber-950/90 via-orange-900/80 to-slate-950',
+      imageUrl: '/assets/backgrounds/dawn-placeholder.png',
+    },
   },
   nodes: {
     intro: {

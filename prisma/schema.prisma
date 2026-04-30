@@ -119,11 +119,18 @@ model StandardQuestion {
   questionnaireId String @map("questionnaire_id")
   prompt          String
   sortOrder       Int    @map("sort_order")
+  /// T2.7 自适应题库：题目所属维度（EI/SN/TF/JP）
+  dimension       String? @map("dimension")
+  /// T2.7 自适应题库：分组标识（screening / ei_followup / sn_followup 等）
+  groupTag        String? @map("group_tag")
+  /// T2.7 自适应题库：组内排序
+  groupSortOrder  Int?    @map("group_sort_order")
 
   questionnaire StandardQuestionnaire @relation(fields: [questionnaireId], references: [id], onDelete: Cascade)
   options       StandardQuestionOption[]
 
   @@index([questionnaireId])
+  @@index([questionnaireId, groupTag])
   @@map("standard_questions")
 }
 
@@ -133,6 +140,12 @@ model StandardQuestionOption {
   label      String
   /// 与 progress_data.standard.answers 中 value 对齐的业务键
   valueKey   String  @map("value_key")
+  /// T2.7 自适应题库：维度标签（EI/SN/TF/JP），计分用
+  dimension  String? @map("dimension")
+  /// T2.7 自适应题库：偏向侧（E/I/S/N/T/F/J/P），计分用
+  side       String? @map("side")
+  /// T2.7 自适应题库：信号强度 1-3，计分用
+  weight     Int?    @map("weight")
 
   question StandardQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
 

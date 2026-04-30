@@ -1,38 +1,32 @@
 /**
  * 标准模式演示题库（静态，后续由 CMS/T2.7 替换）；`question_id` / `option_id` 与 `progress_data.standard` 对齐。
  */
+import type {
+  QuestionnaireDimension,
+  QuestionnaireOption,
+  QuestionnaireQuestion,
+  QuestionnaireSide,
+} from './questionnaire-types';
 
-export type DemoDimensionTag = 'EI' | 'SN' | 'TF' | 'JP';
+/** @deprecated 使用 QuestionnaireDimension 代替 */
+export type DemoDimensionTag = QuestionnaireDimension;
 
-export type DemoOptionSide = 'E' | 'I' | 'S' | 'N' | 'T' | 'F' | 'J' | 'P';
+/** @deprecated 使用 QuestionnaireSide 代替 */
+export type DemoOptionSide = QuestionnaireSide;
 
-/**
- * 标准模式选项的“维度信号”，用于 T2.3 互斥检测（并非最终 MBTI 计分实现）。
- * - `dimension`: 属于哪一对维度（EI/SN/TF/JP）
- * - `side`: 该选项偏向哪一侧
- * - `weight`: 强度（互斥检测只关心是否“强烈”）
- */
-export type DemoOption = {
-  id: string;
-  label: string;
-  dimension: DemoDimensionTag;
-  side: DemoOptionSide;
-  weight: 1 | 2 | 3;
-};
+/** @deprecated 使用 QuestionnaireOption 代替 */
+export type DemoOption = QuestionnaireOption;
 
-export type DemoQuestion = {
-  id: string;
-  text: string;
-  options: DemoOption[];
-};
+/** @deprecated 使用 QuestionnaireQuestion 代替 */
+export type DemoQuestion = QuestionnaireQuestion;
 
 const mk = (
   id: string,
-  dimension: DemoDimensionTag,
+  dimension: QuestionnaireDimension,
   text: string,
-  a: { label: string; side: DemoOptionSide; weight?: 1 | 2 | 3 },
-  b: { label: string; side: DemoOptionSide; weight?: 1 | 2 | 3 },
-): DemoQuestion => ({
+  a: { label: string; side: QuestionnaireSide; weight?: 1 | 2 | 3 },
+  b: { label: string; side: QuestionnaireSide; weight?: 1 | 2 | 3 },
+): QuestionnaireQuestion => ({
   id,
   text,
   options: [
@@ -60,7 +54,7 @@ export const DEMO_ORDERED_QUESTION_IDS = [
   'q12',
 ] as const;
 
-export const DEMO_QUESTIONS: Record<string, DemoQuestion> = {
+export const DEMO_QUESTIONS: Record<string, QuestionnaireQuestion> = {
   q01: mk(
     'q01',
     'EI',
@@ -150,7 +144,7 @@ export const DEMO_QUESTIONS: Record<string, DemoQuestion> = {
 export type DemoStandardConfig = {
   questionnaireId: string;
   orderedQuestionIds: readonly string[];
-  questions: Record<string, DemoQuestion>;
+  questions: Record<string, QuestionnaireQuestion>;
 };
 
 export const DEMO_STANDARD_CONFIG: DemoStandardConfig = {
