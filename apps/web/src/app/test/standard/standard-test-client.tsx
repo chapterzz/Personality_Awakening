@@ -1,6 +1,7 @@
 /**
  * 标准模式测评页（客户端）：自适应题库 + 进度条/题卡/选项 + 自动保存与 409 处理。
  * T2.7 使用 useAdaptiveStandardTest 从服务端获取题序，支持筛选轮→追问轮。
+ * 2026-05-01 UI 重构：font-display 标题 + Claymorphism 完成卡片。
  */
 'use client';
 
@@ -68,7 +69,7 @@ export function StandardTestClient() {
             返回首页
           </Link>
         </div>
-        <div className="space-y-4 rounded-xl border border-destructive/30 bg-destructive/5 p-6">
+        <div className="space-y-4 rounded-2xl border border-destructive/30 bg-destructive/5 p-6">
           <p className="font-medium text-destructive">无法加载测评进度</p>
           <p className="text-sm text-muted-foreground">{t.loadError}</p>
           <Button type="button" onClick={() => t.reload()}>
@@ -129,7 +130,9 @@ export function StandardTestClient() {
 
       <div className="space-y-1">
         <p className="text-sm font-medium text-muted-foreground">标准模式 · 自适应题库</p>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">性格倾向小测</h1>
+        <h1 className="font-display text-2xl font-extrabold tracking-tight text-foreground">
+          性格倾向小测
+        </h1>
         <p className="text-sm text-muted-foreground">
           每次作答都会自动同步服务端进度（含登录后续答）。当前身份：
           <span className="ml-1 font-medium text-foreground">
@@ -141,13 +144,13 @@ export function StandardTestClient() {
       <StandardTestProgressBar answered={t.answeredCount} total={t.totalQuestions} />
 
       {t.conflictNotice && (
-        <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-950 dark:text-amber-100">
+        <p className="rounded-2xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-950 dark:text-amber-100">
           检测到其他端已更新进度，已为你同步为服务器最新版本。
         </p>
       )}
 
       {t.saveError && (
-        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
           <span>{t.saveError}</span>
           <button
             type="button"
@@ -162,8 +165,8 @@ export function StandardTestClient() {
       {t.saving && <p className="text-sm text-muted-foreground">正在保存…</p>}
 
       {t.isComplete && (
-        <div className="rounded-xl border border-border bg-card p-8 text-center shadow-sm">
-          <p className="text-lg font-semibold text-foreground">本卷已完成</p>
+        <div className="rounded-3xl border-[3px] border-[var(--border)] bg-card p-8 text-center shadow-clay">
+          <p className="font-display text-lg font-bold text-foreground">本卷已完成</p>
           <p className="mt-2 text-sm text-muted-foreground">
             你已完成本轮标准模式测评，现在可生成并查看结果报告。
           </p>

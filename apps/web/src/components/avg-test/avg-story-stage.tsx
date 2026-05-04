@@ -25,7 +25,7 @@ export function AvgStoryStage({ backgroundClassName, background, children }: Avg
   return (
     <div
       className={cn(
-        'relative min-h-[min(70vh,560px)] overflow-hidden rounded-2xl border border-border/50 shadow-lg',
+        'relative min-h-[min(70vh,560px)] overflow-hidden rounded-3xl border-[3px] border-[var(--border)]/50 shadow-clay-lg',
       )}
     >
       {/* 渐变层：始终作为 base/fallback */}

@@ -1,5 +1,6 @@
 /**
  * AVG 分支进度条：仅统计需玩家做选择的节点（对白「继续」不计入），与 `avg.answers` 对齐。
+ * 2026-05-01 UI 重构：加高、渐变填充、glow 阴影。
  */
 type AvgStoryProgressBarProps = {
   stepIndex: number;
@@ -20,14 +21,14 @@ export function AvgStoryProgressBar({ stepIndex, totalSteps }: AvgStoryProgressB
         </span>
       </div>
       <div
-        className="h-2 w-full overflow-hidden rounded-full bg-muted/80"
+        className="h-3 w-full overflow-hidden rounded-full bg-[#FECDD3]/40 dark:bg-[#4A1A24]"
         role="progressbar"
         aria-valuenow={stepIndex}
         aria-valuemin={0}
         aria-valuemax={totalSteps}
       >
         <div
-          className="h-full rounded-full bg-primary transition-[width] duration-300 ease-out"
+          className="h-full rounded-full bg-gradient-to-r from-[#FB7185] to-[#E11D48] shadow-[0_0_8px_rgba(225,29,72,0.3)] transition-[width] duration-300 ease-out"
           style={{ width: `${pct}%` }}
         />
       </div>

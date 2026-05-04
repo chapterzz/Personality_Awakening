@@ -1,5 +1,6 @@
 /**
  * AVG 演示页（客户端）：剧情渲染、背景切换、分支选项、节点级保存与 409 处理（T2.2）。
+ * 2026-05-01 UI 重构：font-display 标题 + Claymorphism 完成卡片。
  */
 'use client';
 
@@ -62,7 +63,7 @@ export function AvgTestClient() {
             返回首页
           </Link>
         </div>
-        <div className="space-y-4 rounded-xl border border-destructive/30 bg-destructive/5 p-6">
+        <div className="space-y-4 rounded-2xl border border-destructive/30 bg-destructive/5 p-6">
           <p className="font-medium text-destructive">剧情版本不一致</p>
           <p className="text-sm text-muted-foreground">
             服务器上的 AVG 进度不属于本演示脚本（{DEMO_AVG_SCRIPT.script_id}
@@ -81,7 +82,7 @@ export function AvgTestClient() {
             返回首页
           </Link>
         </div>
-        <div className="space-y-4 rounded-xl border border-destructive/30 bg-destructive/5 p-6">
+        <div className="space-y-4 rounded-2xl border border-destructive/30 bg-destructive/5 p-6">
           <p className="font-medium text-destructive">无法加载剧情进度</p>
           <p className="text-sm text-muted-foreground">{t.loadError}</p>
           <Button type="button" onClick={() => t.reload()}>
@@ -135,7 +136,9 @@ export function AvgTestClient() {
 
       <div className="space-y-1">
         <p className="text-sm font-medium text-muted-foreground">AVG 模式 · 演示剧情</p>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">星港夜话</h1>
+        <h1 className="font-display text-2xl font-extrabold tracking-tight text-foreground">
+          星港夜话
+        </h1>
         <p className="text-sm text-muted-foreground">
           每个节点确认后写入服务端（含登录后续答）。当前身份：
           <span className="ml-1 font-medium text-foreground">
@@ -147,13 +150,13 @@ export function AvgTestClient() {
       <AvgStoryProgressBar stepIndex={t.stepIndex} totalSteps={t.totalSteps} />
 
       {t.conflictNotice && (
-        <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-950 dark:text-amber-100">
+        <p className="rounded-2xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-950 dark:text-amber-100">
           检测到其他端已更新进度，已为你同步为服务器最新版本。
         </p>
       )}
 
       {t.saveError && (
-        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
           <span>{t.saveError}</span>
           <button
             type="button"
@@ -173,7 +176,7 @@ export function AvgTestClient() {
         )}
 
         {t.currentNode && t.isComplete && (
-          <div className="rounded-xl border border-border/60 bg-background/90 p-6 shadow-sm backdrop-blur-md">
+          <div className="rounded-2xl border-2 border-border/60 bg-background/90 p-6 shadow-sm backdrop-blur-md">
             <AvgDialogueBubbles lines={t.currentNode.lines} />
             <p className="mt-6 text-center text-sm font-medium text-foreground">本段剧情已完成</p>
             <p className="mt-2 text-center text-sm text-muted-foreground">
@@ -212,7 +215,7 @@ export function AvgTestClient() {
         )}
 
         {t.currentNode && !t.isComplete && t.currentNode.kind === 'dialogue' && (
-          <div className="rounded-xl border border-border/60 bg-background/90 p-6 shadow-sm backdrop-blur-md">
+          <div className="rounded-2xl border-2 border-border/60 bg-background/90 p-6 shadow-sm backdrop-blur-md">
             <AvgDialogueBubbles lines={t.currentNode.lines} />
             <div className="mt-6 flex justify-end">
               <Button type="button" disabled={t.saving} onClick={() => void t.continueDialogue()}>
@@ -223,7 +226,7 @@ export function AvgTestClient() {
         )}
 
         {t.currentNode && !t.isComplete && t.currentNode.kind === 'choice' && (
-          <div className="rounded-xl border border-border/60 bg-background/90 p-6 shadow-sm backdrop-blur-md">
+          <div className="rounded-2xl border-2 border-border/60 bg-background/90 p-6 shadow-sm backdrop-blur-md">
             <AvgDialogueBubbles lines={t.currentNode.lines} />
             <div className="mt-6">
               <AvgOptionButtons

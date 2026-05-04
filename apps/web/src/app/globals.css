@@ -1,4 +1,5 @@
 /* 全局样式：Tailwind 层、CSS 变量与深色模式（class 策略由 next-themes 写入 html）。 */
+/* 2026-05-01 UI 重构：Claymorphism 粘土风格 + 玫瑰粉配色，面向 13 岁初一女生。 */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,35 +8,88 @@
   .text-balance {
     text-wrap: balance;
   }
+  /* Claymorphism 粘土卡片：厚边框 + 多层阴影 */
+  .clay-card {
+    border: 3px solid var(--border);
+    border-radius: 1.25rem;
+    box-shadow: var(--clay-shadow-card), var(--clay-shadow-inner);
+  }
+  /* Claymorphism 按钮：紫色渐变阴影 + 按压缩放 */
+  .clay-button {
+    border: 3px solid transparent;
+    border-radius: 1rem;
+    box-shadow: var(--clay-shadow-button), var(--clay-shadow-inner);
+    transition: transform 200ms ease-out, box-shadow 200ms ease-out;
+  }
+  .clay-button:active {
+    transform: scale(0.95);
+    box-shadow: var(--clay-shadow-outer);
+  }
+  /* 通用按压缩放效果 */
+  .clay-press {
+    transition: transform 200ms ease-out;
+  }
+  .clay-press:active {
+    transform: scale(0.95);
+  }
+}
+
+/* 浮动装饰 blob 动画 */
+@keyframes blob-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(12px, -18px) scale(1.04); }
+  66% { transform: translate(-8px, 12px) scale(0.97); }
+}
+
+@keyframes blob-float-alt {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-15px, 10px) scale(0.96); }
+  66% { transform: translate(10px, -14px) scale(1.03); }
+}
+
+@layer utilities {
+  .animate-blob-float {
+    animation: blob-float 12s ease-in-out infinite;
+  }
+  .animate-blob-float-alt {
+    animation: blob-float-alt 15s ease-in-out infinite;
+  }
 }
 
 @layer base {
   :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --radius-md: calc(var(--radius) - 2px);
+    /* 玫瑰粉主色调 */
+    --background: #FFF1F2;
+    --foreground: #881337;
+    --card: #FFFFFF;
+    --card-foreground: #881337;
+    --popover: #FFFFFF;
+    --popover-foreground: #881337;
+    --primary: #E11D48;
+    --primary-foreground: #FFFFFF;
+    --secondary: #FB7185;
+    --secondary-foreground: #FFFFFF;
+    --muted: #F0ECF2;
+    --muted-foreground: #6B7280;
+    --accent: #2563EB;
+    --accent-foreground: #FFFFFF;
+    --destructive: #DC2626;
+    --border: #FECDD3;
+    --input: #FECDD3;
+    --ring: #E11D48;
+    --chart-1: #E11D48;
+    --chart-2: #2563EB;
+    --chart-3: #7C3AED;
+    --chart-4: #059669;
+    --chart-5: #F59E0B;
+    --radius: 1.25rem;
+    --radius-md: calc(var(--radius) - 4px);
+    /* Claymorphism 多层阴影 */
+    --clay-shadow-outer: 0 4px 12px rgba(225, 29, 72, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+    --clay-shadow-inner: inset 0 2px 4px rgba(255, 255, 255, 0.6);
+    --clay-shadow-card: 0 6px 20px rgba(225, 29, 72, 0.1), 0 2px 6px rgba(0, 0, 0, 0.05), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+    --clay-shadow-button: 0 4px 12px rgba(124, 58, 237, 0.2), 0 2px 4px rgba(0, 0, 0, 0.06);
+    /* sidebar 变量保持不变（当前页面未使用） */
     --sidebar: oklch(0.985 0 0);
     --sidebar-foreground: oklch(0.145 0 0);
     --sidebar-primary: oklch(0.205 0 0);
@@ -46,29 +100,35 @@
     --sidebar-ring: oklch(0.708 0 0);
   }
   .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
+    /* 暗色模式：深玫红底色 */
+    --background: #1A0A0E;
+    --foreground: #FECDD3;
+    --card: #2D1218;
+    --card-foreground: #FECDD3;
+    --popover: #2D1218;
+    --popover-foreground: #FECDD3;
+    --primary: #FB7185;
+    --primary-foreground: #1A0A0E;
+    --secondary: #9F1239;
+    --secondary-foreground: #FFF1F2;
+    --muted: #2D1218;
+    --muted-foreground: #9CA3AF;
+    --accent: #60A5FA;
+    --accent-foreground: #1A0A0E;
+    --destructive: #F87171;
+    --border: #4A1A24;
+    --input: #4A1A24;
+    --ring: #FB7185;
+    --chart-1: #FB7185;
+    --chart-2: #60A5FA;
+    --chart-3: #A78BFA;
+    --chart-4: #34D399;
+    --chart-5: #FBBF24;
+    /* 暗色模式阴影调整 */
+    --clay-shadow-outer: 0 4px 12px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
+    --clay-shadow-inner: inset 0 2px 4px rgba(255, 255, 255, 0.05);
+    --clay-shadow-card: 0 6px 20px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.03);
+    --clay-shadow-button: 0 4px 12px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
     --sidebar: oklch(0.205 0 0);
     --sidebar-foreground: oklch(0.985 0 0);
     --sidebar-primary: oklch(0.488 0.243 264.376);
