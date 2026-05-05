@@ -19,6 +19,12 @@ export default function ReportPage() {
   if (!snapshot) {
     return (
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
+        <Link
+          className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'inline-flex w-fit')}
+          href="/"
+        >
+          返回首页
+        </Link>
         <h1 className="font-display text-2xl font-extrabold tracking-tight text-foreground">
           结果报告
         </h1>
@@ -42,6 +48,12 @@ export default function ReportPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
+      <Link
+        className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'inline-flex w-fit')}
+        href="/"
+      >
+        返回首页
+      </Link>
       {/* MBTI 类型 Hero 区域 */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/10 to-[#A78BFA]/10 p-6 dark:from-primary/5 dark:to-[#A78BFA]/5">
         <FloatingBlobs variant="light" />
