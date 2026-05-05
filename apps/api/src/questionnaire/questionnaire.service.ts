@@ -80,19 +80,22 @@ export class QuestionnaireService {
     // 筛选轮始终在前
     const ordered: string[] = screening.map((q) => q.id);
 
-    // 若有已答答案，评估哪些维度需要追问
-    if (existingAnswers && Object.keys(existingAnswers).length > 0) {
-      const signals = this.extractSignals(questions, existingAnswers);
-      const weakDimensions = this.findWeakDimensions(signals);
+    // 无答案时只返回 screening 题，等待筛选轮结束后再扩展
+    if (!existingAnswers || Object.keys(existingAnswers).length === 0) {
+      return ordered;
+    }
 
-      for (const dim of weakDimensions) {
-        const dimFollowups = followups
-          .filter((q) => q.dimension === dim)
-          .sort((a, b) => (a.groupSortOrder ?? 0) - (b.groupSortOrder ?? 0));
-        for (const q of dimFollowups) {
-          if (!ordered.includes(q.id)) {
-            ordered.push(q.id);
-          }
+    // 有已答答案时，评估哪些维度需要追问
+    const signals = this.extractSignals(questions, existingAnswers);
+    const weakDimensions = this.findWeakDimensions(signals);
+
+    for (const dim of weakDimensions) {
+      const dimFollowups = followups
+        .filter((q) => q.dimension === dim)
+        .sort((a, b) => (a.groupSortOrder ?? 0) - (b.groupSortOrder ?? 0));
+      for (const q of dimFollowups) {
+        if (!ordered.includes(q.id)) {
+          ordered.push(q.id);
         }
       }
     }

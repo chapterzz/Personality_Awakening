@@ -164,7 +164,9 @@ export function StandardTestClient() {
 
       {t.saving && <p className="text-sm text-muted-foreground">正在保存…</p>}
 
-      {t.isComplete && (
+      {t.screeningExtending && <p className="text-sm text-muted-foreground">正在生成个性化题目…</p>}
+
+      {t.isComplete && !t.screeningExtending && (
         <div className="rounded-3xl border-[3px] border-[var(--border)] bg-card p-8 text-center shadow-clay">
           <p className="font-display text-lg font-bold text-foreground">本卷已完成</p>
           <p className="mt-2 text-sm text-muted-foreground">

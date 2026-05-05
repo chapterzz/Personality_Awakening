@@ -386,11 +386,11 @@ describe('QuestionnaireService', () => {
     service = module.get<QuestionnaireService>(QuestionnaireService);
   });
 
-  it('无答案时返回 screening 题目并填充至 TARGET_COUNT', async () => {
+  it('无答案时只返回 screening 题目', async () => {
     const ids = await service.generateOrderedQuestionIds('q1');
-    // screening 有 4 题，无答案时无追问，但会填充到 12 题
-    expect(ids).toHaveLength(12);
-    expect(ids.slice(0, 4)).toEqual(['sq01', 'sq02', 'sq03', 'sq04']);
+    // 无答案时只返回 screening 题，等待筛选轮结束后再扩展
+    expect(ids).toHaveLength(4);
+    expect(ids).toEqual(['sq01', 'sq02', 'sq03', 'sq04']);
   });
 
   it('EI 信号弱时追加 EI follow-up 题目', async () => {

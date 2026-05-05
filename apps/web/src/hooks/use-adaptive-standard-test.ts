@@ -44,6 +44,8 @@ export type UseAdaptiveStandardTestResult = {
   answeredCount: number;
   currentQuestion: QuestionnaireQuestion | null;
   isComplete: boolean;
+  /** 筛选轮扩展中（等待自适应题序 API 返回） */
+  screeningExtending: boolean;
   /** 题目 lookup map（用于计分 buildStandardSignals） */
   questionsMap: Record<string, QuestionnaireQuestion>;
   restart: () => Promise<void>;
@@ -60,6 +62,7 @@ export function useAdaptiveStandardTest(questionnaireId: string): UseAdaptiveSta
   const [revision, setRevision] = useState(0);
   const [progressData, setProgressData] = useState<StandardProgressDataV1 | null>(null);
   const [saving, setSaving] = useState(false);
+  const [screeningExtending, setScreeningExtending] = useState(false);
   const [conflictNotice, setConflictNotice] = useState(false);
   const [authMode, setAuthMode] = useState<'guest' | 'user'>('guest');
   const [guestSessionId, setGuestSessionId] = useState<string | null>(null);
@@ -246,6 +249,7 @@ export function useAdaptiveStandardTest(questionnaireId: string): UseAdaptiveSta
     // 当答完筛选轮所有题目时，调用 sequence 接口获取扩展题序
     if (currentIndex >= SCREENING_COUNT && Object.keys(answers).length >= SCREENING_COUNT) {
       screeningExtendedRef.current = true;
+      setScreeningExtending(true);
 
       fetchQuestionSequence(questionnaireId, answers)
         .then((seqData) => {
@@ -253,15 +257,17 @@ export function useAdaptiveStandardTest(questionnaireId: string): UseAdaptiveSta
           const latestData = progressDataRef.current;
           if (!latestData) return;
           const currentOrdered = latestData.standard.ordered_question_ids ?? orderedIds;
-          // 合并：保留已有的，追加新的
-          const merged = [...currentOrdered];
-          for (const id of seqData.ordered_question_ids) {
-            if (!merged.includes(id)) {
-              merged.push(id);
-            }
-          }
-          // 只有题序确实增长了才更新
-          if (merged.length > currentOrdered.length) {
+          const answeredIds = new Set(Object.keys(latestData.standard.answers));
+          // 保留已答题目及其相对顺序
+          const answered = currentOrdered.filter((id) => answeredIds.has(id));
+          // 未答题目按后端自适应排序排列
+          const unanswered = seqData.ordered_question_ids.filter((id) => !answeredIds.has(id));
+          const merged = [...answered, ...unanswered];
+          // 检查顺序或长度是否变化
+          const orderChanged =
+            merged.length !== currentOrdered.length ||
+            merged.some((id, i) => id !== currentOrdered[i]);
+          if (orderChanged) {
             const updated: StandardProgressDataV1 = {
               ...latestData,
               standard: {
@@ -273,10 +279,12 @@ export function useAdaptiveStandardTest(questionnaireId: string): UseAdaptiveSta
             // 立即持久化扩展后的题序
             void persist(updated, revisionRef.current);
           }
+          setScreeningExtending(false);
         })
         .catch(() => {
           // 扩展失败不阻塞答题，使用当前题序继续
           screeningExtendedRef.current = false;
+          setScreeningExtending(false);
         });
     }
   }, [phase, progressData, questionnaireId, orderedIds, revision, persist]);
@@ -395,6 +403,7 @@ export function useAdaptiveStandardTest(questionnaireId: string): UseAdaptiveSta
     answeredCount,
     currentQuestion,
     isComplete,
+    screeningExtending,
     questionsMap,
     restart,
     selectOption,
