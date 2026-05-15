@@ -225,7 +225,7 @@ export function StandardTestClient() {
         </StandardQuestionCard>
       )}
 
-      {!t.isComplete && !q && (
+      {!t.isComplete && !q && !t.screeningExtending && (
         <p className="text-sm text-destructive">当前题目配置缺失，请刷新页面或联系管理员。</p>
       )}
 

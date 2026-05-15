@@ -214,13 +214,14 @@ export function useAdaptiveStandardTest(questionnaireId: string): UseAdaptiveSta
     }
     const ordered = progressData.standard.ordered_question_ids ?? orderedIds;
     const idx = progressData.standard.current_index;
+    // 筛选轮扩展中时，不判定为完成（避免时序问题导致误显示"本卷已完成"）
     if (idx >= ordered.length) {
-      return { currentQuestion: null, isComplete: ordered.length > 0 };
+      return { currentQuestion: null, isComplete: !screeningExtending && ordered.length > 0 };
     }
     const qid = ordered[idx];
     const q = qid ? questionsMap[qid] : undefined;
     return { currentQuestion: q ?? null, isComplete: false };
-  }, [questionsMap, orderedIds, progressData]);
+  }, [questionsMap, orderedIds, progressData, screeningExtending]);
 
   // 持久化进度到服务端（useCallback 保证引用稳定，供 useEffect 和 selectOption 调用）
   const persist = useCallback(
@@ -240,6 +241,14 @@ export function useAdaptiveStandardTest(questionnaireId: string): UseAdaptiveSta
   );
 
   // 筛选轮完成后自动扩展题序
+  // 时序问题说明：
+  // 1. 用户答完4道筛选题后，current_index变成4
+  // 2. 此时isComplete会被计算为true（idx >= ordered.length）
+  // 3. 但扩展题序的useEffect还未执行，导致误显示"本卷已完成"
+  // 修复方案：
+  // 1. 在isComplete计算中检查screeningExtending状态
+  // 2. 在selectOption中检查screeningExtending，避免竞态条件
+  // 3. 在persist失败时回滚状态，保持客户端与服务端一致
   useEffect(() => {
     if (phase !== 'ready' || !progressData || screeningExtendedRef.current) return;
 
@@ -251,8 +260,14 @@ export function useAdaptiveStandardTest(questionnaireId: string): UseAdaptiveSta
       screeningExtendedRef.current = true;
       setScreeningExtending(true);
 
-      fetchQuestionSequence(questionnaireId, answers)
-        .then((seqData) => {
+      const extendSequence = async () => {
+        try {
+          const seqData = await fetchQuestionSequence(questionnaireId, answers);
+          // 边界情况：扩展题序返回空数组时，重置标记允许重试
+          if (!seqData.ordered_question_ids || seqData.ordered_question_ids.length === 0) {
+            screeningExtendedRef.current = false;
+            return;
+          }
           // 通过 ref 读取最新值，避免闭包过期导致数据丢失或 revision 冲突
           const latestData = progressDataRef.current;
           if (!latestData) return;
@@ -276,21 +291,29 @@ export function useAdaptiveStandardTest(questionnaireId: string): UseAdaptiveSta
               },
             };
             setProgressData(updated);
-            // 立即持久化扩展后的题序
-            void persist(updated, revisionRef.current);
+            // 立即持久化扩展后的题序（异步，不阻塞 UI）
+            try {
+              await persist(updated, revisionRef.current);
+            } catch {
+              // 持久化失败时回滚状态，保持客户端与服务端一致
+              setProgressData(latestData);
+              screeningExtendedRef.current = false;
+            }
           }
-          setScreeningExtending(false);
-        })
-        .catch(() => {
+        } catch {
           // 扩展失败不阻塞答题，使用当前题序继续
           screeningExtendedRef.current = false;
+        } finally {
           setScreeningExtending(false);
-        });
+        }
+      };
+
+      void extendSequence();
     }
   }, [phase, progressData, questionnaireId, orderedIds, revision, persist]);
 
   const restart = useCallback(async () => {
-    if (phase !== 'ready' || saving) return;
+    if (phase !== 'ready' || saving || screeningExtending) return;
     const current = progressData;
     if (!current) return;
 
@@ -339,11 +362,20 @@ export function useAdaptiveStandardTest(questionnaireId: string): UseAdaptiveSta
     } finally {
       setSaving(false);
     }
-  }, [questionnaireId, orderedIds, persist, phase, progressData, revision, saving]);
+  }, [
+    questionnaireId,
+    orderedIds,
+    persist,
+    phase,
+    progressData,
+    revision,
+    saving,
+    screeningExtending,
+  ]);
 
   const selectOption = useCallback(
     async (optionId: string | number) => {
-      if (!progressData || phase !== 'ready' || saving) return;
+      if (!progressData || phase !== 'ready' || saving || screeningExtending) return;
       const ordered = progressData.standard.ordered_question_ids ?? orderedIds;
       if (progressData.standard.current_index >= ordered.length) return;
 
@@ -385,7 +417,7 @@ export function useAdaptiveStandardTest(questionnaireId: string): UseAdaptiveSta
         setSaving(false);
       }
     },
-    [orderedIds, persist, phase, progressData, revision, saving],
+    [orderedIds, persist, phase, progressData, revision, saving, screeningExtending],
   );
 
   return {
