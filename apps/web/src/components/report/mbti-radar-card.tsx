@@ -1,5 +1,6 @@
 /**
- * 结果页雷达卡片：基于四维胜出差值绘制 Recharts 雷达图。
+ * 结果页雷达卡片：基于四维得分绘制 Recharts 雷达图。
+ * 使用两侧原始分数显示方向性差异，正负值区分偏向。
  * 2026-05-01 UI 重构：Claymorphism 卡片 + 修复颜色引用（hsl→直接 var）。
  */
 'use client';
@@ -15,16 +16,22 @@ import {
 } from 'recharts';
 
 type RadarDatum = {
-  axis: 'EI' | 'SN' | 'TF' | 'JP';
+  axis: string;
   value: number;
 };
 
+/**
+ * 将四维分数转换为雷达图数据。
+ * 使用 winner 对应的分数，正负值区分偏向：
+ * - 正数：偏向第一个侧面（E/S/T/J）
+ * - 负数：偏向第二个侧面（I/N/F/P）
+ */
 function toRadarData(scores: MbtiScores): RadarDatum[] {
   return [
-    { axis: 'EI', value: scores.EI.delta },
-    { axis: 'SN', value: scores.SN.delta },
-    { axis: 'TF', value: scores.TF.delta },
-    { axis: 'JP', value: scores.JP.delta },
+    { axis: 'EI', value: scores.EI.winner === 'E' ? scores.EI.E : -scores.EI.I },
+    { axis: 'SN', value: scores.SN.winner === 'S' ? scores.SN.S : -scores.SN.N },
+    { axis: 'TF', value: scores.TF.winner === 'T' ? scores.TF.T : -scores.TF.F },
+    { axis: 'JP', value: scores.JP.winner === 'J' ? scores.JP.J : -scores.JP.P },
   ];
 }
 
@@ -48,7 +55,7 @@ export function MbtiRadarCard(props: { scores: MbtiScores }) {
               dataKey="axis"
               tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
             />
-            <PolarRadiusAxis angle={90} domain={[0, 12]} tick={false} />
+            <PolarRadiusAxis angle={90} domain={[-15, 15]} tick={false} />
             <Radar
               dataKey="value"
               stroke="var(--primary)"
