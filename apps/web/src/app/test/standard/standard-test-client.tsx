@@ -141,7 +141,7 @@ export function StandardTestClient() {
         </p>
       </div>
 
-      <StandardTestProgressBar answered={t.answeredCount} total={t.totalQuestions} />
+      <StandardTestProgressBar answered={displayNum} total={t.totalQuestions} />
 
       {t.conflictNotice && (
         <p className="rounded-2xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-950 dark:text-amber-100">

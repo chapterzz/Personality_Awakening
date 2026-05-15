@@ -72,6 +72,8 @@ export function useAdaptiveStandardTest(questionnaireId: string): UseAdaptiveSta
   const [questionsMap, setQuestionsMap] = useState<Record<string, QuestionnaireQuestion>>({});
   // 是否已完成筛选轮追问（防止重复调用）
   const screeningExtendedRef = useRef(false);
+  // 扩展题序是否正在进行中（防止与 selectOption 的 persist 竞态）
+  const extendingInProgressRef = useRef(false);
   // 用于在异步回调中读取最新值，避免闭包过期
   const progressDataRef = useRef(progressData);
   const revisionRef = useRef(revision);
@@ -258,6 +260,7 @@ export function useAdaptiveStandardTest(questionnaireId: string): UseAdaptiveSta
     // 当答完筛选轮所有题目时，调用 sequence 接口获取扩展题序
     if (currentIndex >= SCREENING_COUNT && Object.keys(answers).length >= SCREENING_COUNT) {
       screeningExtendedRef.current = true;
+      extendingInProgressRef.current = true;
       setScreeningExtending(true);
 
       const extendSequence = async () => {
@@ -293,7 +296,8 @@ export function useAdaptiveStandardTest(questionnaireId: string): UseAdaptiveSta
             setProgressData(updated);
             // 立即持久化扩展后的题序（异步，不阻塞 UI）
             try {
-              await persist(updated, revisionRef.current);
+              const out = await persist(updated, revisionRef.current);
+              setRevision(out.progress_revision);
             } catch {
               // 持久化失败时回滚状态，保持客户端与服务端一致
               setProgressData(latestData);
@@ -304,6 +308,7 @@ export function useAdaptiveStandardTest(questionnaireId: string): UseAdaptiveSta
           // 扩展失败不阻塞答题，使用当前题序继续
           screeningExtendedRef.current = false;
         } finally {
+          extendingInProgressRef.current = false;
           setScreeningExtending(false);
         }
       };
@@ -375,7 +380,14 @@ export function useAdaptiveStandardTest(questionnaireId: string): UseAdaptiveSta
 
   const selectOption = useCallback(
     async (optionId: string | number) => {
-      if (!progressData || phase !== 'ready' || saving || screeningExtending) return;
+      if (
+        !progressData ||
+        phase !== 'ready' ||
+        saving ||
+        screeningExtending ||
+        extendingInProgressRef.current
+      )
+        return;
       const ordered = progressData.standard.ordered_question_ids ?? orderedIds;
       if (progressData.standard.current_index >= ordered.length) return;
 
@@ -387,7 +399,8 @@ export function useAdaptiveStandardTest(questionnaireId: string): UseAdaptiveSta
       setSaving(true);
       setConflictNotice(false);
       try {
-        const out = await persist(next, revision);
+        // 使用 ref 避免闭包陷阱：在异步操作期间获取最新 revision
+        const out = await persist(next, revisionRef.current);
         setRevision(out.progress_revision);
         if (out.progress_data.mode !== 'STANDARD') {
           setSaveError('保存失败：服务端返回了非 STANDARD 进度');
@@ -417,7 +430,7 @@ export function useAdaptiveStandardTest(questionnaireId: string): UseAdaptiveSta
         setSaving(false);
       }
     },
-    [orderedIds, persist, phase, progressData, revision, saving, screeningExtending],
+    [orderedIds, persist, phase, progressData, saving, screeningExtending],
   );
 
   return {
