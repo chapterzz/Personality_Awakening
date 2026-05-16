@@ -53,7 +53,7 @@ export type UseAdaptiveStandardTestResult = {
 };
 
 /** 筛选轮题目数量（与 seed 数据中 groupTag='screening' 的题数一致） */
-const SCREENING_COUNT = 4;
+const SCREENING_COUNT = 8;
 
 export function useAdaptiveStandardTest(questionnaireId: string): UseAdaptiveStandardTestResult {
   const [phase, setPhase] = useState<AdaptiveStandardTestPhase>('loading');

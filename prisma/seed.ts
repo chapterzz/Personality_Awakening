@@ -359,6 +359,25 @@ async function main() {
     },
   });
 
+  // 先删除旧的题目和选项（避免残留数据）
+  const existingQuestions = await prisma.standardQuestion.findMany({
+    where: { questionnaireId: QUESTIONNAIRE_ID },
+    select: { id: true },
+  });
+  const existingIds = existingQuestions.map((q) => q.id);
+  const newIds = questions.map((q) => q.id);
+  const toDelete = existingIds.filter((id) => !newIds.includes(id));
+
+  if (toDelete.length > 0) {
+    console.log(`Deleting ${toDelete.length} obsolete questions: ${toDelete.join(', ')}`);
+    await prisma.standardQuestionOption.deleteMany({
+      where: { questionId: { in: toDelete } },
+    });
+    await prisma.standardQuestion.deleteMany({
+      where: { id: { in: toDelete } },
+    });
+  }
+
   // 创建题目和选项
   for (const q of questions) {
     await prisma.standardQuestion.upsert({
