@@ -9,15 +9,10 @@
 | **服务端框架** | **NestJS** | 模块化，TypeScript 原生，适合复杂业务逻辑 |
 | **数据库** | **PostgreSQL** | 稳定可靠，支持 JSONB 存储测试结果 |
 | **ORM** | **Prisma** | 类型安全，迁移管理方便 |
-| **实时通信** | **Socket.io** | 低延迟实时推送；**产品 SLA** 以端到端（学生提交 → 教师可见）&lt; 1s 为准，**WebSocket 单次推送/投递延迟**可作为可选内部观测指标，与 SLA 区分 |
-| **图表库** | **Recharts** 或 **ECharts** | 强大的数据可视化，支持动态更新 |
+| **图表库** | **Recharts** | 数据可视化，支持柱状图、热力图等 |
 | **部署** | **Docker + Nginx** | 容器化，便于 CI/CD 和扩容 |
 | **CI/CD** | **GitHub Actions** | 自动化测试与部署 |
 
-### 1.1 实时通信：Socket.io 与 Nest 的关系（选型对齐）
-- 技术栈表中的 **Socket.io** 指**传输协议与客户端库**（如 `socket.io-client`）。
-- 后端在 NestJS 中使用 **`@nestjs/websockets`** 声明 Gateway，并配合 **`@nestjs/platform-socket.io`** 作为适配器，使 Gateway **底层实际跑在 Socket.io 上**（与上表一致，而非与 Socket.io 割裂的纯 `ws` 实现）。
-- 实现时：`npm`/`pnpm` 依赖需同时包含 `socket.io`（及 Nest 侧 platform-socket.io），详见官方 Nest WebSockets + Socket.io 文档。
 
 ## 2. 项目目录结构 (Monorepo 建议)
 planet-personality/
@@ -34,7 +29,7 @@ planet-personality/
 │       └── src/
 │           ├── auth/ # 认证模块 (Guest -> User)
 │           ├── test/ # 测试逻辑 (Scoring, AVG engine)
-│           ├── class/ # 班级管理 (WebSocket Gateway)
+│           ├── dashboard/ # 全局洞察看板 (聚合 API)
 │           ├── report/ # 报告生成
 │           └── common/ # Guards, Filters, Interceptors
 ├── prisma/ # 仓库根目录：唯一 Prisma 定义处
@@ -54,20 +49,17 @@ planet-personality/
 
 ## 3. 核心功能实现指南
 
-### 3.1 实时看板 (WebSocket / Socket.io)
-- **教师身份与鉴权（与 PRD §1.1 / §2 一致）**：
-  - **`TestClass.teacher_id`** → **`User.id`**；仅 **`role` 为 `TEACHER` 或 `ADMIN`** 的用户可作为班级创建者写入 `teacher_id`。
-  - Gateway **连接 / join `class_{classId}`**：校验 JWT 中 **`user_id` 等于该班 `teacher_id`**（MVP）；否则拒绝订阅。学生端仅允许 `emit` 与提交结果相关事件，**不得**订阅教师聚合频道（若与学生通道分离，需在实现中拆分 namespace 或事件权限）。
-- **后端**（与 §1.1 一致）: 
-  - 使用 `@nestjs/websockets` + `@nestjs/platform-socket.io` 创建 `ClassRoomGateway`（底层 Socket.io）。
-  - 房间命名：`class_{classId}`。
-  - 事件：`submit_result` (客户端 emit) -> 广播 `update_stats` (服务器 emit)。
-- **计时口径（与验收一致）**：本项目“实时延时 < 1s”的 SLA 以端到端为准（学生提交 -> 教师可见），即教师看板渲染完成在 1 秒内发生。
-- **前端 (Teacher)**:
-  - `useEffect` 中连接 Socket，join 房间。
-  - 监听 `update_stats`，更新 Zustand store，触发 Recharts 重绘。
-- **前端 (Student)**:
-  - 提交试卷后，emit `submit_result` 事件。
+### 3.1 全局洞察看板 (REST API)
+- **后端**：
+  - 新增 `DashboardModule`（`apps/api/src/dashboard/`），包含 `DashboardController` 和 `DashboardService`。
+  - **`GET /dashboard/stats`**（公开，无需认证）：用 Prisma `groupBy` 聚合 `TestResult` 表，返回类型分布、精灵热力图矩阵、趣味统计数据。
+  - **`GET /dashboard/my-comparison`**（需 JWT）：返回当前用户的人格类型与全局数据的对比。
+  - 精灵映射规则与前端 `sprite-profile-card.tsx` 一致：MBTI 首字母 `E` → 曦光领航精灵，`I` → 月影探索精灵。
+- **前端**：
+  - 新增 `/dashboard` 页面（`apps/web/src/app/dashboard/page.tsx`），公开访问。
+  - 组件：`DashboardHero`、`TypeDistributionChart`（Recharts BarChart）、`SpriteHeatmap`（CSS Grid）、`FunInsightCards`、`PersonalComparison`。
+  - 数据获取：客户端 `useEffect` + `fetch`，复用 `getBrowserApiBaseUrl()`。
+  - 首页 (`/`) 添加”查看全局洞察”入口按钮。
 
 ### 3.2 进行中测评进度（TemporarySession，与 PRD 一致）
 - **存储**：未完成进度**只**落在 `TemporarySession.progress_data`；`TestResult` 仅在**正式提交**后写入；**`progress_data` 键名与嵌套结构**以 **PRD §2.4** 为准。
@@ -137,9 +129,9 @@ Frontend: pnpm dev:web (Port 3000)
 | 层级 | 工具 / 位置 | 说明 |
 | :--- | :--- | :--- |
 | **单元（后端）** | `apps/api`，**Jest** | Service、Guard、纯函数、DTO 校验、与 DB 无关的算法（如 MBTI 计分草稿逻辑）。 |
-| **集成（后端）** | `apps/api`，**Jest + supertest** | Controller + 内存/测试库；进度 **409**、Auth、班级鉴权等 HTTP 行为。 |
+| **集成（后端）** | `apps/api`，**Jest + supertest** | Controller + 内存/测试库；进度 **409**、Auth、看板 API 等 HTTP 行为。 |
 | **单元（前端）** | `apps/web`，**Vitest** + Testing Library（按需） | `src/lib/**` 纯函数、hooks、无 RSC 负担的组件；复杂页面以 E2E + 关键子树单测组合。 |
-| **E2E（浏览器）** | 仓库根 **`e2e/`**，**Playwright** | 用户路径与跨端：**注册 → 测评 → 加入班级 → 看板**（随功能就绪增量加 spec）；CI 默认 **Chromium**，发版前扩展真机矩阵。 |
+| **E2E（浏览器）** | 仓库根 **`e2e/`**，**Playwright** | 用户路径与跨端：**注册 → 测评 → 查看看板**（随功能就绪增量加 spec）；CI 默认 **Chromium**，发版前扩展真机矩阵。 |
 | **契约 / 文档** | **OpenAPI（Swagger）** | `apps/api`：`/docs`、`/docs-json` 与实现一致。 |
 
 **仓库脚本（根目录）**：`pnpm gate:static`（build + lint + format:check）；`pnpm test:unit`（api 源码 **Jest** + web **Vitest**）；`pnpm test:integration`（api **`test/*.e2e-spec.ts`**，Nest + **supertest**，验证 HTTP/OpenAPI 挂载）；`pnpm test:e2e`（**Playwright**）；**首次 Playwright 前**执行 `pnpm test:e2e:install`。**小切片合并前最低门槛**：`pnpm test:gate`（= `gate:static` + `test:unit` + `test:integration`）；含浏览器多页行为的切片另跑 `pnpm test:e2e`。
@@ -157,7 +149,7 @@ Frontend: pnpm dev:web (Port 3000)
 | T1.5 注册/登录 | 密码哈希策略、JWT payload 构造 | **注册/登录/游客转化 API** | — |
 | T1.6 基础 UI | 布局/主题：`src/test/home-page.spec.tsx`（关键 class）、纯逻辑 | — | `e2e/smoke`、`e2e/home-layout` |
 | T2.1–T2.7 测评引擎 | **计分、题序规则、AVG 节点/分支进度**（如 `avg-branch-progress.spec.ts`）等纯逻辑 | 提交结果、保存进度 API | 标准/AVG 主路径（分段）；AVG UI 见 `e2e/avg-branch-progress` |
-| T3.x 班级与 WS | 房间名、权限判断纯函数 | Gateway 鉴权、HTTP 班级 API | **教师订阅 / 学生提交**链路与延迟抽样 |
+| T3.x 全局洞察看板 | 聚合统计纯函数、精灵映射逻辑 | **GET /dashboard/stats**、**GET /dashboard/my-comparison** | **看板页面**渲染与数据准确性 |
 | T4.x 内容 / CMS | 校验器、格式化、权限 helper | Admin API | 发布后学生端拉取（关键流） |
 | T5.x 收口 | 与缺陷修复同步补回归单测 | 安全敏感 API | **T5.2 全链路 100% 通过** |
 
@@ -166,7 +158,7 @@ Frontend: pnpm dev:web (Port 3000)
 1. **每个小切片合并前（始终）**：`pnpm test:gate`（= `gate:static` + `test:unit` + **`test:integration`**（api HTTP 集成））。  
 2. **涉及 UI 路由或跨服务的切片**：另跑 `pnpm test:e2e`（或 CI 上跑）。  
 3. **T1.4 / T1.5 起**：`apps/api` 中对应集成测试必须在 PR 中可见增长。  
-4. **Phase 3 起**：WS 行为须具备 **可重复** 的集成或 E2E 子集（见 **§3.1**）。  
+4. **Phase 3 起**：看板 API 须具备 **可重复** 的集成测试，前端图表须有 E2E 覆盖。  
 5. **Phase 5**：压力、安全、真机与 **T5.2** 按任务书执行。
 
 ### 5.5 环境与数据隔离
@@ -176,15 +168,15 @@ Frontend: pnpm dev:web (Port 3000)
 
 ### 5.6 安全回归用例（与 T5.1 对齐，摘要）
 
-- **Admin/CMS**：非 Admin 越权、批量导出等。  
-- **班级 / 看板**：非任课教师 **HTTP + WS** 均不得越权（**PRD §1.3**、**§3.1**）。
+- **Admin/CMS**：非 Admin 越权、批量导出等。
+- **看板 API**：公开端点无需认证即可访问；个人对比端点需 JWT 认证。
 
 ---
 
 ## 6. 给 Cursor 的特别指令 (AI Coding Guidelines)
 类型优先: 所有 API 请求/响应、数据库模型必须先定义 TypeScript Interface。
 组件化: 将 AVG 游戏的剧情节点、选项、精灵反应抽象为配置驱动的组件。
-性能优化: 大量精灵图片使用 <Image> 组件优化，列表虚拟化（如果班级人数超多）。
+性能优化: 大量精灵图片使用 <Image> 组件优化，看板数据量大时考虑分页或缓存。
 错误边界: 测试过程中若报错，必须保留当前进度，不允许数据丢失。
 注释与可读性: 每个手写源码文件须有**文件头注释**（简要说明本文件职责）；**重要函数、复杂逻辑与非显而易见分支**须有注释说明意图，保证可读性；**关键算法**（如 MBTI 计分、维度映射）必须添加详细注释，解释心理学依据（与 **`PPA_Development_Task.md` §4.1** 一致）。
 测试: 遵循 **§5**（全环节单元覆盖 + Playwright E2E + 门禁）；**每个任务模块合并前**须带齐对应 **Jest / Vitest / Playwright** 用例，并通过 **`pnpm test:gate`**；涉及 UI/跨服务时另跑 **`pnpm test:e2e`**。
