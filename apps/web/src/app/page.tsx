@@ -47,11 +47,9 @@ export default function Home() {
         </Link>
         <Link
           className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'flex-1 sm:flex-none')}
-          href="https://nextjs.org/docs"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="/dashboard"
         >
-          技术栈文档
+          全局洞察看板
         </Link>
       </div>
 

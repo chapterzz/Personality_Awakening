@@ -19,7 +19,7 @@ planet-personality/
 ├── apps/
 │ ├── web/ # Next.js 前端
 │ │ ├── src/
-│ │ │ ├── app/ # 路由 (/(student), /(teacher), /api)
+│ │ │ ├── app/ # 路由 (/(student), /dashboard, /api)
 │ │ │ ├── components/ # UI 组件 (ui/, features/, game/)
 │ │ │ ├── hooks/ # 自定义 Hooks (useSocket, useTestProgress)
 │ │ │ ├── lib/ # 工具 (socket-client, canvas-generator)

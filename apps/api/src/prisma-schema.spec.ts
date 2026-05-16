@@ -6,7 +6,6 @@ import { AssessmentMode, UserRole } from '@prisma/client';
 describe('T1.2 Prisma schema', () => {
   it('exposes User.role enum values (PRD §2.1)', () => {
     expect(UserRole.STUDENT).toBe('STUDENT');
-    expect(UserRole.TEACHER).toBe('TEACHER');
     expect(UserRole.ADMIN).toBe('ADMIN');
   });
 

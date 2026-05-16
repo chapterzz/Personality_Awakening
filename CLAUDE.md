@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Personality Planet: Awakening (性格星球：觉醒计划) — an MBTI personality test platform for middle-school students and teachers. Features a standard 93-question assessment, a gamified AVG (adventure/visual-novel) mode, teacher dashboards, and a science literacy library.
+Personality Planet: Awakening (性格星球：觉醒计划) — an MBTI personality test platform for middle-school students. Features a standard 93-question assessment, a gamified AVG (adventure/visual-novel) mode, a global insights dashboard, and a science literacy library.
 
 ## Commands
 
@@ -74,10 +74,9 @@ Four NestJS modules:
 
 ### Database (Prisma + PostgreSQL)
 
-12 models in `prisma/schema.prisma`. Key entities:
+10 models in `prisma/schema.prisma`. Key entities:
 
-- `User` (STUDENT/TEACHER/ADMIN roles)
-- `TestClass` (classrooms with 6-digit invite codes)
+- `User` (STUDENT/ADMIN roles)
 - `TestResult` (finalized MBTI results, JSON scores + type string)
 - `TemporarySession` (in-progress assessments, dual-mode via `@@unique([userId, mode])`)
 - `StandardQuestionnaire/Question/Option` (question bank)

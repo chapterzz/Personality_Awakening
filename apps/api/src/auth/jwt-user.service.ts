@@ -7,7 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 export type JwtAccessPayload = {
   /** user_id（JWT 标准 `sub`） */
   sub: string;
-  /** `STUDENT` | `TEACHER` | `ADMIN` */
+  /** `STUDENT` | `ADMIN` */
   role: string;
 };
 
