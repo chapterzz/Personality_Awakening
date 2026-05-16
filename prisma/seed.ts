@@ -9,9 +9,11 @@ const prisma = new PrismaClient();
 const QUESTIONNAIRE_ID = 'adaptive-demo-v1';
 const QUESTIONNAIRE_TITLE = '自适应 MBTI 演示问卷';
 
-/** 题目定义：screening 为筛选轮，follow-up 为追问轮 */
+/** 题目定义：screening 为筛选轮（每维度 2 题），follow-up 为追问轮（每维度 1 题） */
 const questions = [
-  // === 筛选轮：每维度 1 题 ===
+  // === 筛选轮：每维度 2 题 ===
+
+  // EI 维度筛选题
   {
     id: 'sq01',
     prompt: '周末放松时，你更愿意？',
@@ -39,6 +41,34 @@ const questions = [
     ],
   },
   {
+    id: 'sq13',
+    prompt: '与朋友相处时，你更倾向于？',
+    sortOrder: 5,
+    dimension: 'EI',
+    groupTag: 'screening',
+    groupSortOrder: 2,
+    options: [
+      {
+        id: 'sq13_A',
+        label: '主动发起话题和活动',
+        valueKey: 'sq13_A',
+        dimension: 'EI',
+        side: 'E',
+        weight: 1,
+      },
+      {
+        id: 'sq13_B',
+        label: '等待对方先开口',
+        valueKey: 'sq13_B',
+        dimension: 'EI',
+        side: 'I',
+        weight: 1,
+      },
+    ],
+  },
+
+  // SN 维度筛选题
+  {
     id: 'sq02',
     prompt: '学习新东西时，你更喜欢？',
     sortOrder: 2,
@@ -64,6 +94,34 @@ const questions = [
       },
     ],
   },
+  {
+    id: 'sq14',
+    prompt: '解决问题时，你更倾向于？',
+    sortOrder: 6,
+    dimension: 'SN',
+    groupTag: 'screening',
+    groupSortOrder: 2,
+    options: [
+      {
+        id: 'sq14_A',
+        label: '用已验证的方法',
+        valueKey: 'sq14_A',
+        dimension: 'SN',
+        side: 'S',
+        weight: 1,
+      },
+      {
+        id: 'sq14_B',
+        label: '尝试新的可能性',
+        valueKey: 'sq14_B',
+        dimension: 'SN',
+        side: 'N',
+        weight: 1,
+      },
+    ],
+  },
+
+  // TF 维度筛选题
   {
     id: 'sq03',
     prompt: '做决定时，你更依赖？',
@@ -91,6 +149,34 @@ const questions = [
     ],
   },
   {
+    id: 'sq15',
+    prompt: '评价一个方案时，你更看重？',
+    sortOrder: 7,
+    dimension: 'TF',
+    groupTag: 'screening',
+    groupSortOrder: 2,
+    options: [
+      {
+        id: 'sq15_A',
+        label: '逻辑严密性和可行性',
+        valueKey: 'sq15_A',
+        dimension: 'TF',
+        side: 'T',
+        weight: 1,
+      },
+      {
+        id: 'sq15_B',
+        label: '对相关人的影响',
+        valueKey: 'sq15_B',
+        dimension: 'TF',
+        side: 'F',
+        weight: 1,
+      },
+    ],
+  },
+
+  // JP 维度筛选题
+  {
     id: 'sq04',
     prompt: '面对新任务时，你通常？',
     sortOrder: 4,
@@ -116,12 +202,40 @@ const questions = [
       },
     ],
   },
+  {
+    id: 'sq16',
+    prompt: '安排周末计划时，你更倾向于？',
+    sortOrder: 8,
+    dimension: 'JP',
+    groupTag: 'screening',
+    groupSortOrder: 2,
+    options: [
+      {
+        id: 'sq16_A',
+        label: '提前规划好每个时段',
+        valueKey: 'sq16_A',
+        dimension: 'JP',
+        side: 'J',
+        weight: 1,
+      },
+      {
+        id: 'sq16_B',
+        label: '随心所欲，临时决定',
+        valueKey: 'sq16_B',
+        dimension: 'JP',
+        side: 'P',
+        weight: 1,
+      },
+    ],
+  },
 
-  // === EI 追问轮 ===
+  // === 追问轮：每维度 1 题 ===
+
+  // EI 追问轮
   {
     id: 'sq05',
     prompt: '在人群中，你通常？',
-    sortOrder: 5,
+    sortOrder: 9,
     dimension: 'EI',
     groupTag: 'ei_followup',
     groupSortOrder: 1,
@@ -144,38 +258,12 @@ const questions = [
       },
     ],
   },
-  {
-    id: 'sq06',
-    prompt: '长时间独处后，你一般会？',
-    sortOrder: 6,
-    dimension: 'EI',
-    groupTag: 'ei_followup',
-    groupSortOrder: 2,
-    options: [
-      {
-        id: 'sq06_A',
-        label: '想找人聊聊补充能量',
-        valueKey: 'sq06_A',
-        dimension: 'EI',
-        side: 'E',
-        weight: 2,
-      },
-      {
-        id: 'sq06_B',
-        label: '觉得恢复精力即可',
-        valueKey: 'sq06_B',
-        dimension: 'EI',
-        side: 'I',
-        weight: 2,
-      },
-    ],
-  },
 
-  // === SN 追问轮 ===
+  // SN 追问轮
   {
     id: 'sq07',
     prompt: '描述未来时，你更常用？',
-    sortOrder: 7,
+    sortOrder: 10,
     dimension: 'SN',
     groupTag: 'sn_followup',
     groupSortOrder: 1,
@@ -198,38 +286,12 @@ const questions = [
       },
     ],
   },
-  {
-    id: 'sq08',
-    prompt: '阅读一篇文章时，你更关注？',
-    sortOrder: 8,
-    dimension: 'SN',
-    groupTag: 'sn_followup',
-    groupSortOrder: 2,
-    options: [
-      {
-        id: 'sq08_A',
-        label: '事实细节和数据',
-        valueKey: 'sq08_A',
-        dimension: 'SN',
-        side: 'S',
-        weight: 2,
-      },
-      {
-        id: 'sq08_B',
-        label: '作者的意图和深层含义',
-        valueKey: 'sq08_B',
-        dimension: 'SN',
-        side: 'N',
-        weight: 2,
-      },
-    ],
-  },
 
-  // === TF 追问轮 ===
+  // TF 追问轮
   {
     id: 'sq09',
     prompt: '同学向你求助冲突时，你更先考虑？',
-    sortOrder: 9,
+    sortOrder: 11,
     dimension: 'TF',
     groupTag: 'tf_followup',
     groupSortOrder: 1,
@@ -252,38 +314,12 @@ const questions = [
       },
     ],
   },
-  {
-    id: 'sq10',
-    prompt: '被批评时，你更在意？',
-    sortOrder: 10,
-    dimension: 'TF',
-    groupTag: 'tf_followup',
-    groupSortOrder: 2,
-    options: [
-      {
-        id: 'sq10_A',
-        label: '逻辑是否站得住',
-        valueKey: 'sq10_A',
-        dimension: 'TF',
-        side: 'T',
-        weight: 2,
-      },
-      {
-        id: 'sq10_B',
-        label: '对方语气是否让你难堪',
-        valueKey: 'sq10_B',
-        dimension: 'TF',
-        side: 'F',
-        weight: 2,
-      },
-    ],
-  },
 
-  // === JP 追问轮 ===
+  // JP 追问轮
   {
     id: 'sq11',
     prompt: '临近截止日期时，你更倾向？',
-    sortOrder: 11,
+    sortOrder: 12,
     dimension: 'JP',
     groupTag: 'jp_followup',
     groupSortOrder: 1,
@@ -300,32 +336,6 @@ const questions = [
         id: 'sq11_B',
         label: '在压力下效率更高',
         valueKey: 'sq11_B',
-        dimension: 'JP',
-        side: 'P',
-        weight: 2,
-      },
-    ],
-  },
-  {
-    id: 'sq12',
-    prompt: '旅行/活动计划，你更享受？',
-    sortOrder: 12,
-    dimension: 'JP',
-    groupTag: 'jp_followup',
-    groupSortOrder: 2,
-    options: [
-      {
-        id: 'sq12_A',
-        label: '清单与时间表明确',
-        valueKey: 'sq12_A',
-        dimension: 'JP',
-        side: 'J',
-        weight: 2,
-      },
-      {
-        id: 'sq12_B',
-        label: '留空白让灵感发生',
-        valueKey: 'sq12_B',
         dimension: 'JP',
         side: 'P',
         weight: 2,
