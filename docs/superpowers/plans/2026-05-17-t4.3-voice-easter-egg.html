@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>T4.3 语音彩蛋 — 实施计划审阅</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --card: #151c24;
+      --border: #38bdf8;
+      --text: #e8f4fc;
+      --muted: #8ba3b8;
+      --primary: #0ea5e9;
+      --accent: #f472b6;
+      --sprite: #a78bfa;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", "PingFang SC", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      margin: 0;
+      padding: 1.5rem;
+    }
+    .wrap { max-width: 920px; margin: 0 auto; }
+    h1 { font-size: 1.5rem; margin: 0 0 0.5rem; }
+    h2 { font-size: 1.15rem; margin: 2rem 0 0.75rem; border-bottom: 2px solid var(--border); padding-bottom: 0.25rem; }
+    .meta { color: var(--muted); font-size: 0.9rem; }
+    .meta a { color: #7dd3fc; }
+    .card {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin: 0.75rem 0;
+      box-shadow: 0 0 28px rgba(14, 165, 233, 0.12);
+    }
+    .badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      background: rgba(244, 114, 182, 0.15);
+      border: 1px solid var(--accent);
+      padding: 0.1rem 0.5rem;
+      border-radius: 999px;
+      margin-left: 0.35rem;
+    }
+    .checklist { list-style: none; padding: 0; margin: 0; }
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.35rem 0;
+      border-bottom: 1px dashed #2a3a4a;
+    }
+    .checklist input { margin-top: 0.35rem; width: 1.1rem; height: 1.1rem; }
+    .note { font-size: 0.85rem; color: var(--muted); }
+    .voice-demo {
+      max-width: 360px;
+      margin: 0 auto;
+      border: 3px solid var(--border);
+      border-radius: 24px;
+      padding: 1.25rem;
+      background: linear-gradient(165deg, #1a2430 0%, #0f1a24 55%, #12101c 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .voice-demo::before {
+      content: "";
+      position: absolute;
+      width: 140px; height: 140px;
+      top: -30px; right: -40px;
+      background: radial-gradient(circle, rgba(14,165,233,0.35), transparent);
+      border-radius: 50%;
+    }
+    .voice-from {
+      font-size: 0.65rem;
+      color: var(--accent);
+      text-align: center;
+      margin: 0 0 0.5rem;
+    }
+    .voice-sprite {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--sprite), #7c3aed);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; color: #fff;
+      margin: 0 auto 0.5rem;
+      box-shadow: 0 0 20px rgba(167, 139, 250, 0.4);
+    }
+    .voice-mbti {
+      font-size: 2.25rem;
+      font-weight: 900;
+      text-align: center;
+      margin: 0;
+      letter-spacing: 0.06em;
+    }
+    .voice-sub {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #c4b5fd;
+      margin: 0.15rem 0 0.75rem;
+    }
+    .voice-summary {
+      font-size: 0.75rem;
+      text-align: center;
+      color: var(--muted);
+      margin: 0 0 1rem;
+      padding: 0 0.5rem;
+    }
+    .voice-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .btn-play {
+      padding: 0.65rem 1.5rem;
+      border-radius: 999px;
+      border: 2px solid var(--border);
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .btn-play.playing { background: #0369a1; }
+    .wave {
+      display: flex;
+      gap: 3px;
+      height: 24px;
+      align-items: flex-end;
+      opacity: 0.4;
+    }
+    .wave span {
+      width: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      animation: none;
+    }
+    .wave.active span { animation: pulse 0.6s ease-in-out infinite alternate; }
+    .wave.active span:nth-child(2) { animation-delay: 0.1s; }
+    .wave.active span:nth-child(3) { animation-delay: 0.2s; }
+    .wave.active span:nth-child(4) { animation-delay: 0.15s; }
+    .wave.active span:nth-child(5) { animation-delay: 0.25s; }
+    @keyframes pulse { from { height: 6px; } to { height: 22px; } }
+    .voice-cta {
+      margin-top: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .btn-cta {
+      text-align: center;
+      padding: 0.5rem;
+      border-radius: 12px;
+      border: 2px solid #3d4f5f;
+      font-size: 0.75rem;
+      color: var(--text);
+    }
+    .btn-cta.primary { border-color: var(--accent); color: var(--accent); }
+    .voice-disclaimer {
+      font-size: 0.6rem;
+      color: #5a6d7d;
+      text-align: center;
+      margin: 0.75rem 0 0;
+    }
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      margin: 0.75rem 0;
+    }
+    .flow .box {
+      padding: 0.35rem 0.6rem;
+      border: 1px solid #3d4f5f;
+      border-radius: 8px;
+      background: #1a2430;
+    }
+    .flow .arrow { color: var(--muted); }
+    .option-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.75rem;
+    }
+    .option {
+      border: 2px solid #2a3a4a;
+      border-radius: 12px;
+      padding: 0.75rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .option.selected { border-color: var(--primary); background: rgba(14, 165, 233, 0.12); }
+    .selection-summary {
+      background: rgba(52, 211, 153, 0.12);
+      border: 2px solid #34d399;
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .dep-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .dep-table th, .dep-table td {
+      border: 1px solid #2a3a4a;
+      padding: 0.4rem 0.6rem;
+      text-align: left;
+    }
+    .dep-table th { background: #1a2430; }
+    code { font-size: 0.8em; background: #1a2430; padding: 0.1rem 0.35rem; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>T4.3 语音彩蛋 — 实施计划审阅</h1>
+    <p class="meta">
+      日期 2026-05-17 · <strong>待批准后实施</strong> ·
+      <a href="../specs/2026-05-17-t4.3-voice-easter-egg-design.md">设计规格</a> ·
+      <a href="./2026-05-17-t4.3-voice-easter-egg.md">Markdown 计划</a>
+    </p>
+
+    <h2>一、目标（一句话）</h2>
+    <div class="card">
+      <p>用户扫描 <strong>T4.2 海报二维码</strong> 进入语音 H5 页，通过 <strong>Web Audio API</strong> 播放对应 <strong>MBTI 类型</strong> 的预录制专属语音；兼容已发出的 <code>/?from=poster&ref=</code> 链接，并更新新海报 QR 指向 <code>/voice/{type}</code>。</p>
+    </div>
+
+    <h2>二、依赖关系</h2>
+    <div class="card">
+      <table class="dep-table">
+        <thead>
+          <tr><th>任务</th><th>关系</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>T4.2 海报 + <code>poster-qr.ts</code></td><td><strong>强依赖</strong>：当前 Q-A 落地；本任务改 QR（L3）并保留重定向</td></tr>
+          <tr><td>T2.5 <code>report-copy</code></td><td>页面副文案与 16 型校验</td></tr>
+          <tr><td>T4.2 <code>pickSpriteLabel</code></td><td>精灵称号与海报一致</td></tr>
+          <tr><td>T4.1 图书馆</td><td><strong>无依赖</strong>；语音页可链到 <code>/library</code></td></tr>
+          <tr><td>T4.4 响应式</td><td>播放按钮触控区 ≥ 44px</td></tr>
+          <tr><td>T5.2 E2E</td><td>可选扫码/重定向 smoke</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>三、PPA 验收勾选</h2>
+    <div class="card">
+      <ul class="checklist">
+        <li><input type="checkbox" id="v1" /><label for="v1">使用 <strong>Web Audio API</strong>（<code>AudioContext</code> + <code>decodeAudioData</code>），非仅 <code>&lt;audio&gt;</code></label></li>
+        <li><input type="checkbox" id="v2" /><label for="v2"><strong>特定 MBTI 结果</strong>触发对应 <code>/audio/voice/{TYPE}.mp3</code></label></li>
+        <li><input type="checkbox" id="v3" /><label for="v3">播放<strong>流畅</strong>：点击播放、可暂停/重播、加载态可见</label></li>
+        <li><input type="checkbox" id="v4" /><label for="v4">iOS Safari / Android Chrome <strong>无阻塞性兼容问题</strong>（不依赖进入即 autoplay）</label></li>
+        <li><input type="checkbox" id="v5" /><label for="v5">旧海报 <code>/?from=poster&ref=</code> 可到达语音页</label></li>
+        <li><input type="checkbox" id="v6" /><label for="v6">新海报 QR 指向 <code>/voice/{type}?from=poster</code></label></li>
+        <li><input type="checkbox" id="v7" /><label for="v7">Vitest 覆盖类型/路径/landing 纯函数；<code>pnpm test:gate</code> 绿</label></li>
+      </ul>
+    </div>
+
+    <h2>四、扫码落地流程</h2>
+    <div class="card">
+      <div class="flow">
+        <span class="box">海报 QR</span>
+        <span class="arrow">→</span>
+        <span class="box" id="flow-old">旧: <code>/?from=poster&ref=INFP</code></span>
+        <span class="arrow">→</span>
+        <span class="box">重定向</span>
+        <span class="arrow">→</span>
+        <span class="box"><code>/voice/INFP</code></span>
+      </div>
+      <div class="flow">
+        <span class="box">新 QR (L3)</span>
+        <span class="arrow">→</span>
+        <span class="box"><code>/voice/INFP?from=poster</code></span>
+        <span class="arrow">→</span>
+        <span class="box">点击播放</span>
+        <span class="arrow">→</span>
+        <span class="box">Web Audio</span>
+      </div>
+    </div>
+
+    <h2>五、语音页线框 Demo</h2>
+    <p class="note">路由 <code>/voice/[type]</code> · 演示类型 INFP · 交互 P-A</p>
+    <div class="card">
+      <div class="voice-demo">
+        <p class="voice-from" id="from-banner">来自好友的星球分享卡</p>
+        <div class="voice-sprite">★</div>
+        <p class="voice-mbti">INFP</p>
+        <p class="voice-sub">月影探索精灵</p>
+        <p class="voice-summary">重视内在价值，表达真诚且富有同理心。</p>
+        <div class="voice-controls">
+          <button type="button" class="btn-play" id="demo-play">▶ 播放精灵语音</button>
+          <div class="wave" id="demo-wave" aria-hidden="true">
+            <span style="height:8px"></span><span style="height:14px"></span><span style="height:20px"></span><span style="height:12px"></span><span style="height:18px"></span>
+          </div>
+        </div>
+        <div class="voice-cta">
+          <div class="btn-cta primary">探索我的性格 → 标准测评</div>
+          <div class="btn-cta">全局洞察看板</div>
+        </div>
+        <p class="voice-disclaimer">娱乐参考，非医疗诊断</p>
+      </div>
+    </div>
+
+    <h2>六、落地路由 <span class="badge">二选一</span></h2>
+    <div class="option-grid" id="landing-pick">
+      <div class="option selected" data-id="L-A">
+        <strong>L-A 独立页 + Q-A 重定向（推荐）</strong>
+        <p class="note"><code>/voice/[type]</code>；首页兼容旧二维码</p>
+      </div>
+      <div class="option" data-id="L-B">
+        <strong>L-B 仅首页 query</strong>
+        <p class="note">不新增路由；URL 难分享</p>
+      </div>
+    </div>
+
+    <h2>七、音频方案 <span class="badge">二选一</span></h2>
+    <div class="option-grid" id="audio-pick">
+      <div class="option selected" data-id="A-A">
+        <strong>A-A Web Audio + 16×MP3（推荐）</strong>
+        <p class="note">PRD 预录制；<code>public/audio/voice/</code></p>
+      </div>
+      <div class="option" data-id="A-B">
+        <strong>A-B Web Audio + 2×精灵音</strong>
+        <p class="note">仅 E/I 两文件；类型差异靠文案</p>
+      </div>
+    </div>
+
+    <h2>八、播放交互 <span class="badge">二选一</span></h2>
+    <div class="option-grid" id="play-pick">
+      <div class="option selected" data-id="P-A">
+        <strong>P-A 点击播放（推荐）</strong>
+        <p class="note">规避 iOS autoplay 限制</p>
+      </div>
+      <div class="option" data-id="P-B">
+        <strong>P-B 进入自动播放</strong>
+        <p class="note">体验一步到位，失败率高</p>
+      </div>
+    </div>
+
+    <h2>九、海报 QR 升级 <span class="badge">二选一</span></h2>
+    <div class="option-grid" id="qr-pick">
+      <div class="option selected" data-id="L3">
+        <strong>L3 新 QR → /voice/{type}?from=poster（推荐）</strong>
+        <p class="note">修改 <code>buildPosterShareUrl</code> + 单测</p>
+      </div>
+      <div class="option" data-id="Q-keep">
+        <strong>Q-keep 仅兼容旧 QR</strong>
+        <p class="note">新海报仍用首页 query</p>
+      </div>
+    </div>
+
+    <h2>十、与 T4.2 边界</h2>
+    <div class="card">
+      <ul class="note" style="margin:0;padding-left:1.2rem">
+        <li>T4.2：<code>poster-canvas.ts</code> 绘制逻辑<strong>不变</strong>；仅改 <code>poster-qr.ts</code> 目标 URL</li>
+        <li>T4.2 已发出海报：靠首页 <code>PosterQueryRedirect</code> 继续可用</li>
+        <li>无 Nest / 无新 DB 表</li>
+      </ul>
+    </div>
+
+    <h2>十一、实施任务摘要</h2>
+    <div class="card">
+      <ol>
+        <li>Task 1 — 类型、音频路径、poster landing 纯函数 + Vitest</li>
+        <li>Task 2 — <code>voice-web-audio.ts</code> Web Audio 引擎</li>
+        <li>Task 3 — <code>public/audio/voice/</code> 占位 MP3 + README</li>
+        <li>Task 4 — <code>VoicePlayer</code> + <code>/voice/[type]</code> 页面</li>
+        <li>Task 5 — 首页重定向 + 更新 <code>poster-qr</code>（L3）</li>
+        <li>Task 6 — 可选 E2E + <code>pnpm test:gate</code></li>
+      </ol>
+    </div>
+
+    <h2>十二、批准区</h2>
+    <div class="selection-summary" id="selection-summary">
+      当前选择：<strong>L-A</strong> · <strong>A-A</strong> · <strong>P-A</strong> · <strong>L3</strong>
+    </div>
+    <p class="note" style="margin-top:1rem">
+      批准示例：<em>批准 T4.3，落地 L-A，音频 A-A，交互 P-A，二维码 L3</em><br />
+      批准后协调者方可进入<strong>阶段 C</strong>实施（TDD，不改 apps 直至批准）。
+    </p>
+  </div>
+
+  <script>
+    function bindPick(containerId, labels) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.querySelectorAll('.option').forEach((el) => {
+        el.addEventListener('click', () => {
+          container.querySelectorAll('.option').forEach((o) => o.classList.remove('selected'));
+          el.classList.add('selected');
+          updateSummary();
+        });
+      });
+    }
+    const keys = {
+      'landing-pick': 'L',
+      'audio-pick': 'A',
+      'play-pick': 'P',
+      'qr-pick': 'Q',
+    };
+    function updateSummary() {
+      const parts = [];
+      ['landing-pick', 'audio-pick', 'play-pick', 'qr-pick'].forEach((id) => {
+        const sel = document.querySelector(`#${id} .option.selected`);
+        if (sel) parts.push(sel.dataset.id);
+      });
+      const el = document.getElementById('selection-summary');
+      if (el) el.innerHTML = '当前选择：<strong>' + parts.join('</strong> · <strong>') + '</strong>';
+    }
+    bindPick('landing-pick');
+    bindPick('audio-pick');
+    bindPick('play-pick');
+    bindPick('qr-pick');
+
+    const playBtn = document.getElementById('demo-play');
+    const wave = document.getElementById('demo-wave');
+  let playing = false;
+    playBtn?.addEventListener('click', () => {
+      playing = !playing;
+      playBtn.textContent = playing ? '⏸ 暂停' : '▶ 播放精灵语音';
+      playBtn.classList.toggle('playing', playing);
+      wave?.classList.toggle('active', playing);
+    });
+  </script>
+</body>
+</html>

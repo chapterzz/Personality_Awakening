@@ -6,42 +6,17 @@ import { randomUUID } from 'crypto';
 
 import { test, expect, type APIRequestContext } from '@playwright/test';
 
+import {
+  fetchAdaptiveOrderedIds,
+  seedGuestAdaptiveStandardComplete,
+} from './helpers/adaptive-standard-seed';
+
 const API_BASE = process.env.PLAYWRIGHT_API_URL ?? 'http://127.0.0.1:3001';
-
-const ORDERED_12 = [
-  'q01',
-  'q02',
-  'q03',
-  'q04',
-  'q05',
-  'q06',
-  'q07',
-  'q08',
-  'q09',
-  'q10',
-  'q11',
-  'q12',
-];
-
-const stdCompleteProgress = {
-  schema_version: 1,
-  mode: 'STANDARD' as const,
-  questionnaire_id: 'demo-standard-v1',
-  standard: {
-    current_index: 12,
-    ordered_question_ids: ORDERED_12,
-    answers: Object.fromEntries(ORDERED_12.map((qid) => [qid, `${qid}_A`])) as Record<
-      string,
-      string
-    >,
-    answered_count: 12,
-  },
-  meta: { started_at: new Date().toISOString(), last_client: 'e2e' },
-};
 
 async function assertGuestProgressIsStandardComplete(
   request: APIRequestContext,
   sessionId: string,
+  expectedTotal: number,
 ) {
   const getRes = await request.get(
     `${API_BASE}/progress?mode=STANDARD&session_id=${encodeURIComponent(sessionId)}`,
@@ -74,9 +49,9 @@ async function assertGuestProgressIsStandardComplete(
   }
   const answered = (std as { answered_count?: unknown }).answered_count;
   const idx = (std as { current_index?: unknown }).current_index;
-  if (answered !== 12 || idx !== 12) {
+  if (answered !== expectedTotal || idx !== expectedTotal) {
     throw new Error(
-      `expected completed standard (answered_count=12, current_index=12), got: ${JSON.stringify(std)}`,
+      `expected completed standard (answered_count=${expectedTotal}, current_index=${expectedTotal}), got: ${JSON.stringify(std)}`,
     );
   }
 }
@@ -91,21 +66,15 @@ async function deleteProgressAllowMissing(request: APIRequestContext, sessionId:
 test.describe('标准测评完成后可重新开始', () => {
   test('完成态 seed -> 展示重开入口 -> 确认后从第 1 题开始', async ({ page, request }) => {
     const sessionId = `e2e-pw-${randomUUID()}`;
+    const screeningIds = await fetchAdaptiveOrderedIds(request);
+    const screeningCount = screeningIds.length;
 
-    const putRes = await request.put(
-      `${API_BASE}/progress?mode=STANDARD&session_id=${encodeURIComponent(sessionId)}`,
-      {
-        data: {
-          progress_data: stdCompleteProgress,
-          if_match_revision: 0,
-        },
-      },
+    await seedGuestAdaptiveStandardComplete(request, sessionId);
+    const fullOrdered = await fetchAdaptiveOrderedIds(
+      request,
+      Object.fromEntries(screeningIds.map((id) => [id, `${id}_A`])),
     );
-    if (!putRes.ok()) {
-      throw new Error(`seed PUT failed ${putRes.status()}: ${await putRes.text()}`);
-    }
-
-    await assertGuestProgressIsStandardComplete(request, sessionId);
+    await assertGuestProgressIsStandardComplete(request, sessionId, fullOrdered.length);
 
     await page.addInitScript((sid: string) => {
       window.localStorage.setItem('ppa_guest_session_id', sid);
@@ -122,7 +91,11 @@ test.describe('标准测评完成后可重新开始', () => {
     await page.getByRole('button', { name: '重新开始' }).click();
 
     await expect(page.getByText('本卷已完成')).toHaveCount(0);
-    await expect(page.getByText(/第\s*1\s*\/\s*12\s*题/)).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText(new RegExp(`第\\s*1\\s*/\\s*${screeningCount}\\s*题`))).toBeVisible(
+      {
+        timeout: 30_000,
+      },
+    );
 
     const maybeNewSid = await page.evaluate(() =>
       window.localStorage.getItem('ppa_guest_session_id'),

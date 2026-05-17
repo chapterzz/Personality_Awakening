@@ -1,10 +1,13 @@
 /**
  * 站点首页：展示品牌与后续测评入口占位（T1.6 壳层验收）。
  * 2026-05-01 UI 重构：Claymorphism 风格 — Hero 渐变卡片 + 浮动 blob + 功能介绍卡。
+ * T4.3：挂载 PosterQueryRedirect 兼容旧海报 Q-A 链接。
  */
 import Link from 'next/link';
+import { Suspense } from 'react';
 
 import { FloatingBlobs } from '@/components/decorative/floating-blobs';
+import { PosterQueryRedirect } from '@/components/voice/poster-query-redirect';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -109,6 +112,10 @@ export default function Home() {
           </p>
         </div>
       </div>
+
+      <Suspense fallback={null}>
+        <PosterQueryRedirect />
+      </Suspense>
     </div>
   );
 }

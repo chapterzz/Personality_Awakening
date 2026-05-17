@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>T4.2 结果海报生成 — 实施计划审阅</title>
+  <style>
+    :root {
+      --bg: #0f0e14;
+      --card: #1a1824;
+      --border: #a78bfa;
+      --text: #f4f0ff;
+      --muted: #9b93b0;
+      --primary: #7c3aed;
+      --accent: #f59e0b;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", "PingFang SC", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      margin: 0;
+      padding: 1.5rem;
+    }
+    .wrap { max-width: 920px; margin: 0 auto; }
+    h1 { font-size: 1.5rem; margin: 0 0 0.5rem; }
+    h2 { font-size: 1.15rem; margin: 2rem 0 0.75rem; border-bottom: 2px solid var(--border); padding-bottom: 0.25rem; }
+    .meta { color: var(--muted); font-size: 0.9rem; }
+    .meta a { color: #c4b5fd; }
+    .card {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin: 0.75rem 0;
+      box-shadow: 0 0 24px rgba(124, 58, 237, 0.15);
+    }
+    .badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid var(--accent);
+      padding: 0.1rem 0.5rem;
+      border-radius: 999px;
+      margin-left: 0.35rem;
+    }
+    .checklist { list-style: none; padding: 0; margin: 0; }
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.35rem 0;
+      border-bottom: 1px dashed #3d3654;
+    }
+    .checklist input { margin-top: 0.35rem; width: 1.1rem; height: 1.1rem; }
+    .note { font-size: 0.85rem; color: var(--muted); }
+    .poster-demo {
+      width: min(280px, 100%);
+      margin: 0 auto;
+      aspect-ratio: 9 / 16;
+      border: 3px solid var(--border);
+      border-radius: 20px;
+      padding: 1rem;
+      background: linear-gradient(160deg, #1e1b2e 0%, #2d1f4e 50%, #1a1028 100%);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+    .poster-demo::before {
+      content: "";
+      position: absolute;
+      width: 120px; height: 120px;
+      top: 10%; right: -20px;
+      background: radial-gradient(circle, rgba(124,58,237,0.5), transparent);
+      border-radius: 50%;
+    }
+    .poster-brand { font-size: 0.65rem; color: var(--muted); margin: 0; }
+    .poster-title { font-size: 0.75rem; margin: 0.15rem 0 0.5rem; color: #c4b5fd; }
+    .poster-sprite {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #a78bfa, #7c3aed);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.25rem; color: #fff;
+      margin: 0.5rem auto;
+    }
+    .poster-mbti {
+      font-size: 2.5rem;
+      font-weight: 900;
+      text-align: center;
+      letter-spacing: 0.05em;
+      margin: 0;
+      background: linear-gradient(90deg, #fff, #c4b5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .poster-sub { text-align: center; font-size: 0.7rem; color: var(--muted); margin: 0.25rem 0; }
+    .poster-summary {
+      font-size: 0.65rem;
+      text-align: center;
+      color: #d4cce8;
+      margin: 0.5rem 0;
+      padding: 0 0.5rem;
+    }
+    .poster-nick { text-align: center; font-size: 0.7rem; color: var(--accent); margin: auto 0 0.5rem; }
+    .poster-footer {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: auto;
+      padding-top: 0.5rem;
+      border-top: 1px dashed #4c4468;
+    }
+    .poster-qr {
+      width: 52px; height: 52px;
+      background: #fff;
+      border-radius: 6px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(5, 1fr);
+      gap: 1px;
+      padding: 4px;
+    }
+    .poster-qr span { background: #1a1028; border-radius: 1px; }
+    .poster-qr span.on { background: #1a1028; }
+    .poster-qr-hint { font-size: 0.6rem; color: var(--muted); flex: 1; }
+    .poster-disclaimer {
+      font-size: 0.55rem;
+      color: #6b6280;
+      text-align: center;
+      margin: 0.35rem 0 0;
+    }
+    .option-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.75rem;
+    }
+    .option {
+      border: 2px solid #4c4468;
+      border-radius: 12px;
+      padding: 0.75rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .option.selected { border-color: var(--primary); background: rgba(124, 58, 237, 0.15); }
+    .selection-summary {
+      background: rgba(5, 150, 105, 0.15);
+      border: 2px solid #34d399;
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+    .dep-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .dep-table th, .dep-table td {
+      border: 1px solid #3d3654;
+      padding: 0.4rem 0.6rem;
+      text-align: left;
+    }
+    .dep-table th { background: #252033; }
+    .actions-demo {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    .btn {
+      padding: 0.4rem 0.85rem;
+      border-radius: 999px;
+      border: 2px solid var(--border);
+      background: var(--primary);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .btn.outline { background: transparent; color: #c4b5fd; }
+    .compare-row { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+    .poster-demo.square { aspect-ratio: 1; width: min(220px, 100%); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>T4.2 结果海报生成 — 实施计划审阅</h1>
+    <p class="meta">
+      日期 2026-05-17 · <strong>待批准后实施</strong> ·
+      <a href="../specs/2026-05-17-t4.2-result-poster-design.md">设计规格</a> ·
+      <a href="./2026-05-17-t4.2-result-poster.md">Markdown 计划</a>
+    </p>
+
+    <h2>一、目标（一句话）</h2>
+    <div class="card">
+      <p>在<strong>结果报告页</strong>用客户端 <strong>Canvas</strong> 将最近一次 MBTI 测评合成竖版分享海报（类型、精灵、昵称、二维码），支持<strong>下载 PNG</strong> 与移动端保存后分享朋友圈。</p>
+    </div>
+
+    <h2>二、依赖关系</h2>
+    <div class="card">
+      <table class="dep-table">
+        <thead>
+          <tr><th>任务</th><th>关系</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>T2.5 <code>/report</code></td><td>已有快照与 UI；T4.2 增加海报入口</td></tr>
+          <tr><td>T1.5 登录昵称</td><td><code>getStoredNickname()</code>；游客用占位名</td></tr>
+          <tr><td>T1.6 主题</td><td>海报配色对齐紫霓虹 Clay 风</td></tr>
+          <tr><td>T4.1 图书馆</td><td><strong>无依赖</strong>；并行开发</td></tr>
+          <tr><td>T4.3 语音彩蛋</td><td><strong>后续</strong>可改二维码落地页，不改 Canvas 管线</td></tr>
+          <tr><td>T4.4 响应式</td><td>报告页按钮触控区；海报尺寸固定</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>三、PPA 验收勾选</h2>
+    <div class="card">
+      <ul class="checklist">
+        <li><input type="checkbox" id="a1" /><label for="a1">使用前端 <strong>Canvas</strong> 绘制（非纯 CSS 截图）</label></li>
+        <li><input type="checkbox" id="a2" /><label for="a2">海报含<strong>个人 MBTI 结果</strong>（四字母 + 精灵称号 + 一句解析）</label></li>
+        <li><input type="checkbox" id="a3" /><label for="a3">海报含<strong>二维码</strong>，扫码可回到站点</label></li>
+        <li><input type="checkbox" id="a4" /><label for="a4">可<strong>下载 PNG</strong>；iOS/Android 可保存图片</label></li>
+        <li><input type="checkbox" id="a5" /><label for="a5">样式美观，与全站深色霓虹风一致</label></li>
+        <li><input type="checkbox" id="a6" /><label for="a6">Vitest 覆盖 URL/精灵/布局纯函数；<code>pnpm test:gate</code> 绿</label></li>
+        <li><input type="checkbox" id="a7" /><label for="a7">脚注含「娱乐参考，非医疗诊断」</label></li>
+      </ul>
+    </div>
+
+    <h2>四、海报线框 Demo（竖版 L-A）</h2>
+    <p class="note">逻辑尺寸 1080×1920 · 导出 2× · 路由仍在 <code>/report</code></p>
+    <div class="card">
+      <div class="poster-demo" id="poster-vertical">
+        <p class="poster-brand">性格星球：觉醒计划</p>
+        <p class="poster-title">我的 MBTI 探索卡</p>
+        <div class="poster-sprite">★</div>
+        <p class="poster-mbti">INFP</p>
+        <p class="poster-sub">月影探索精灵</p>
+        <p class="poster-summary">重视价值与可能性，对内心情绪高度敏感。</p>
+        <p class="poster-nick" id="nick-demo">星尘#921 · 2026-05-17</p>
+        <div class="poster-footer">
+          <div class="poster-qr" aria-hidden="true">
+            <span class="on"></span><span></span><span class="on"></span><span></span><span class="on"></span>
+            <span></span><span class="on"></span><span></span><span class="on"></span><span></span>
+            <span class="on"></span><span></span><span class="on"></span><span></span><span class="on"></span>
+            <span></span><span class="on"></span><span></span><span class="on"></span><span></span>
+            <span class="on"></span><span></span><span class="on"></span><span></span><span class="on"></span>
+          </div>
+          <p class="poster-qr-hint">扫码探索你的星球<br /><code style="font-size:0.55rem">/?from=poster&ref=INFP</code></p>
+        </div>
+        <p class="poster-disclaimer">娱乐参考，非医疗诊断</p>
+      </div>
+      <div class="actions-demo">
+        <span class="btn">生成分享海报</span>
+        <span class="btn outline">下载海报</span>
+        <span class="btn outline">分享（若支持）</span>
+      </div>
+      <p class="note" style="margin-top:0.75rem">保存图片后，可在微信「从相册选择」分享到朋友圈。</p>
+    </div>
+
+    <h2>五、Canvas 实现 <span class="badge">二选一</span></h2>
+    <div class="option-grid" id="canvas-pick">
+      <div class="option selected" data-id="C-A">
+        <strong>C-A 原生 Canvas 2D（推荐）</strong>
+        <p class="note">任务书明确要求 Canvas；导出稳定，无 CORS</p>
+      </div>
+      <div class="option" data-id="C-B">
+        <strong>C-B html2canvas</strong>
+        <p class="note">复用 DOM 样式，但依赖重、移动端易翻车</p>
+      </div>
+    </div>
+
+    <h2>六、版式比例 <span class="badge">二选一</span></h2>
+    <div class="option-grid" id="layout-pick">
+      <div class="option selected" data-id="L-A">
+        <strong>L-A 竖版 9:16（推荐）</strong>
+        <p class="note">朋友圈/Stories 常见比例</p>
+      </div>
+      <div class="option" data-id="L-B">
+        <strong>L-B 方图 1:1</strong>
+        <p class="note">更方，信息区需压缩</p>
+      </div>
+    </div>
+
+    <h2>七、二维码落地 <span class="badge">二选一</span></h2>
+    <div class="option-grid" id="qr-pick">
+      <div class="option selected" data-id="Q-A">
+        <strong>Q-A 带追踪 query（推荐）</strong>
+        <p class="note"><code>/?from=poster&ref={MBTI}</code>，便于 T4.3 扩展</p>
+      </div>
+      <div class="option" data-id="Q-B">
+        <strong>Q-B 仅首页</strong>
+        <p class="note"><code>/</code> 无参数</p>
+      </div>
+    </div>
+
+    <h2>八、昵称策略 <span class="badge">二选一</span></h2>
+    <div class="option-grid" id="nick-pick">
+      <div class="option selected" data-id="N-A">
+        <strong>N-A 游客「星球探索者」（推荐）</strong>
+        <p class="note">不暴露空昵称；隐私友好</p>
+      </div>
+      <div class="option" data-id="N-B">
+        <strong>N-B 游客隐藏昵称行</strong>
+        <p class="note">仅登录用户显示昵称</p>
+      </div>
+    </div>
+
+    <h2>九、与 T4.1 边界</h2>
+    <div class="card">
+      <ul class="note" style="margin:0;padding-left:1.2rem">
+        <li>T4.1：<code>/library</code> + Nest 文章 API + Markdown 阅读</li>
+        <li>T4.2：<code>/report</code> + 纯前端 Canvas + localStorage 快照</li>
+        <li>无共享后端模块；仅共用全站 Header/主题 token</li>
+      </ul>
+    </div>
+
+    <h2>十、实施任务摘要</h2>
+    <div class="card">
+      <ol>
+        <li>Task 1 — 依赖 <code>qrcode</code> + 类型</li>
+        <li>Task 2 — URL / 精灵 / 截断纯函数 + Vitest</li>
+        <li>Task 3 — <code>renderPosterToCanvas</code> 绘制器</li>
+        <li>Task 4 — 下载与 Web Share helper</li>
+        <li>Task 5 — <code>PosterActions</code> + 报告页挂载</li>
+        <li>Task 6 — E2E smoke + <code>test:gate</code></li>
+      </ol>
+    </div>
+
+    <h2>十一、明确排除</h2>
+    <div class="card">
+      <ul class="note" style="margin:0;padding-left:1.2rem">
+        <li>服务端出图 / 海报 CMS</li>
+        <li>微信 JS-SDK 直接发朋友圈</li>
+        <li>T4.3 语音播放页（仅预留二维码 URL）</li>
+        <li>海报上完整雷达图</li>
+      </ul>
+    </div>
+
+    <h2>十二、选型汇总</h2>
+    <div class="selection-summary" id="out">当前选型：Canvas C-A · 版式 L-A · 二维码 Q-A · 昵称 N-A</div>
+    <p class="note" style="margin-top:1rem">
+      确认后请回复：<strong>批准 T4.2，Canvas C-A，版式 L-A，二维码 Q-A，昵称 N-A</strong>（可改选项）。<br />
+      <strong>批准前请勿进入阶段 C 修改 apps 源码。</strong>
+    </p>
+  </div>
+  <script>
+    let canvas = 'C-A', layout = 'L-A', qr = 'Q-A', nick = 'N-A';
+    const out = document.getElementById('out');
+    const nickDemo = document.getElementById('nick-demo');
+    const posterEl = document.getElementById('poster-vertical');
+    function updateOut() {
+      out.textContent = '当前选型：Canvas ' + canvas + ' · 版式 ' + layout + ' · 二维码 ' + qr + ' · 昵称 ' + nick;
+      if (nickDemo) {
+        nickDemo.style.display = nick === 'N-B' ? 'none' : 'block';
+        nickDemo.textContent = nick === 'N-A' ? '星尘#921 · 2026-05-17' : '星尘#921 · 2026-05-17';
+      }
+      if (posterEl) {
+        posterEl.classList.toggle('square', layout === 'L-B');
+      }
+    }
+    function bindPick(containerId, key) {
+      const container = document.getElementById(containerId);
+      container.querySelectorAll('.option').forEach((el) => {
+        el.addEventListener('click', () => {
+          container.querySelectorAll('.option').forEach((o) => o.classList.remove('selected'));
+          el.classList.add('selected');
+          const id = el.dataset.id;
+          if (key === 'canvas') canvas = id;
+          if (key === 'layout') layout = id;
+          if (key === 'qr') qr = id;
+          if (key === 'nick') nick = id;
+          updateOut();
+        });
+      });
+    }
+    bindPick('canvas-pick', 'canvas');
+    bindPick('layout-pick', 'layout');
+    bindPick('qr-pick', 'qr');
+    bindPick('nick-pick', 'nick');
+    updateOut();
+  </script>
+</body>
+</html>

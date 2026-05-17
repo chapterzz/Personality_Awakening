@@ -22,7 +22,8 @@ export default defineConfig({
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
-        ...(process.env.PW_CHROMIUM_CHANNEL ? { channel: process.env.PW_CHROMIUM_CHANNEL } : {}),
+        // 默认使用本机 Chrome，避免下载 Playwright 自带 Chromium（体积大、内网慢）
+        channel: process.env.PW_CHROMIUM_CHANNEL ?? 'chrome',
       },
     },
   ],

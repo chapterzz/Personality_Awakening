@@ -7,6 +7,7 @@
 import { FloatingBlobs } from '@/components/decorative/floating-blobs';
 import { MbtiAnalysisCard } from '@/components/report/mbti-analysis-card';
 import { MbtiRadarCard } from '@/components/report/mbti-radar-card';
+import { PosterActions } from '@/components/report/poster-actions';
 import { SpriteProfileCard } from '@/components/report/sprite-profile-card';
 import { buttonVariants } from '@/components/ui/button';
 import { loadReportSnapshot } from '@/lib/report-storage';
@@ -70,6 +71,7 @@ export default function ReportPage() {
         <MbtiRadarCard scores={snapshot.result.scores} />
       </div>
       <MbtiAnalysisCard mbtiType={snapshot.result.mbti_type} />
+      <PosterActions snapshot={snapshot} />
     </div>
   );
 }

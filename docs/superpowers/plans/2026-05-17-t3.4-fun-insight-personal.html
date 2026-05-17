@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>T3.4 趣味数据卡片与个人对比 — 实施计划审阅</title>
+  <style>
+    :root {
+      --bg: #faf8f5;
+      --card: #fff;
+      --border: #2d2a26;
+      --text: #1a1816;
+      --muted: #6b6560;
+      --primary: #7c3aed;
+      --chart-1: #f59e0b;
+      --chart-2: #6366f1;
+      --chart-3: #a78bfa;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      margin: 0;
+      padding: 1.5rem;
+    }
+    .wrap { max-width: 920px; margin: 0 auto; }
+    h1 { font-size: 1.5rem; margin: 0 0 0.5rem; }
+    h2 { font-size: 1.15rem; margin: 2rem 0 0.75rem; border-bottom: 2px solid var(--border); padding-bottom: 0.25rem; }
+    .meta { color: var(--muted); font-size: 0.9rem; }
+    .meta a { color: var(--primary); }
+    .card {
+      background: var(--card);
+      border: 3px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin: 0.75rem 0;
+      box-shadow: 4px 4px 0 var(--border);
+    }
+    .badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      background: #fef3c7;
+      border: 1px solid #d97706;
+      padding: 0.1rem 0.5rem;
+      border-radius: 999px;
+      margin-left: 0.35rem;
+    }
+    .checklist { list-style: none; padding: 0; margin: 0; }
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.35rem 0;
+      border-bottom: 1px dashed #e5e0db;
+    }
+    .checklist input { margin-top: 0.35rem; width: 1.1rem; height: 1.1rem; }
+    .note { font-size: 0.85rem; color: var(--muted); }
+    /* —— 线框 Demo —— */
+    .wireframe {
+      display: grid;
+      gap: 1rem;
+    }
+    .wf-hero {
+      background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(167,139,250,0.15));
+      border: 3px solid var(--border);
+      border-radius: 20px;
+      padding: 1.25rem;
+    }
+    .wf-hero h3 { margin: 0; font-size: 1.25rem; }
+  .wf-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    @media (max-width: 640px) { .wf-grid-2 { grid-template-columns: 1fr; } }
+    .wf-chart {
+      min-height: 120px;
+      background: #f3f0eb;
+      border: 2px dashed var(--muted);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .wf-fun {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+    }
+    @media (max-width: 768px) { .wf-fun { grid-template-columns: repeat(2, 1fr); } }
+    .wf-insight {
+      border: 3px solid var(--border);
+      border-radius: 14px;
+      padding: 0.65rem;
+      background: var(--card);
+      font-size: 0.75rem;
+    }
+    .wf-insight .label { color: var(--muted); font-size: 0.65rem; }
+    .wf-insight .value { font-weight: 800; font-size: 1rem; margin: 0.15rem 0; }
+    .wf-bar {
+      height: 8px;
+      border-radius: 999px;
+      background: #e8e4df;
+      overflow: hidden;
+      display: flex;
+      margin-top: 4px;
+    }
+    .wf-bar span:first-child { background: var(--chart-1); }
+    .wf-bar span:last-child { flex: 1; background: var(--chart-2); }
+    .wf-personal {
+      border: 3px solid var(--border);
+      border-radius: 20px;
+      padding: 1rem;
+      background: linear-gradient(135deg, rgba(124,58,237,0.06), rgba(167,139,250,0.1));
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    .wf-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--chart-3), var(--primary));
+      color: #fff;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+    .option-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.75rem;
+    }
+    .option {
+      border: 2px solid #ccc;
+      border-radius: 12px;
+      padding: 0.75rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .option.selected { border-color: var(--primary); background: #f5f3ff; }
+    .selection-summary {
+      background: #ecfdf5;
+      border: 2px solid #059669;
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+    .hidden-demo { opacity: 0.45; border-style: dashed; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>T3.4 趣味数据卡片与个人对比 — 实施计划审阅</h1>
+    <p class="meta">
+      日期 2026-05-17 · <strong>待批准后实施</strong> ·
+      <a href="../specs/2026-05-17-t3.4-fun-insight-personal-design.md">设计规格</a> ·
+      <a href="./2026-05-17-t3.4-fun-insight-personal.md">Markdown 计划</a>
+    </p>
+
+    <h2>一、目标（一句话）</h2>
+    <div class="card">
+      <p>在 T3.1 API 与初版 UI 基础上，通过 <strong>TDD + 空数据态 + 文案/配色对齐</strong>，完成趣味四卡与个人对比区验收（P1）。</p>
+    </div>
+
+    <h2>二、PPA 验收勾选</h2>
+    <div class="card">
+      <ul class="checklist">
+        <li><input type="checkbox" id="a1" /><label for="a1">最常见 / 最稀有 / 最受欢迎精灵 / 维度平衡 四卡数据与 API 一致</label></li>
+        <li><input type="checkbox" id="a2" /><label for="a2">维度条 E/I、S/N、T/F、J/P 比例正确（含 total=0 → 50/50）</label></li>
+        <li><input type="checkbox" id="a3" /><label for="a3">未登录：页面<strong>不渲染</strong>「你的位置」个人对比区</label></li>
+        <li><input type="checkbox" id="a4" /><label for="a4">已登录且有 TestResult：展示类型、占比、排名；与柱图/热力图高亮一致</label></li>
+        <li><input type="checkbox" id="a5" /><label for="a5"><code>fun-insight-cards.spec.tsx</code> + <code>personal-comparison.spec.tsx</code> 通过；<code>pnpm test:unit</code> 绿</label></li>
+      </ul>
+    </div>
+
+    <h2>三、页面线框 Demo（静态）</h2>
+    <p class="note">下方为布局示意，非真实 API 数据。柱图/热力图由 T3.2/T3.3 交付。</p>
+    <div class="card wireframe">
+      <div class="wf-hero">
+        <p class="label" style="margin:0;font-size:0.75rem;color:var(--muted)">全局洞察</p>
+        <h3>性格星球 · 全局洞察</h3>
+        <p style="margin:0.25rem 0 0;font-size:0.85rem;color:var(--muted)">已有 <strong>128</strong> 位探索者完成测评</p>
+      </div>
+      <p class="note" style="margin:0">未登录时：虚线提示「登录后可查看个人对比」</p>
+      <div class="wf-grid-2">
+        <div class="wf-chart">16 型人格分布（T3.2）</div>
+        <div class="wf-chart">精灵热力图（T3.3）</div>
+      </div>
+      <p style="margin:0.5rem 0 0;font-weight:700">趣味数据</p>
+      <div class="wf-fun">
+        <div class="wf-insight">
+          <div class="label">最多人的类型</div>
+          <div class="value">INFP</div>
+          <div>18 人（14.1%）</div>
+        </div>
+        <div class="wf-insight">
+          <div class="label">最少人的类型</div>
+          <div class="value">ESTJ</div>
+          <div>2 人（1.6%）</div>
+        </div>
+        <div class="wf-insight">
+          <div class="label">最受欢迎精灵</div>
+          <div class="value" style="font-size:0.7rem">月影探索精灵</div>
+          <div>72 人</div>
+        </div>
+        <div class="wf-insight">
+          <div class="label">维度平衡</div>
+          <div style="margin-top:4px">E / I</div>
+          <div class="wf-bar"><span style="width:45%"></span><span></span></div>
+          <div style="margin-top:4px;font-size:0.65rem;color:var(--muted)">S/N · T/F · J/P …</div>
+        </div>
+      </div>
+      <div class="wf-personal">
+        <div class="wf-avatar">INFP</div>
+        <div>
+          <strong>你的位置</strong>
+          <p style="margin:0.25rem 0;font-size:0.85rem">你是 INFP 类型 · 全体探索者中 14.1% 与你是同一类型 · 排名第 1 位</p>
+        </div>
+      </div>
+      <div class="wf-personal hidden-demo">
+        <p style="margin:0;font-size:0.85rem;color:var(--muted)">【未登录】此区块不渲染（非灰色占位）</p>
+      </div>
+    </div>
+
+    <h2>四、维度条配色 <span class="badge">二选一</span></h2>
+    <div class="option-grid" id="dim-pick">
+      <div class="option selected" data-id="D-A">
+        <strong>D-A 双 chart 色（推荐）</strong>
+        <p class="note">左 chart-1 / 右 chart-2，与热力图曦光/月影呼应</p>
+        <div class="wf-bar" style="margin-top:8px"><span style="width:40%;background:var(--chart-1)"></span><span style="background:var(--chart-2)"></span></div>
+      </div>
+      <div class="option" data-id="D-B">
+        <strong>D-B 单色 primary</strong>
+        <p class="note">仅左侧 primary 填充，实现最简单</p>
+        <div class="wf-bar" style="margin-top:8px"><span style="width:40%;background:var(--primary)"></span><span></span></div>
+      </div>
+    </div>
+
+    <h2>五、个人徽章样式 <span class="badge">二选一</span></h2>
+    <div class="option-grid" id="badge-pick">
+      <div class="option selected" data-id="P-A">
+        <strong>P-A 紫渐变圆（推荐）</strong>
+        <div class="wf-avatar" style="margin-top:8px">INFP</div>
+      </div>
+      <div class="option" data-id="P-B">
+        <strong>P-B 方角 chip</strong>
+        <div style="margin-top:8px;display:inline-block;padding:0.35rem 0.75rem;border-radius:8px;background:var(--chart-3);color:#fff;font-weight:800">INFP</div>
+      </div>
+    </div>
+
+    <h2>六、实施任务摘要</h2>
+    <div class="card">
+      <ol>
+        <li>Task 1 — 纯函数 <code>computeDimensionBarPercent</code> / <code>formatInsightDetail</code>（RED→GREEN）</li>
+        <li>Task 2 — FunInsightCards 渲染 + 空态 + 维度条配色</li>
+        <li>Task 3 — PersonalComparison 单测 + 文案</li>
+        <li>Task 4 — <code>pnpm test:unit</code> + Seed 人工抽检</li>
+      </ol>
+    </div>
+
+    <h2>七、选型汇总</h2>
+    <div class="selection-summary" id="out">当前选型：维度条 D-A · 徽章 P-A</div>
+    <p class="note" style="margin-top:1rem">
+      确认后请回复：<strong>批准 T3.4，维度条 D-A，徽章 P-A</strong>（可改选项）。<br />
+      <strong>批准前请勿进入阶段 C 修改 apps 源码。</strong>
+    </p>
+  </div>
+  <script>
+    function bindPick(containerId, summaryPrefix) {
+      const container = document.getElementById(containerId);
+      const out = document.getElementById('out');
+      let dim = 'D-A', badge = 'P-A';
+      container.querySelectorAll('.option').forEach((el) => {
+        el.addEventListener('click', () => {
+          container.querySelectorAll('.option').forEach((o) => o.classList.remove('selected'));
+          el.classList.add('selected');
+          if (containerId === 'dim-pick') dim = el.dataset.id;
+          else badge = el.dataset.id;
+          out.textContent = '当前选型：维度条 ' + dim + ' · 徽章 ' + badge;
+        });
+      });
+    }
+    bindPick('dim-pick');
+    bindPick('badge-pick');
+  </script>
+</body>
+</html>
