@@ -51,6 +51,12 @@ export default function Home() {
         >
           全局洞察看板
         </Link>
+        <Link
+          className={cn(buttonVariants({ variant: 'ghost', size: 'lg' }), 'flex-1 sm:flex-none')}
+          href="/login"
+        >
+          登录 / 注册
+        </Link>
       </div>
 
       {/* 功能介绍卡片 */}

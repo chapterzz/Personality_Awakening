@@ -4,6 +4,7 @@
  */
 import Link from 'next/link';
 
+import { AuthNav } from '@/components/layout/auth-nav';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
 
 export function SiteHeader() {
@@ -26,6 +27,7 @@ export function SiteHeader() {
           性格星球
         </Link>
         <nav className="flex items-center gap-2" aria-label="站点">
+          <AuthNav />
           <ThemeToggle />
         </nav>
       </div>

@@ -21,7 +21,8 @@
     "db:validate": "prisma validate",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
-    "db:seed": "npx tsx prisma/seed.ts"
+    "db:seed": "npx tsx prisma/seed.ts",
+    "db:seed:dashboard": "npx tsx prisma/seed-dashboard.ts"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
@@ -45,6 +46,7 @@
     ]
   },
   "dependencies": {
-    "@prisma/client": "6.19.3"
+    "@prisma/client": "6.19.3",
+    "bcryptjs": "^3.0.3"
   }
 }

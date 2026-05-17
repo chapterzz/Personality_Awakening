@@ -15,10 +15,12 @@ import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { DashboardStats, MyComparison } from '@/lib/dashboard-api';
 import { fetchDashboardStats, fetchMyComparison } from '@/lib/dashboard-api';
+import { getAccessToken } from '@/lib/auth-token';
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [comparison, setComparison] = useState<MyComparison | null>(null);
+  const [authHint, setAuthHint] = useState<'guest' | 'no_result' | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -27,8 +29,19 @@ export default function DashboardPage() {
       .catch((err: unknown) => setError(err instanceof Error ? err.message : '加载失败'));
 
     fetchMyComparison()
-      .then(setComparison)
-      .catch(() => {});
+      .then((data) => {
+        setComparison(data);
+        if (!getAccessToken()) {
+          setAuthHint('guest');
+        } else if (!data) {
+          setAuthHint('no_result');
+        } else {
+          setAuthHint(null);
+        }
+      })
+      .catch(() => {
+        if (!getAccessToken()) setAuthHint('guest');
+      });
   }, []);
 
   if (error) {
@@ -65,6 +78,35 @@ export default function DashboardPage() {
       </Link>
 
       <DashboardHero totalUsers={stats.totalUsers} />
+
+      {authHint === 'guest' ? (
+        <p className="rounded-2xl border-2 border-dashed border-[var(--border)] bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
+          登录后可高亮你在柱状图中的 MBTI 类型并查看个人对比。
+          <Link
+            className={cn(
+              buttonVariants({ variant: 'link', size: 'sm' }),
+              'ml-1 inline h-auto p-0',
+            )}
+            href="/login?redirect=/dashboard"
+          >
+            去登录 / 注册
+          </Link>
+        </p>
+      ) : null}
+      {authHint === 'no_result' ? (
+        <p className="rounded-2xl border-2 border-dashed border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-950 dark:text-amber-100">
+          已登录但尚无测评结果。请使用注册页的「写入演示测评结果」，或使用 Seed 演示账号登录。
+          <Link
+            className={cn(
+              buttonVariants({ variant: 'link', size: 'sm' }),
+              'ml-1 inline h-auto p-0',
+            )}
+            href="/login?redirect=/dashboard"
+          >
+            注册 / 切换账号
+          </Link>
+        </p>
+      ) : null}
 
       <div className="grid gap-4 md:grid-cols-2">
         <TypeDistributionChart data={stats.typeDistribution} highlightType={comparison?.myType} />
