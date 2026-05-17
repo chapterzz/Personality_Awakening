@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>T3.3 精灵热力图 — 审核</title>
+<link rel="stylesheet" href="./2026-05-17-t3.3-sprite-heatmap-review.css"/>
+</head>
+<body>
+<div class="wrap" id="app">
+<h1>T3.3 精灵热力图 — 实施计划与样式审核</h1>
+<p class="meta">日期 2026-05-17 · <strong>待选型后批准</strong> · <a href="../specs/2026-05-17-t3.3-sprite-heatmap-design.md">设计规格</a></p>
+<div class="toolbar">
+<label for="theme">主题</label><select id="theme"><option value="light">浅色</option><option value="dark">深色</option></select>
+<label for="viewport">宽度</label><select id="viewport"><option value="full">桌面</option><option value="narrow">手机 390px</option></select>
+<label for="highlightType">模拟类型</label><select id="highlightType"><option value="INFP">INFP</option><option value="ENFP">ENFP</option><option value="">无</option></select>
+</div>
+<h2>一、目标</h2>
+<div class="card"><p>完善 SpriteHeatmap：16×2 矩阵、color-mix 深浅、横滑 + sticky 首列、登录列高亮（对齐 T3.2）。</p>
+<p>文件：sprite-heatmap.tsx、sprite-heatmap.spec.tsx、dashboard/page.tsx</p></div>
+<h2>二、TDD 任务</h2>
+<div class="card"><ol><li>RED 单测</li><li>GREEN 纯函数</li><li>UI 按所选样式</li><li>pnpm test:unit</li></ol></div>
+<h2>三、主 Demo</h2>
+<p class="note">E 型只在曦光行有数，I 型只在月影行有数。</p>
+<div class="card" id="main-demo"></div>
+<h2>四、图例 <span class="badge">四选一</span></h2>
+<div class="option-grid" id="legend-pick"></div>
+<h2>五、高亮 <span class="badge">六选一</span></h2>
+<div class="option-grid" id="highlight-pick"></div>
+<div id="highlight-previews"></div>
+<h2>六、选型汇总</h2>
+<div class="selection-summary" id="out"></div>
+<p class="note">确认后回复：<strong>批准，图例 L-X，高亮 H-X</strong></p>
+</div>
+<script src="./2026-05-17-t3.3-sprite-heatmap-review.js"></script>
+</body>
+</html>

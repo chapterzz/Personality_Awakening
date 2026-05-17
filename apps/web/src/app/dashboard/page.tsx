@@ -110,7 +110,7 @@ export default function DashboardPage() {
 
       <div className="grid gap-4 md:grid-cols-2">
         <TypeDistributionChart data={stats.typeDistribution} highlightType={comparison?.myType} />
-        <SpriteHeatmap data={stats.spriteHeatmap} />
+        <SpriteHeatmap data={stats.spriteHeatmap} highlightType={comparison?.myType} />
       </div>
 
       <FunInsightCards insights={stats.funInsights} />
