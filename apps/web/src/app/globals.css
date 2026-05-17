@@ -148,3 +148,32 @@
     @apply font-sans;
   }
 }
+
+/* T4.1 科普图书馆 Markdown 正文（无 @tailwindcss/typography 时的 R-A 窄栏样式） */
+@layer components {
+  .library-prose {
+    @apply text-foreground leading-relaxed;
+  }
+  .library-prose h2 {
+    @apply mt-8 mb-3 font-display text-xl font-bold text-foreground;
+  }
+  .library-prose h3 {
+    @apply mt-6 mb-2 font-display text-lg font-semibold text-foreground;
+  }
+  .library-prose p {
+    @apply mb-4 text-base text-muted-foreground;
+  }
+  .library-prose ul,
+  .library-prose ol {
+    @apply mb-4 ml-5 list-disc space-y-1 text-muted-foreground;
+  }
+  .library-prose blockquote {
+    @apply my-4 border-l-4 border-primary bg-muted py-2 pl-4 text-sm italic text-muted-foreground;
+  }
+  .library-prose code {
+    @apply rounded bg-muted px-1 py-0.5 text-sm;
+  }
+  .library-prose a {
+    @apply text-primary underline-offset-2 hover:underline;
+  }
+}

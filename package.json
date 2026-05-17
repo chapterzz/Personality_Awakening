@@ -22,7 +22,8 @@
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:seed": "npx tsx prisma/seed.ts",
-    "db:seed:dashboard": "npx tsx prisma/seed-dashboard.ts"
+    "db:seed:dashboard": "npx tsx prisma/seed-dashboard.ts",
+    "db:seed:library": "npx tsx prisma/seed-library.ts"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"

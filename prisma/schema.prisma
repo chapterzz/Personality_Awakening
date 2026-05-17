@@ -139,8 +139,11 @@ model LibraryArticle {
   slug        String    @unique
   bodyMd      String    @map("body_md")
   excerpt     String?
+  category    String    @default("theory")
+  tags        String[]  @default([])
   publishedAt DateTime? @map("published_at")
   isPublished Boolean   @default(false) @map("is_published")
 
+  @@index([isPublished, category])
   @@map("library_articles")
 }

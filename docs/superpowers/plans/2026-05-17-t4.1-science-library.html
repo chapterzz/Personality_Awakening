@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>T4.1 科普图书馆 — 实施计划审阅</title>
+  <style>
+    :root {
+      --bg: #faf8f5;
+      --card: #fff;
+      --border: #2d2a26;
+      --text: #1a1816;
+      --muted: #6b6560;
+      --primary: #7c3aed;
+      --chart-1: #f59e0b;
+      --chart-2: #6366f1;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      margin: 0;
+      padding: 1.5rem;
+    }
+    .wrap { max-width: 920px; margin: 0 auto; }
+    h1 { font-size: 1.5rem; margin: 0 0 0.5rem; }
+    h2 { font-size: 1.15rem; margin: 2rem 0 0.75rem; border-bottom: 2px solid var(--border); padding-bottom: 0.25rem; }
+    .meta { color: var(--muted); font-size: 0.9rem; }
+    .meta a { color: var(--primary); }
+    .card {
+      background: var(--card);
+      border: 3px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin: 0.75rem 0;
+      box-shadow: 4px 4px 0 var(--border);
+    }
+    .badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      background: #fef3c7;
+      border: 1px solid #d97706;
+      padding: 0.1rem 0.5rem;
+      border-radius: 999px;
+      margin-left: 0.35rem;
+    }
+    .checklist { list-style: none; padding: 0; margin: 0; }
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.35rem 0;
+      border-bottom: 1px dashed #e5e0db;
+    }
+    .checklist input { margin-top: 0.35rem; width: 1.1rem; height: 1.1rem; }
+    .note { font-size: 0.85rem; color: var(--muted); }
+    .wireframe { display: grid; gap: 1rem; }
+    .wf-hero {
+      background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(99,102,241,0.12));
+      border: 3px solid var(--border);
+      border-radius: 20px;
+      padding: 1.25rem;
+    }
+    .wf-hero h3 { margin: 0; font-size: 1.25rem; }
+    .wf-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+    .wf-tab {
+      padding: 0.35rem 0.75rem;
+      border: 2px solid var(--border);
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: var(--card);
+    }
+    .wf-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .wf-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.5rem; }
+    .wf-chip {
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 8px;
+      background: #ede9fe;
+      border: 1px solid #a78bfa;
+    }
+    .wf-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+    @media (max-width: 640px) { .wf-grid { grid-template-columns: 1fr; } }
+    .wf-article {
+      border: 3px solid var(--border);
+      border-radius: 14px;
+      padding: 0.75rem;
+      background: var(--card);
+      font-size: 0.8rem;
+    }
+    .wf-article .cat {
+      font-size: 0.65rem;
+      color: var(--primary);
+      font-weight: 800;
+    }
+    .wf-article h4 { margin: 0.25rem 0; font-size: 0.95rem; }
+    .wf-detail {
+      border: 3px solid var(--border);
+      border-radius: 20px;
+      padding: 1.25rem;
+      background: var(--card);
+    }
+    .wf-prose-narrow { max-width: 28rem; margin: 0 auto; }
+    .wf-prose-wide { max-width: 36rem; margin: 0 auto; }
+    .wf-prose h2 { font-size: 1rem; margin: 1rem 0 0.35rem; }
+    .wf-prose p { margin: 0.35rem 0; font-size: 0.85rem; color: #333; }
+    .wf-prose blockquote {
+      margin: 0.5rem 0;
+      padding-left: 0.75rem;
+      border-left: 3px solid var(--chart-2);
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .wf-disclaimer {
+      margin-top: 1rem;
+      padding: 0.65rem;
+      border-radius: 12px;
+      background: #fff7ed;
+      border: 1px solid #ea580c;
+      font-size: 0.75rem;
+    }
+    .option-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.75rem;
+    }
+    .option {
+      border: 2px solid #ccc;
+      border-radius: 12px;
+      padding: 0.75rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .option.selected { border-color: var(--primary); background: #f5f3ff; }
+    .selection-summary {
+      background: #ecfdf5;
+      border: 2px solid #059669;
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+    .dep-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .dep-table th, .dep-table td {
+      border: 1px solid #e5e0db;
+      padding: 0.4rem 0.6rem;
+      text-align: left;
+    }
+    .dep-table th { background: #f3f0eb; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>T4.1 科普图书馆 — 实施计划审阅</h1>
+    <p class="meta">
+      日期 2026-05-17 · <strong>待批准后实施</strong> ·
+      <a href="../specs/2026-05-17-t4.1-science-library-design.md">设计规格</a> ·
+      <a href="./2026-05-17-t4.1-science-library.md">Markdown 计划</a>
+    </p>
+
+    <h2>一、目标（一句话）</h2>
+    <div class="card">
+      <p>为学生交付<strong>可阅读的 MBTI 科普图书馆</strong>：公开 API + 列表（分类/标签筛选）+ Markdown 详情 + Seed 演示内容，阅读体验与深色模式对齐全站，并为 T4.8 CMS 预留同一数据模型。</p>
+    </div>
+
+    <h2>二、依赖关系</h2>
+    <div class="card">
+      <table class="dep-table">
+        <thead>
+          <tr><th>任务</th><th>关系</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>T1.2 <code>LibraryArticle</code></td><td>已存在表骨架；T4.1 扩展 category/tags</td></tr>
+          <tr><td>T1.6 布局 / 主题</td><td>复用 SiteHeader、Clay 卡片、深色模式</td></tr>
+          <tr><td>T3.x 看板 API 模式</td><td>公开 Nest + 客户端 fetch 范式一致</td></tr>
+          <tr><td>T4.8 图书馆 CMS</td><td><strong>后续</strong>写同一表；T4.1 不实现后台</td></tr>
+          <tr><td>T4.5 Admin</td><td>无硬依赖；可并行</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>三、PPA 验收勾选</h2>
+    <div class="card">
+      <ul class="checklist">
+        <li><input type="checkbox" id="a1" /><label for="a1"><code>/library</code> 列表展示已发布文章（标题、摘要、分类、标签）</label></li>
+        <li><input type="checkbox" id="a2" /><label for="a2">分类 Tab（基础理论 / 反标签 / 名人案例）与 <code>?tag=</code> 筛选生效</label></li>
+        <li><input type="checkbox" id="a3" /><label for="a3"><code>/library/[slug]</code> 详情 Markdown 渲染正确（标题、段落、引用、列表）</label></li>
+        <li><input type="checkbox" id="a4" /><label for="a4">深色模式下正文与背景对比可读</label></li>
+        <li><input type="checkbox" id="a5" /><label for="a5"><code>GET /library/articles</code>、<code>GET /library/articles/:slug</code> 集成测试通过</label></li>
+        <li><input type="checkbox" id="a6" /><label for="a6"><code>pnpm db:seed:library</code> 后本地可演示；<code>pnpm test:gate</code> 绿</label></li>
+        <li><input type="checkbox" id="a7" /><label for="a7">页脚/ Hero 含「非医疗诊断」类免责声明</label></li>
+      </ul>
+    </div>
+
+    <h2>四、列表页线框 Demo</h2>
+    <p class="note">路由 <code>/library</code> · 数据来自 <code>GET /library/articles</code></p>
+    <div class="card wireframe">
+      <div class="wf-hero">
+        <p style="margin:0;font-size:0.75rem;color:var(--muted)">性格星球 · 科普馆</p>
+        <h3>科学认识人格，拒绝标签绑架</h3>
+        <p style="margin:0.35rem 0 0;font-size:0.85rem;color:var(--muted)">在娱乐中了解 MBTI 的边界与正确用法</p>
+      </div>
+      <div class="wf-tabs">
+        <span class="wf-tab active">全部</span>
+        <span class="wf-tab">基础理论</span>
+        <span class="wf-tab">反标签</span>
+        <span class="wf-tab">名人案例</span>
+      </div>
+      <p style="margin:0.5rem 0 0;font-size:0.75rem;font-weight:700">标签</p>
+      <div class="wf-chips">
+        <span class="wf-chip">MBTI</span>
+        <span class="wf-chip">信度</span>
+        <span class="wf-chip">标签效应</span>
+      </div>
+      <div class="wf-grid">
+        <div class="wf-article">
+          <div class="cat">基础理论</div>
+          <h4>MBTI 是什么？四个维度怎么理解</h4>
+          <p style="margin:0;color:var(--muted);font-size:0.75rem">用初中生能懂的语言解释 E/I、S/N…</p>
+          <div class="wf-chips" style="margin-top:0.35rem"><span class="wf-chip">MBTI</span></div>
+        </div>
+        <div class="wf-article">
+          <div class="cat">反标签</div>
+          <h4>别让四个字母定义你的一生</h4>
+          <p style="margin:0;color:var(--muted);font-size:0.75rem">为什么「标签效应」会伤害自我认知…</p>
+          <div class="wf-chips" style="margin-top:0.35rem"><span class="wf-chip">标签效应</span></div>
+        </div>
+        <div class="wf-article">
+          <div class="cat">名人案例</div>
+          <h4>INFP 创作者：敏感不是缺点</h4>
+          <p style="margin:0;color:var(--muted);font-size:0.75rem">名人案例仅供启发，不是标准答案…</p>
+        </div>
+        <div class="wf-article" style="opacity:0.5;border-style:dashed">
+          <p style="margin:0;font-size:0.8rem">【空态】暂无文章，敬请期待</p>
+        </div>
+      </div>
+    </div>
+
+    <h2>五、详情页线框 Demo</h2>
+    <p class="note">路由 <code>/library/[slug]</code> · 窄栏 prose 示意（选型 R-A）</p>
+    <div class="card wireframe">
+      <p style="margin:0;font-size:0.8rem"><a href="#">← 返回科普馆</a> · 反标签</p>
+      <div class="wf-detail">
+        <h3 style="margin:0.5rem 0 0">别让四个字母定义你的一生</h3>
+        <p style="margin:0;font-size:0.75rem;color:var(--muted)">发布于 2026-05-01 · 标签：标签效应</p>
+        <div class="wf-prose wf-prose-narrow" id="prose-demo">
+          <h2>什么是标签效应？</h2>
+          <p>当你反复被告知「你是某某型」，大脑会不自觉按这个剧本行动…</p>
+          <blockquote>人格类型是地图，不是牢笼。</blockquote>
+          <p>试着记录一周里<strong>不符合</strong>类型描述的时刻，你会发现自己更丰富。</p>
+        </div>
+        <div class="wf-disclaimer">
+          内容仅供科普与娱乐参考，不能替代专业心理评估或医疗诊断。
+        </div>
+      </div>
+    </div>
+
+    <h2>六、阅读栏宽 <span class="badge">二选一</span></h2>
+    <div class="option-grid" id="width-pick">
+      <div class="option selected" data-id="R-A">
+        <strong>R-A 窄栏 prose（推荐）</strong>
+        <p class="note">约 65 字符宽，长文不累</p>
+        <div class="wf-prose wf-prose-narrow" style="margin-top:8px;border:1px dashed #ccc;padding:0.5rem">
+          <p style="margin:0;font-size:0.75rem">示例段落宽度较窄…</p>
+        </div>
+      </div>
+      <div class="option" data-id="R-B">
+        <strong>R-B 宽栏</strong>
+        <p class="note">适合未来插图/表格多的文章</p>
+        <div class="wf-prose wf-prose-wide" style="margin-top:8px;border:1px dashed #ccc;padding:0.5rem">
+          <p style="margin:0;font-size:0.75rem">示例段落宽度较宽…</p>
+        </div>
+      </div>
+    </div>
+
+    <h2>七、筛选交互 <span class="badge">二选一</span></h2>
+    <div class="option-grid" id="filter-pick">
+      <div class="option selected" data-id="F-A">
+        <strong>F-A 分类 Tab + 标签 Chips（推荐）</strong>
+        <p class="note">对齐 PRD 三分类 + 任务书「标签筛选」</p>
+      </div>
+      <div class="option" data-id="F-B">
+        <strong>F-B 仅标签 Chips</strong>
+        <p class="note">实现更简单，弱化分类导航</p>
+      </div>
+    </div>
+
+    <h2>八、实施任务摘要</h2>
+    <div class="card">
+      <ol>
+        <li>Task 1–2 — Prisma <code>category</code>/<code>tags</code> 迁移 + <code>seed-library</code></li>
+        <li>Task 3–4 — <code>LibraryModule</code> 单测 + 公开 API + supertest</li>
+        <li>Task 5–6 — 前端 types/api/labels + <code>react-markdown</code></li>
+        <li>Task 7–8 — 列表页 + 详情页组件</li>
+        <li>Task 9–10 — 首页/顶栏入口 + E2E + <code>test:gate</code></li>
+      </ol>
+    </div>
+
+    <h2>九、明确排除（本切片不做）</h2>
+    <div class="card">
+      <ul class="note" style="margin:0;padding-left:1.2rem">
+        <li>T4.8 后台 CMS 增删改</li>
+        <li>PRD 互动小测与徽章解锁</li>
+        <li>视频播放与上传</li>
+        <li>移动端底部四 Tab 导航（T4.4）</li>
+      </ul>
+    </div>
+
+    <h2>十、选型汇总</h2>
+    <div class="selection-summary" id="out">当前选型：阅读栏宽 R-A · 筛选 F-A</div>
+    <p class="note" style="margin-top:1rem">
+      确认后请回复：<strong>批准 T4.1，阅读 R-A，筛选 F-A</strong>（可改选项）。<br />
+      <strong>批准前请勿进入阶段 C 修改 apps 源码。</strong>
+    </p>
+  </div>
+  <script>
+    let width = 'R-A', filter = 'F-A';
+    const out = document.getElementById('out');
+    const proseDemo = document.getElementById('prose-demo');
+    function bindPick(containerId, kind) {
+      const container = document.getElementById(containerId);
+      container.querySelectorAll('.option').forEach((el) => {
+        el.addEventListener('click', () => {
+          container.querySelectorAll('.option').forEach((o) => o.classList.remove('selected'));
+          el.classList.add('selected');
+          if (kind === 'width') {
+            width = el.dataset.id;
+            if (proseDemo) {
+              proseDemo.className = 'wf-prose ' + (width === 'R-A' ? 'wf-prose-narrow' : 'wf-prose-wide');
+            }
+          } else {
+            filter = el.dataset.id;
+          }
+          out.textContent = '当前选型：阅读栏宽 ' + width + ' · 筛选 ' + filter;
+        });
+      });
+    }
+    bindPick('width-pick', 'width');
+    bindPick('filter-pick', 'filter');
+  </script>
+</body>
+</html>

@@ -52,6 +52,12 @@ export default function Home() {
           全局洞察看板
         </Link>
         <Link
+          className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'flex-1 sm:flex-none')}
+          href="/library"
+        >
+          科普图书馆
+        </Link>
+        <Link
           className={cn(buttonVariants({ variant: 'ghost', size: 'lg' }), 'flex-1 sm:flex-none')}
           href="/login"
         >

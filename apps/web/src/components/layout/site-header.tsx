@@ -27,6 +27,18 @@ export function SiteHeader() {
           性格星球
         </Link>
         <nav className="flex items-center gap-2" aria-label="站点">
+          <Link
+            href="/library"
+            className="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:inline"
+          >
+            科普馆
+          </Link>
+          <Link
+            href="/dashboard"
+            className="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:inline"
+          >
+            看板
+          </Link>
           <AuthNav />
           <ThemeToggle />
         </nav>
