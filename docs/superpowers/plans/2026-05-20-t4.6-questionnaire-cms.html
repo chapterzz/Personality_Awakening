@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>T4.6 题库 CMS — 实施计划审阅</title>
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --card: #fff;
+      --border: #1e293b;
+      --text: #0f172a;
+      --muted: #64748b;
+      --primary: #0d9488;
+      --warn: #ea580c;
+      --danger: #dc2626;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      margin: 0;
+      padding: 1.5rem;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; }
+    h1 { font-size: 1.45rem; margin: 0 0 0.5rem; }
+    h2 { font-size: 1.1rem; margin: 2rem 0 0.65rem; border-bottom: 2px solid var(--border); padding-bottom: 0.2rem; }
+    .meta { color: var(--muted); font-size: 0.88rem; }
+    .meta a { color: var(--primary); }
+    .card {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.2rem;
+      margin: 0.65rem 0;
+      box-shadow: 3px 3px 0 var(--border);
+    }
+    .badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      background: #fef3c7;
+      border: 1px solid #d97706;
+      padding: 0.08rem 0.45rem;
+      border-radius: 999px;
+      margin-left: 0.3rem;
+    }
+    .badge-warn { background: #ffedd5; border-color: var(--warn); }
+    .badge-ok { background: #d1fae5; border-color: #059669; }
+    .checklist { list-style: none; padding: 0; margin: 0; }
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.45rem;
+      padding: 0.3rem 0;
+      border-bottom: 1px dashed #e2e8f0;
+      font-size: 0.9rem;
+    }
+    .checklist input { margin-top: 0.3rem; }
+    .note { font-size: 0.82rem; color: var(--muted); }
+    .dep-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .dep-table th, .dep-table td {
+      border: 1px solid #e2e8f0;
+      padding: 0.35rem 0.55rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    .dep-table th { background: #e2e8f0; }
+    .skip { background: #fff7ed; border-color: var(--warn); }
+    .wireframe { display: grid; gap: 0.75rem; }
+    .wf-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0.75rem;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      background: #f8fafc;
+      font-size: 0.8rem;
+    }
+    .wf-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+    }
+    .wf-table th, .wf-table td {
+      border: 1px solid #cbd5e1;
+      padding: 0.35rem 0.5rem;
+      text-align: left;
+    }
+    .wf-table th { background: #e2e8f0; }
+    .wf-pub { color: #059669; font-weight: 700; }
+    .wf-draft { color: var(--warn); font-weight: 700; }
+    .wf-btn {
+      display: inline-block;
+      padding: 0.25rem 0.55rem;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      background: var(--card);
+      margin-right: 0.25rem;
+    }
+    .wf-btn-primary { background: var(--primary); color: #fff; border-color: #0f766e; }
+    .wf-btn-danger { background: #fee2e2; border-color: var(--danger); }
+    .option-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 0.6rem;
+    }
+    .option {
+      border: 2px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 0.65rem;
+      font-size: 0.82rem;
+      cursor: pointer;
+    }
+    .option.selected { border-color: var(--primary); background: #ccfbf1; }
+    .selection-summary {
+      background: #ecfdf5;
+      border: 2px solid #059669;
+      padding: 0.6rem 0.9rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+    .task-list { font-size: 0.88rem; padding-left: 1.2rem; }
+    .task-list li { margin: 0.25rem 0; }
+    code { font-size: 0.85em; background: #f1f5f9; padding: 0.1rem 0.3rem; border-radius: 4px; }
+    .gate {
+      background: #fef2f2;
+      border: 2px solid var(--danger);
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>T4.6 题库 CMS — 实施计划审阅</h1>
+    <p class="meta">
+      日期 2026-05-20 · <strong class="gate" style="display:inline;background:transparent;border:none;padding:0;color:var(--danger)">待你批准后再实施（阶段 C 未启动）</strong> ·
+      <a href="../specs/2026-05-20-t4.6-questionnaire-cms-design.md">设计规格</a> ·
+      <a href="./2026-05-20-t4.6-questionnaire-cms.md">Markdown 任务清单</a>
+    </p>
+
+    <h2>一、目标（一句话）</h2>
+    <div class="card">
+      <p>为运营提供<strong>标准模式题库后台</strong>：ADMIN 维护问卷/题目/选项及 MBTI 计分与 T2.7 题组字段，<strong>发布/下架</strong>后学生端通过现有 <code>GET /questionnaire/:id</code> 拉取最新有效题库，并与 <code>POST /scoring/mbti</code> 信号一致。</p>
+    </div>
+
+    <h2>二、跳过 T4.4 / T4.5 的影响 <span class="badge badge-warn">必读</span></h2>
+    <div class="card skip">
+      <table class="dep-table">
+        <thead>
+          <tr><th>跳过</th><th>缺口</th><th>T4.6 内补齐 / 降级</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>T4.5</strong> 管理员骨架</td>
+            <td>无 Guard、无 <code>/admin</code>、无审计</td>
+            <td><strong>T4.5-MVP 并入本任务</strong>：<code>RolesGuard</code>、Seed <code>ADMIN</code> 用户、<code>/admin/login</code>；不做角色提升 UI / 审计</td>
+          </tr>
+          <tr>
+            <td><strong>T4.4</strong> 响应式打磨</td>
+            <td>全站 375–1920 未专项验收</td>
+            <td>管理端复用 Shadcn + 表格横向滚动；<strong>不</strong>开 responsive 子任务</td>
+          </tr>
+          <tr>
+            <td>Mock / 降级</td>
+            <td>无后台时只能改 Seed</td>
+            <td>保留 <code>pnpm db:seed</code> 作 CI 基线；CMS 上线后以 DB 为准</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>三、依赖与已有实现</h2>
+    <div class="card">
+      <table class="dep-table">
+        <thead><tr><th>项</th><th>状态</th></tr></thead>
+        <tbody>
+          <tr><td>T1.2 Prisma 三表</td><td>✅ <code>StandardQuestionnaire</code> / <code>Question</code> / <code>Option</code> + <code>isPublished</code></td></tr>
+          <tr><td>T2.7 公开 API</td><td>✅ <code>QuestionnaireModule</code> — 仅已发布可读</td></tr>
+          <tr><td>T2.4 计分</td><td>✅ 信号驱动 <code>POST /scoring/mbti</code>；选项元数据来自问卷 API</td></tr>
+          <tr><td>学生端</td><td>✅ <code>standard-test-client</code> 使用 <code>adaptive-demo-v1</code></td></tr>
+          <tr><td>Admin API / UI</td><td>❌ 待建</td></tr>
+          <tr><td><code>RolesGuard</code></td><td>❌ JWT 有 <code>role</code> 但未强制 ADMIN</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>四、PPA 验收勾选</h2>
+    <div class="card">
+      <ul class="checklist">
+        <li><input type="checkbox" id="v1" /><label for="v1">ADMIN 登录 <code>/admin</code> 后可列表/编辑问卷</label></li>
+        <li><input type="checkbox" id="v2" /><label for="v2">STUDENT / 无 token 调用 <code>/admin/*</code> → 401/403</label></li>
+        <li><input type="checkbox" id="v3" /><label for="v3">可 CRUD 题目、选项（含 dimension / side / weight / groupTag）</label></li>
+        <li><input type="checkbox" id="v4" /><label for="v4">发布 → 学生 <code>GET /questionnaire/:id</code> 200；下架 → 404</label></li>
+        <li><input type="checkbox" id="v5" /><label for="v5">改选项计分字段后完成标准测评，报告类型与配置一致</label></li>
+        <li><input type="checkbox" id="v6" /><label for="v6"><code>POST .../sequence</code> 在改 groupTag 后仍符合 T2.7 规则</label></li>
+        <li><input type="checkbox" id="v7" /><label for="v7"><code>pnpm test:gate</code> 通过（含 admin 集成测）</label></li>
+      </ul>
+    </div>
+
+    <h2>五、管理端线框 Demo</h2>
+    <p class="note">路由 <code>/admin/questionnaires</code>、<code>/admin/questionnaires/[id]</code> — 桌面运营为主（T4.4 未做）</p>
+
+    <div class="card wireframe">
+      <p style="margin:0 0 0.5rem;font-weight:700">5.1 问卷列表</p>
+      <div class="wf-bar">
+        <span>性格星球 · 题库管理</span>
+        <span>ppa-admin · <a href="#">退出</a></span>
+      </div>
+      <p style="margin:0.5rem 0"><span class="wf-btn wf-btn-primary">+ 新建问卷</span></p>
+      <table class="wf-table">
+        <thead>
+          <tr><th>ID</th><th>标题</th><th>状态</th><th>题目数</th><th>操作</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>adaptive-demo-v1</code></td>
+            <td>自适应 MBTI 演示问卷</td>
+            <td class="wf-pub">已发布</td>
+            <td>12</td>
+            <td><span class="wf-btn">编辑</span><span class="wf-btn">下架</span></td>
+          </tr>
+          <tr>
+            <td><code>draft-v2</code></td>
+            <td>下学期题库草稿</td>
+            <td class="wf-draft">草稿</td>
+            <td>0</td>
+            <td><span class="wf-btn">编辑</span><span class="wf-btn wf-btn-primary">发布</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card wireframe">
+      <p style="margin:0 0 0.5rem;font-weight:700">5.2 问卷详情 / 题目编辑</p>
+      <div class="wf-bar">
+        <span><a href="#">← 问卷列表</a> · adaptive-demo-v1</span>
+        <span><span class="wf-btn wf-btn-primary">发布</span><span class="wf-btn wf-btn-danger">下架</span></span>
+      </div>
+      <p class="note">发布前校验：至少 1 道 screening；计分题选项须 dimension+side+weight</p>
+      <table class="wf-table">
+        <thead>
+          <tr><th>题号</th><th>题干</th><th>groupTag</th><th>dimension</th><th>选项</th><th></th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>sq01</td>
+            <td>周末你更想…</td>
+            <td>screening</td>
+            <td>EI</td>
+            <td>2 项 (E/I)</td>
+            <td><span class="wf-btn">编辑</span></td>
+          </tr>
+          <tr>
+            <td>sq05</td>
+            <td>做决定时你更依赖…</td>
+            <td>ei_followup</td>
+            <td>EI</td>
+            <td>2 项</td>
+            <td><span class="wf-btn">编辑</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="margin:0.5rem 0"><span class="wf-btn">+ 添加题目</span></p>
+      <div style="border:2px dashed #94a3b8;border-radius:10px;padding:0.75rem;margin-top:0.5rem;font-size:0.8rem">
+        <strong>选项编辑（展开）</strong><br />
+        A: 和朋友出去 · EI / E / weight 2 · valueKey sq01_A<br />
+        B: 独自看书 · EI / I / weight 2 · valueKey sq01_B
+      </div>
+    </div>
+
+    <h2>六、待你选型 <span class="badge">批准前请确认</span></h2>
+    <div class="card">
+      <p><strong>Q1 — 学生端问卷 ID</strong></p>
+      <div class="option-grid">
+        <div class="option selected" data-opt="q1a">
+          <strong>Q1-A 原地编辑（推荐）</strong><br />
+          继续 <code>adaptive-demo-v1</code>；CMS 改同一行；E2E 无需改常量
+        </div>
+        <div class="option" data-opt="q1b">
+          <strong>Q1-B 多问卷 + 配置切换</strong><br />
+          新建 ID + env <code>NEXT_PUBLIC_STANDARD_QUESTIONNAIRE_ID</code>；灵活但改动面大
+        </div>
+      </div>
+      <p style="margin-top:1rem"><strong>D1 — 删除题目策略</strong></p>
+      <div class="option-grid">
+        <div class="option selected" data-opt="d1a">
+          <strong>D1-A 硬删（推荐 MVP）</strong><br />
+          无 Schema 变更；删除前检查无进行中的必要引用
+        </div>
+        <div class="option" data-opt="d1b">
+          <strong>D1-B 软禁用 isEnabled</strong><br />
+          需迁移；适合频繁上下架单题
+        </div>
+      </div>
+      <p style="margin-top:1rem"><strong>A1 — Admin 登录入口</strong></p>
+      <div class="option-grid">
+        <div class="option selected" data-opt="a1a">
+          <strong>A1-A 独立 /admin/login（推荐）</strong><br />
+          与学生登录分离；JWT 存 sessionStorage
+        </div>
+        <div class="option" data-opt="a1b">
+          <strong>A1-B 共用 /login + 角色跳转</strong><br />
+          少一页；易与学生流混淆
+        </div>
+      </div>
+      <div class="selection-summary" id="selection-summary" style="margin-top:1rem">
+        当前选择：Q1-A · D1-A · A1-A（点击卡片可切换，仅审阅用）
+      </div>
+    </div>
+
+    <h2>七、任务拆分（6 Tasks）</h2>
+    <div class="card">
+      <ol class="task-list">
+        <li><strong>Task 1</strong> 共享校验器 <code>questionnaire-validation</code>（TDD）</li>
+        <li><strong>Task 2</strong> T4.5-MVP：<code>RolesGuard</code> + Seed ADMIN</li>
+        <li><strong>Task 3</strong> <code>AdminQuestionnaireModule</code> 列表/详情 API + 集成测</li>
+        <li><strong>Task 4</strong> 题目/选项 CRUD + 发布/下架 + 发布校验</li>
+        <li><strong>Task 5</strong> Next <code>/admin</code> UI（登录、列表、编辑、发布）</li>
+        <li><strong>Task 6</strong> 门禁 <code>pnpm test:gate</code> + 环境文档 + 工作日志</li>
+      </ol>
+      <p class="note">逐步代码与命令见 <a href="./2026-05-20-t4.6-questionnaire-cms.md">Markdown 计划</a>。</p>
+    </div>
+
+    <h2>八、测试策略</h2>
+    <div class="card">
+      <table class="dep-table">
+        <thead><tr><th>层级</th><th>文件 / 命令</th></tr></thead>
+        <tbody>
+          <tr><td>单元</td><td><code>questionnaire-validation.spec.ts</code>、<code>roles.guard.spec.ts</code></td></tr>
+          <tr><td>集成</td><td><code>admin-questionnaire.e2e-spec.ts</code> — 403/200、发布前后公开 GET</td></tr>
+          <tr><td>E2E P1</td><td><code>e2e/admin-questionnaire-publish.spec.ts</code>（可选）</td></tr>
+          <tr><td>门禁</td><td><code>pnpm test:gate</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>九、主要文件清单</h2>
+    <div class="card" style="font-size:0.82rem">
+      <p><strong>API</strong></p>
+      <code>apps/api/src/common/guards/roles.guard.ts</code><br />
+      <code>apps/api/src/admin-questionnaire/*</code><br />
+      <code>apps/api/src/questionnaire/questionnaire-validation.ts</code><br />
+      <code>apps/api/test/admin-questionnaire.e2e-spec.ts</code>
+      <p><strong>Web</strong></p>
+      <code>apps/web/src/app/admin/**</code><br />
+      <code>apps/web/src/lib/admin-api.ts</code><br />
+      <code>apps/web/src/components/admin/**</code>
+      <p><strong>数据</strong></p>
+      <code>prisma/seed.ts</code> 或 <code>seed-admin.ts</code>
+    </div>
+
+    <h2>十、批准门禁</h2>
+    <div class="card gate">
+      在你就绪并回复「批准 T4.6 计划」之前，<strong>不会</strong>修改 <code>apps/</code>、<code>prisma/</code>、<code>e2e/</code> 业务代码。批准后进入阶段 C（TDD 实施）→ D 检视 → E <code>pnpm test:gate</code> 验证。
+    </div>
+  </div>
+  <script>
+    const labels = { q1a: 'Q1-A', q1b: 'Q1-B', d1a: 'D1-A', d1b: 'D1-B', a1a: 'A1-A', a1b: 'A1-B' };
+    const groups = { q1: ['q1a','q1b'], d1: ['d1a','d1b'], a1: ['a1a','a1b'] };
+    const picked = { q1: 'q1a', d1: 'd1a', a1: 'a1a' };
+    function renderSummary() {
+      document.getElementById('selection-summary').textContent =
+        '当前选择：' + [picked.q1, picked.d1, picked.a1].map(k => labels[k]).join(' · ') + '（点击卡片可切换，仅审阅用）';
+    }
+    document.querySelectorAll('.option').forEach(el => {
+      el.addEventListener('click', () => {
+        const id = el.dataset.opt;
+        for (const [g, ids] of Object.entries(groups)) {
+          if (ids.includes(id)) {
+            picked[g] = id;
+            ids.forEach(i => document.querySelector('[data-opt="'+i+'"]').classList.toggle('selected', i === id));
+          }
+        }
+        renderSummary();
+      });
+    });
+  </script>
+</body>
+</html>

@@ -15,8 +15,8 @@ export type JwtAccessPayload = {
 export class JwtUserService {
   constructor(private readonly jwtService: JwtService) {}
 
-  /** 从 `Authorization: Bearer …` 解析 `user_id`（JWT `sub`）；无效或缺失时返回 `null`。 */
-  tryUserIdFromAuthHeader(authorization?: string): string | null {
+  /** 从 Bearer 解析 JWT 载荷；无效或缺失时返回 `null`。 */
+  tryPayloadFromAuthHeader(authorization?: string): JwtAccessPayload | null {
     if (!authorization || !authorization.toLowerCase().startsWith('bearer ')) {
       return null;
     }
@@ -32,10 +32,15 @@ export class JwtUserService {
       if (typeof payload.role !== 'string' || payload.role.length === 0) {
         return null;
       }
-      return payload.sub;
+      return payload;
     } catch {
       return null;
     }
+  }
+
+  /** 从 `Authorization: Bearer …` 解析 `user_id`（JWT `sub`）；无效或缺失时返回 `null`。 */
+  tryUserIdFromAuthHeader(authorization?: string): string | null {
+    return this.tryPayloadFromAuthHeader(authorization)?.sub ?? null;
   }
 
   /** 签发访问令牌：载荷含 `sub`（user_id）与 `role`（PRD §2.3）。 */

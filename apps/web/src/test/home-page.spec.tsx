@@ -24,6 +24,11 @@ vi.mock('next/link', () => ({
   ),
 }));
 
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 describe('Home', () => {
   it('根容器含居中限宽类名', () => {
     const { container } = render(<Home />);

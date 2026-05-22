@@ -2,9 +2,13 @@
  * T2.7 自适应题库 Seed 脚本：向数据库填充演示问卷数据（screening + follow-up 分组）。
  * 运行方式：npx pnpm run db:seed
  */
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, UserRole } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
+
+const ADMIN_NICKNAME = 'ppa-admin';
+const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? 'ppa-admin-dev';
 
 const QUESTIONNAIRE_ID = 'adaptive-demo-v1';
 const QUESTIONNAIRE_TITLE = '自适应 MBTI 演示问卷';
@@ -344,8 +348,24 @@ const questions = [
   },
 ];
 
+/** T4.6：写入 ADMIN 运营账号（密码来自 SEED_ADMIN_PASSWORD，默认仅开发） */
+async function seedAdminUser(): Promise<void> {
+  const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, 10);
+  await prisma.user.upsert({
+    where: { nickname: ADMIN_NICKNAME },
+    update: { passwordHash, role: UserRole.ADMIN, isDeleted: false },
+    create: {
+      nickname: ADMIN_NICKNAME,
+      passwordHash,
+      role: UserRole.ADMIN,
+    },
+  });
+  console.log(`Seeded admin user "${ADMIN_NICKNAME}" (role ADMIN).`);
+}
+
 async function main() {
   console.log('Seeding adaptive question bank...');
+  await seedAdminUser();
 
   // 创建问卷
   await prisma.standardQuestionnaire.upsert({

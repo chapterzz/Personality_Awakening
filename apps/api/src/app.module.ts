@@ -4,6 +4,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AdminQuestionnaireModule } from './admin-questionnaire/admin-questionnaire.module';
 import { AuthModule } from './auth/auth.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { LibraryModule } from './library/library.module';
@@ -19,6 +20,7 @@ import { ScoringModule } from './scoring/scoring.module';
     ProgressModule,
     ScoringModule,
     QuestionnaireModule,
+    AdminQuestionnaireModule,
     DashboardModule,
     LibraryModule,
   ],
