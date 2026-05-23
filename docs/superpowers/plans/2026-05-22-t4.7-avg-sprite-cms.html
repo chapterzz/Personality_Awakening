@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>T4.7 AVG 与精灵文案 CMS — 实施计划审阅</title>
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --card: #fff;
+      --border: #1e293b;
+      --text: #0f172a;
+      --muted: #64748b;
+      --primary: #7c3aed;
+      --primary-light: #ede9fe;
+      --warn: #ea580c;
+      --danger: #dc2626;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      margin: 0;
+      padding: 1.5rem;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; }
+    h1 { font-size: 1.45rem; margin: 0 0 0.5rem; }
+    h2 { font-size: 1.1rem; margin: 2rem 0 0.65rem; border-bottom: 2px solid var(--border); padding-bottom: 0.2rem; }
+    .meta { color: var(--muted); font-size: 0.88rem; }
+    .meta a { color: var(--primary); }
+    .card {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.2rem;
+      margin: 0.65rem 0;
+      box-shadow: 3px 3px 0 var(--border);
+    }
+    .badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      background: var(--primary-light);
+      border: 1px solid var(--primary);
+      padding: 0.08rem 0.45rem;
+      border-radius: 999px;
+      margin-left: 0.3rem;
+    }
+    .badge-warn { background: #ffedd5; border-color: var(--warn); }
+    .badge-ok { background: #d1fae5; border-color: #059669; }
+    .checklist { list-style: none; padding: 0; margin: 0; }
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.45rem;
+      padding: 0.3rem 0;
+      border-bottom: 1px dashed #e2e8f0;
+      font-size: 0.9rem;
+    }
+    .checklist input { margin-top: 0.3rem; }
+    .note { font-size: 0.82rem; color: var(--muted); }
+    .dep-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .dep-table th, .dep-table td {
+      border: 1px solid #e2e8f0;
+      padding: 0.35rem 0.55rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    .dep-table th { background: #e2e8f0; }
+    .reuse { background: #f5f3ff; border-color: var(--primary); }
+    .wireframe { display: grid; gap: 0.75rem; }
+    .wf-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0.75rem;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      background: #f8fafc;
+      font-size: 0.8rem;
+    }
+    .wf-nav { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+    .wf-nav span {
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      border: 1px solid #cbd5e1;
+    }
+    .wf-nav .active { background: var(--primary); color: #fff; border-color: #5b21b6; }
+    .wf-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+    }
+    .wf-table th, .wf-table td {
+      border: 1px solid #cbd5e1;
+      padding: 0.35rem 0.5rem;
+      text-align: left;
+    }
+    .wf-table th { background: #e2e8f0; }
+    .wf-pub { color: #059669; font-weight: 700; }
+    .wf-draft { color: var(--warn); font-weight: 700; }
+    .wf-btn {
+      display: inline-block;
+      padding: 0.25rem 0.55rem;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      background: var(--card);
+      margin-right: 0.25rem;
+    }
+    .wf-btn-primary { background: var(--primary); color: #fff; border-color: #5b21b6; }
+    .wf-btn-danger { background: #fee2e2; border-color: var(--danger); }
+    .json-box {
+      font-family: ui-monospace, monospace;
+      font-size: 0.68rem;
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 0.65rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      white-space: pre;
+      line-height: 1.4;
+    }
+    .option-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 0.6rem;
+    }
+    .option {
+      border: 2px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 0.65rem;
+      font-size: 0.82rem;
+      cursor: pointer;
+    }
+    .option.selected { border-color: var(--primary); background: var(--primary-light); }
+    .selection-summary {
+      background: #ecfdf5;
+      border: 2px solid #059669;
+      padding: 0.6rem 0.9rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+    .task-list { font-size: 0.88rem; padding-left: 1.2rem; }
+    .task-list li { margin: 0.25rem 0; }
+    code { font-size: 0.85em; background: #f1f5f9; padding: 0.1rem 0.3rem; border-radius: 4px; }
+    .gate {
+      background: #fef2f2;
+      border: 2px solid var(--danger);
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      align-items: center;
+      font-size: 0.78rem;
+    }
+    .flow span {
+      padding: 0.25rem 0.5rem;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+    }
+    .flow .arrow { border: none; background: none; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>T4.7 AVG 与精灵文案 CMS — 实施计划审阅</h1>
+    <p class="meta">
+      日期 2026-05-22 · <strong class="gate" style="display:inline;background:transparent;border:none;padding:0;color:var(--danger)">待你批准后再实施（阶段 C 未启动）</strong> ·
+      <a href="../specs/2026-05-22-t4.7-avg-sprite-cms-design.md">设计规格</a> ·
+      <a href="./2026-05-22-t4.7-avg-sprite-cms.md">Markdown 任务清单</a>
+    </p>
+
+    <h2>一、目标（一句话）</h2>
+    <div class="card">
+      <p>为运营提供 <strong>AVG 剧情与精灵互动文案后台</strong>：ADMIN 维护 <code>demo-avg-v1</code> 节点 JSON 与全局精灵提示，<strong>发布/下架</strong> 后学生端 AVG 引擎与标准/AVG 精灵 Hook 通过 <code>GET /avg-script/:id</code>、<code>GET /sprite-prompts</code> 拉取最新有效配置。</p>
+    </div>
+
+    <h2>二、T4.6 复用 <span class="badge badge-ok">不重复造轮子</span></h2>
+    <div class="card reuse">
+      <table class="dep-table">
+        <thead><tr><th>已有（T4.6）</th><th>T4.7 用法</th></tr></thead>
+        <tbody>
+          <tr><td><code>RolesGuard</code> + JWT <code>role</code></td><td>Admin AVG / 精灵路由直接复用</td></tr>
+          <tr><td><code>/admin/login</code>、<code>admin-auth.ts</code></td><td>同一 Admin 会话</td></tr>
+          <tr><td><code>admin-api.ts</code> 封装模式</td><td>扩展 AVG / 精灵客户端函数</td></tr>
+          <tr><td>发布语义 <code>isPublished</code></td><td>脚本与精灵文案各自独立发布</td></tr>
+          <tr><td>集成测 403/200 模式</td><td><code>admin-avg-cms.e2e-spec.ts</code> 对齐</td></tr>
+        </tbody>
+      </table>
+      <p class="note" style="margin-top:0.75rem">T4.7 <strong>扩展</strong> <code>admin/layout.tsx</code> 顶栏导航，不再仅显示「问卷管理」。</p>
+    </div>
+
+    <h2>三、依赖与已有实现</h2>
+    <div class="card">
+      <table class="dep-table">
+        <thead><tr><th>项</th><th>状态</th></tr></thead>
+        <tbody>
+          <tr><td>Prisma <code>AvgScript</code></td><td>✅ 表存在；❌ 未 Seed、无 API</td></tr>
+          <tr><td>AVG 类型 <code>AvgScriptConfig</code></td><td>✅ <code>avg-demo-script.ts</code></td></tr>
+          <tr><td>AVG 引擎 <code>use-avg-test</code> / <code>avg-script.ts</code></td><td>✅ 纯函数 + 单测；数据源仍为常量</td></tr>
+          <tr><td>精灵文案 <code>sprite-lines.ts</code></td><td>✅ 本地常量；注释已标注 T4.7 替换</td></tr>
+          <tr><td>T4.6 Admin 壳层</td><td>✅ <code>/admin</code>、Guard、Seed <code>ppa-admin</code></td></tr>
+          <tr><td>公开 AVG API</td><td>❌ 待建</td></tr>
+          <tr><td>精灵文案表</td><td>❌ 待迁移 <code>SpritePromptConfig</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>四、数据流</h2>
+    <div class="card">
+      <div class="flow">
+        <span>Admin 编辑 JSON</span>
+        <span class="arrow">→</span>
+        <span>校验 + PUT</span>
+        <span class="arrow">→</span>
+        <span>发布</span>
+        <span class="arrow">→</span>
+        <span>GET /avg-script/demo-avg-v1</span>
+        <span class="arrow">→</span>
+        <span>avg-test-client</span>
+        <span class="arrow">→</span>
+        <span>useAvgTest(config)</span>
+      </div>
+      <p class="note" style="margin-top:0.75rem">精灵文案并行：<code>PUT /admin/sprite-prompts</code> → 发布 → <code>GET /sprite-prompts</code> → 标准/AVG 页 <code>useSpriteInteraction</code>。</p>
+    </div>
+
+    <h2>五、PPA 验收勾选</h2>
+    <div class="card">
+      <ul class="checklist">
+        <li><input type="checkbox" /><label>ADMIN 可编辑 AVG 脚本 JSON 并预览节点表</label></li>
+        <li><input type="checkbox" /><label>ADMIN 可编辑犹豫/互斥精灵文案并发布</label></li>
+        <li><input type="checkbox" /><label>STUDENT 调用 <code>/admin/avg-*</code> → 403</label></li>
+        <li><input type="checkbox" /><label>未发布脚本 <code>GET /avg-script/:id</code> → 404</label></li>
+        <li><input type="checkbox" /><label>发布后 AVG 页显示新对白/选项；计分信号与配置一致</label></li>
+        <li><input type="checkbox" /><label>标准模式精灵提示来自已发布 API 文案</label></li>
+        <li><input type="checkbox" /><label><code>pnpm test:gate</code> 通过</label></li>
+      </ul>
+    </div>
+
+    <h2>六、管理端线框 Demo</h2>
+    <p class="note">路由 <code>/admin/avg-scripts</code>、<code>/admin/avg-scripts/[id]</code>、<code>/admin/sprite-prompts</code></p>
+
+    <div class="card wireframe">
+      <p style="margin:0 0 0.5rem;font-weight:700">6.1 扩展 Admin 顶栏</p>
+      <div class="wf-bar">
+        <span>性格星球 · 内容 CMS</span>
+        <div class="wf-nav">
+          <span>问卷</span>
+          <span class="active">AVG 脚本</span>
+          <span>精灵文案</span>
+        </div>
+        <span>ppa-admin · 退出</span>
+      </div>
+    </div>
+
+    <div class="card wireframe">
+      <p style="margin:0 0 0.5rem;font-weight:700">6.2 AVG 脚本列表</p>
+      <table class="wf-table">
+        <thead>
+          <tr><th>ID</th><th>标题</th><th>状态</th><th>节点数</th><th>操作</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>demo-avg-v1</code></td>
+            <td>AVG 演示剧情</td>
+            <td class="wf-pub">已发布</td>
+            <td>6</td>
+            <td><span class="wf-btn">编辑</span><span class="wf-btn">下架</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card wireframe">
+      <p style="margin:0 0 0.5rem;font-weight:700">6.3 脚本详情 — JSON 编辑 + 节点预览</p>
+      <div class="wf-bar">
+        <span><a href="#">← 脚本列表</a> · demo-avg-v1</span>
+        <span><span class="wf-btn wf-btn-primary">发布</span><span class="wf-btn wf-btn-danger">下架</span></span>
+      </div>
+      <p class="note">左侧/上方：JSON 文本域（start_node_id、backgrounds、nodes）· 右侧/下方：校验结果 + 节点只读表</p>
+      <div class="json-box">{
+  "start_node_id": "intro",
+  "backgrounds": { "night": "from-indigo-950 ..." },
+  "nodes": {
+    "intro": { "kind": "dialogue", "lines": [...], "next_id": "energy_choice" },
+    "energy_choice": { "kind": "choice", "options": [...] }
+  }
+}</div>
+      <table class="wf-table" style="margin-top:0.5rem">
+        <thead><tr><th>node_id</th><th>kind</th><th>chapter</th><th>background</th><th>出口</th></tr></thead>
+        <tbody>
+          <tr><td>intro</td><td>dialogue</td><td>EI</td><td>night</td><td>→ energy_choice</td></tr>
+          <tr><td>energy_choice</td><td>choice</td><td>EI</td><td>aurora</td><td>2 options</td></tr>
+          <tr><td>closing</td><td>end</td><td>EI</td><td>aurora</td><td>—</td></tr>
+        </tbody>
+      </table>
+      <p style="margin:0.5rem 0"><span class="wf-btn wf-btn-primary">校验并保存</span></p>
+    </div>
+
+    <div class="card wireframe">
+      <p style="margin:0 0 0.5rem;font-weight:700">6.4 精灵文案编辑</p>
+      <div class="wf-bar"><span>精灵互动文案</span><span><span class="wf-btn wf-btn-primary">发布</span></span></div>
+      <p style="font-size:0.8rem;margin:0.4rem 0"><strong>犹豫提示</strong>（单题 &gt;30s，随机/轮询一条）</p>
+      <div style="border:1px solid #cbd5e1;border-radius:8px;padding:0.5rem;font-size:0.78rem">
+        1. 你在犹豫吗？不必完美…<br />
+        2. 如果两个都像你，也没关系…<br />
+        <span class="wf-btn" style="margin-top:0.35rem">+ 添加一条</span>
+      </div>
+      <p style="font-size:0.8rem;margin:0.75rem 0 0.4rem"><strong>互斥吐槽</strong>（按维度 EI / SN / TF / JP）</p>
+      <table class="wf-table">
+        <thead><tr><th>维度</th><th>文案（可多行）</th></tr></thead>
+        <tbody>
+          <tr><td>EI</td><td>E 和 I 都很有你！…</td></tr>
+          <tr><td>SN</td><td>S 与 N 都被你点亮了…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>七、待你选型 <span class="badge">批准前请确认</span></h2>
+    <div class="card">
+      <p><strong>Q1 — 学生端脚本 ID</strong></p>
+      <div class="option-grid">
+        <div class="option selected" data-opt="q1a">
+          <strong>Q1-A 原地编辑 demo-avg-v1（推荐）</strong><br />
+          与 <code>DEMO_AVG_SCRIPT_ID</code>、E2E progress fixture 一致
+        </div>
+        <div class="option" data-opt="q1b">
+          <strong>Q1-B 多脚本 + env 切换</strong><br />
+          <code>NEXT_PUBLIC_AVG_SCRIPT_ID</code>；灵活但改动面大
+        </div>
+      </div>
+      <p style="margin-top:1rem"><strong>E1 — AVG 编辑器形态</strong></p>
+      <div class="option-grid">
+        <div class="option selected" data-opt="e1a">
+          <strong>E1-A JSON + 校验 + 节点预览表（推荐 MVP）</strong><br />
+          符合任务书「JSON 或结构化」；复杂画布延后
+        </div>
+        <div class="option" data-opt="e1b">
+          <strong>E1-B 结构化节点表单</strong><br />
+          UX 好；工作量接近二期功能
+        </div>
+      </div>
+      <p style="margin-top:1rem"><strong>S1 — 精灵文案存储</strong></p>
+      <div class="option-grid">
+        <div class="option selected" data-opt="s1a">
+          <strong>S1-A 独立表 SpritePromptConfig（推荐）</strong><br />
+          标准/AVG 共用；独立发布
+        </div>
+        <div class="option" data-opt="s1b">
+          <strong>S1-B 并入 AvgScript JSON</strong><br />
+          零迁移但标准模式无法单独更新文案
+        </div>
+      </div>
+      <div class="selection-summary" id="selection-summary" style="margin-top:1rem">
+        当前选择：Q1-A · E1-A · S1-A（点击卡片可切换，仅审阅用）
+      </div>
+    </div>
+
+    <h2>八、任务拆分（7 Tasks）</h2>
+    <div class="card">
+      <ol class="task-list">
+        <li><strong>Task 1</strong> Prisma 迁移 <code>SpritePromptConfig</code> + Seed AVG / 精灵默认数据</li>
+        <li><strong>Task 2</strong> <code>avg-script-validation</code> + <code>sprite-prompt-validation</code>（TDD）</li>
+        <li><strong>Task 3</strong> 公开 <code>AvgScriptModule</code> + <code>SpritePromptModule</code> GET API</li>
+        <li><strong>Task 4</strong> <code>AdminAvgCmsModule</code> CRUD + 发布/下架 + 集成测</li>
+        <li><strong>Task 5</strong> Next <code>/admin/avg-scripts</code>、<code>/admin/sprite-prompts</code> UI</li>
+        <li><strong>Task 6</strong> 学生端 <code>avg-script-api</code> / 精灵 API 接入 + 保留单测 fallback</li>
+        <li><strong>Task 7</strong> 门禁 <code>pnpm test:gate</code> + 工作日志</li>
+      </ol>
+      <p class="note">逐步代码与命令见 <a href="./2026-05-22-t4.7-avg-sprite-cms.md">Markdown 计划</a>。</p>
+    </div>
+
+    <h2>九、测试策略</h2>
+    <div class="card">
+      <table class="dep-table">
+        <thead><tr><th>层级</th><th>文件 / 命令</th></tr></thead>
+        <tbody>
+          <tr><td>单元</td><td><code>avg-script-validation.spec.ts</code>、<code>sprite-prompt-validation.spec.ts</code></td></tr>
+          <tr><td>集成</td><td><code>admin-avg-cms.e2e-spec.ts</code> — 403、发布前后公开 GET</td></tr>
+          <tr><td>Web</td><td>现有 <code>avg-script.spec.ts</code> 不变；API client 单测（可选）</td></tr>
+          <tr><td>门禁</td><td><code>pnpm test:gate</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>十、主要文件清单</h2>
+    <div class="card" style="font-size:0.82rem">
+      <p><strong>API</strong></p>
+      <code>apps/api/src/avg-script/*</code><br />
+      <code>apps/api/src/sprite-prompt/*</code><br />
+      <code>apps/api/src/admin-avg-cms/*</code><br />
+      <code>apps/api/test/admin-avg-cms.e2e-spec.ts</code>
+      <p><strong>Web</strong></p>
+      <code>apps/web/src/app/admin/avg-scripts/**</code><br />
+      <code>apps/web/src/app/admin/sprite-prompts/**</code><br />
+      <code>apps/web/src/lib/avg-script-api.ts</code><br />
+      <code>apps/web/src/lib/sprite-prompt-api.ts</code>
+      <p><strong>数据</strong></p>
+      <code>prisma/migrations/*_sprite_prompt_config</code><br />
+      <code>prisma/seed.ts</code>（扩展 demo-avg-v1）
+    </div>
+
+    <h2>十一、批准门禁</h2>
+    <div class="card gate">
+      在你就绪并回复「<strong>批准 T4.7 计划</strong>」之前，<strong>不会</strong>修改 <code>apps/</code>、<code>prisma/</code>、<code>e2e/</code> 业务代码。批准后进入阶段 C（TDD 实施）→ D 检视 → E <code>pnpm test:gate</code> 验证。
+    </div>
+  </div>
+  <script>
+    const labels = { q1a: 'Q1-A', q1b: 'Q1-B', e1a: 'E1-A', e1b: 'E1-B', s1a: 'S1-A', s1b: 'S1-B' };
+    const groups = { q1: ['q1a','q1b'], e1: ['e1a','e1b'], s1: ['s1a','s1b'] };
+    const picked = { q1: 'q1a', e1: 'e1a', s1: 's1a' };
+    function renderSummary() {
+      document.getElementById('selection-summary').textContent =
+        '当前选择：' + [picked.q1, picked.e1, picked.s1].map(k => labels[k]).join(' · ') + '（点击卡片可切换，仅审阅用）';
+    }
+    document.querySelectorAll('.option').forEach(el => {
+      el.addEventListener('click', () => {
+        const id = el.dataset.opt;
+        for (const [g, ids] of Object.entries(groups)) {
+          if (ids.includes(id)) {
+            picked[g] = id;
+            ids.forEach(i => document.querySelector('[data-opt="'+i+'"]').classList.toggle('selected', i === id));
+          }
+        }
+        renderSummary();
+      });
+    });
+  </script>
+</body>
+</html>

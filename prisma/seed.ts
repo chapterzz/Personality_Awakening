@@ -1,9 +1,17 @@
 /**
  * T2.7 自适应题库 Seed 脚本：向数据库填充演示问卷数据（screening + follow-up 分组）。
+ * T4.7：追加 AVG 演示脚本与精灵文案默认配置。
  * 运行方式：npx pnpm run db:seed
  */
 import { PrismaClient, UserRole } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
+import {
+  DEFAULT_SPRITE_HESITATION_LINES,
+  DEFAULT_SPRITE_MUTEX_LINES,
+  DEMO_AVG_NODES_JSON,
+  DEMO_AVG_SCRIPT_ID,
+  DEMO_AVG_SCRIPT_TITLE,
+} from './seed-avg-data';
 
 const prisma = new PrismaClient();
 
@@ -363,6 +371,45 @@ async function seedAdminUser(): Promise<void> {
   console.log(`Seeded admin user "${ADMIN_NICKNAME}" (role ADMIN).`);
 }
 
+/** T4.7：写入 AVG 演示脚本与精灵文案（已发布，供学生端 API 拉取） */
+async function seedAvgAndSpritePrompts(): Promise<void> {
+  await prisma.avgScript.upsert({
+    where: { id: DEMO_AVG_SCRIPT_ID },
+    update: {
+      title: DEMO_AVG_SCRIPT_TITLE,
+      nodesJson: DEMO_AVG_NODES_JSON,
+      isPublished: true,
+      publishedAt: new Date(),
+    },
+    create: {
+      id: DEMO_AVG_SCRIPT_ID,
+      title: DEMO_AVG_SCRIPT_TITLE,
+      nodesJson: DEMO_AVG_NODES_JSON,
+      isPublished: true,
+      publishedAt: new Date(),
+    },
+  });
+  console.log(`Seeded AVG script "${DEMO_AVG_SCRIPT_ID}".`);
+
+  await prisma.spritePromptConfig.upsert({
+    where: { id: 'default' },
+    update: {
+      hesitationLines: DEFAULT_SPRITE_HESITATION_LINES,
+      mutexLines: DEFAULT_SPRITE_MUTEX_LINES,
+      isPublished: true,
+      publishedAt: new Date(),
+    },
+    create: {
+      id: 'default',
+      hesitationLines: DEFAULT_SPRITE_HESITATION_LINES,
+      mutexLines: DEFAULT_SPRITE_MUTEX_LINES,
+      isPublished: true,
+      publishedAt: new Date(),
+    },
+  });
+  console.log('Seeded sprite prompt config "default".');
+}
+
 async function main() {
   console.log('Seeding adaptive question bank...');
   await seedAdminUser();
@@ -444,6 +491,8 @@ async function main() {
   }
 
   console.log(`Seeded questionnaire "${QUESTIONNAIRE_ID}" with ${questions.length} questions.`);
+
+  await seedAvgAndSpritePrompts();
 }
 
 main()

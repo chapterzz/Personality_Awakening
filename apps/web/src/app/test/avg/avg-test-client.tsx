@@ -1,6 +1,6 @@
 /**
  * AVG 演示页（客户端）：剧情渲染、背景切换、分支选项、节点级保存与 409 处理（T2.2）。
- * 2026-05-01 UI 重构：font-display 标题 + Claymorphism 完成卡片。
+ * T4.7：mount 时从 API 拉取已发布脚本与精灵文案。
  */
 'use client';
 
@@ -10,25 +10,36 @@ import { AvgStoryProgressBar } from '@/components/avg-test/avg-story-progress-ba
 import { AvgStoryStage } from '@/components/avg-test/avg-story-stage';
 import { SpriteBubble } from '@/components/sprite/sprite-bubble';
 import { Button, buttonVariants } from '@/components/ui/button';
-import { DEMO_AVG_SCRIPT } from '@/data/avg-demo-script';
+import type { AvgScriptConfig } from '@/data/avg-demo-script';
+import { DEMO_AVG_SCRIPT_ID } from '@/data/avg-demo-script';
 import { getHesitationLine, getMutexLine } from '@/data/sprite-lines';
 import { useAvgTest } from '@/hooks/use-avg-test';
 import { useSpriteInteraction } from '@/hooks/use-sprite-interaction';
+import { fetchPublishedAvgScript } from '@/lib/avg-script-api';
 import { getBackgroundDescriptor } from '@/lib/avg-script';
 import { buildAvgSignals, fetchMbtiReport, ReportScoringError } from '@/lib/report-scoring';
 import { saveReportSnapshot } from '@/lib/report-storage';
+import { createSpriteLineGetters, fetchPublishedSpritePrompts } from '@/lib/sprite-prompt-api';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-export function AvgTestClient() {
-  const t = useAvgTest(DEMO_AVG_SCRIPT);
+type SpriteLineGetters = {
+  getHesitationLine: () => string;
+  getMutexLine: (d: import('@/lib/sprite-interaction').DimensionTag) => string;
+};
+
+type AvgTestRunnerProps = {
+  config: AvgScriptConfig;
+  spriteGetters: SpriteLineGetters;
+};
+
+/** 已加载脚本与文案后的 AVG 主流程（Hooks 须在此层调用） */
+function AvgTestRunner({ config, spriteGetters }: AvgTestRunnerProps) {
+  const t = useAvgTest(config);
   const router = useRouter();
-  const sprite = useSpriteInteraction({
-    getHesitationLine,
-    getMutexLine,
-  });
+  const sprite = useSpriteInteraction(spriteGetters);
   const [buildingReport, setBuildingReport] = useState(false);
   const [reportError, setReportError] = useState<string | null>(null);
 
@@ -66,7 +77,7 @@ export function AvgTestClient() {
         <div className="space-y-4 rounded-2xl border border-destructive/30 bg-destructive/5 p-6">
           <p className="font-medium text-destructive">剧情版本不一致</p>
           <p className="text-sm text-muted-foreground">
-            服务器上的 AVG 进度不属于本演示脚本（{DEMO_AVG_SCRIPT.script_id}
+            服务器上的 AVG 进度不属于本演示脚本（{config.script_id}
             ）。请在正式流程中续答，或联系管理员清理进行中会话。
           </p>
         </div>
@@ -94,15 +105,15 @@ export function AvgTestClient() {
   }
 
   const bgDescriptor = t.currentNode
-    ? getBackgroundDescriptor(DEMO_AVG_SCRIPT, t.currentNode.background_key)
-    : getBackgroundDescriptor(DEMO_AVG_SCRIPT, 'night');
+    ? getBackgroundDescriptor(config, t.currentNode.background_key)
+    : getBackgroundDescriptor(config, 'night');
 
   const handleBuildReport = async () => {
     if (!t.progressData || t.progressData.mode !== 'AVG') return;
     try {
       setBuildingReport(true);
       setReportError(null);
-      const signals = buildAvgSignals(t.progressData, DEMO_AVG_SCRIPT);
+      const signals = buildAvgSignals(t.progressData, config);
       const result = await fetchMbtiReport({ mode: 'AVG', signals });
       saveReportSnapshot({
         mode: 'AVG',
@@ -257,4 +268,73 @@ export function AvgTestClient() {
       </p>
     </div>
   );
+}
+
+/** 拉取 CMS 配置后挂载 AVG 引擎 */
+export function AvgTestClient() {
+  const [config, setConfig] = useState<AvgScriptConfig | null>(null);
+  const [spriteGetters, setSpriteGetters] = useState<SpriteLineGetters | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const loadContent = useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const [script, prompts] = await Promise.all([
+        fetchPublishedAvgScript(DEMO_AVG_SCRIPT_ID),
+        fetchPublishedSpritePrompts().catch(() => null),
+      ]);
+      setConfig(script);
+      setSpriteGetters(
+        prompts ? createSpriteLineGetters(prompts) : { getHesitationLine, getMutexLine },
+      );
+    } catch (err: unknown) {
+      setLoadError(err instanceof Error ? err.message : 'content_load_failed');
+      setConfig(null);
+      setSpriteGetters(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadContent();
+  }, [loadContent]);
+
+  if (loading) {
+    return (
+      <div className="mx-auto flex max-w-3xl flex-col gap-4">
+        <div>
+          <Link className={cn(buttonVariants({ variant: 'outline', size: 'sm' }))} href="/">
+            返回首页
+          </Link>
+        </div>
+        <div className="flex min-h-[40vh] items-center justify-center text-muted-foreground">
+          加载剧情配置…
+        </div>
+      </div>
+    );
+  }
+
+  if (loadError || !config || !spriteGetters) {
+    return (
+      <div className="mx-auto flex max-w-3xl flex-col gap-4">
+        <div>
+          <Link className={cn(buttonVariants({ variant: 'outline', size: 'sm' }))} href="/">
+            返回首页
+          </Link>
+        </div>
+        <div className="space-y-4 rounded-2xl border border-destructive/30 bg-destructive/5 p-6">
+          <p className="font-medium text-destructive">无法加载剧情配置</p>
+          <p className="text-sm text-muted-foreground">{loadError ?? 'unknown_error'}</p>
+          <Button type="button" onClick={() => void loadContent()}>
+            重试
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return <AvgTestRunner config={config} spriteGetters={spriteGetters} />;
 }

@@ -65,6 +65,31 @@ vi.mock('@/lib/report-storage', () => ({
   saveReportSnapshot: (...args: unknown[]) => saveReportSnapshotMock(...args),
 }));
 
+vi.mock('@/lib/avg-script-api', () => ({
+  fetchPublishedAvgScript: vi.fn().mockResolvedValue({
+    script_id: 'demo-avg-v1',
+    start_node_id: 'intro',
+    backgrounds: { night: 'from-slate-900 to-slate-950' },
+    nodes: {
+      closing: { kind: 'end', chapter: 'EI', background_key: 'night', lines: [] },
+    },
+  }),
+}));
+
+vi.mock('@/lib/sprite-prompt-api', () => ({
+  fetchPublishedSpritePrompts: vi.fn().mockResolvedValue({
+    hesitationLines: ['test hesitation'],
+    mutexLines: { EI: ['x'], SN: ['x'], TF: ['x'], JP: ['x'] },
+  }),
+  createSpriteLineGetters: (prompts: {
+    hesitationLines: string[];
+    mutexLines: Record<string, string[]>;
+  }) => ({
+    getHesitationLine: () => prompts.hesitationLines[0] ?? '',
+    getMutexLine: (d: string) => prompts.mutexLines[d]?.[0] ?? '',
+  }),
+}));
+
 describe('report navigation', () => {
   it('标准模式完成态可生成报告并跳转', async () => {
     useAdaptiveStandardTestMock.mockReturnValue({
@@ -166,6 +191,9 @@ describe('report navigation', () => {
     });
 
     render(<AvgTestClient />);
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: '查看结果报告' })).toBeInTheDocument();
+    });
     fireEvent.click(screen.getByRole('button', { name: '查看结果报告' }));
 
     await waitFor(() => {

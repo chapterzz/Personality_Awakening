@@ -4,14 +4,17 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AdminAvgCmsModule } from './admin-avg-cms/admin-avg-cms.module';
 import { AdminQuestionnaireModule } from './admin-questionnaire/admin-questionnaire.module';
 import { AuthModule } from './auth/auth.module';
+import { AvgScriptModule } from './avg-script/avg-script.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { LibraryModule } from './library/library.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ProgressModule } from './progress/progress.module';
 import { QuestionnaireModule } from './questionnaire/questionnaire.module';
 import { ScoringModule } from './scoring/scoring.module';
+import { SpritePromptModule } from './sprite-prompt/sprite-prompt.module';
 
 @Module({
   imports: [
@@ -21,6 +24,9 @@ import { ScoringModule } from './scoring/scoring.module';
     ScoringModule,
     QuestionnaireModule,
     AdminQuestionnaireModule,
+    AvgScriptModule,
+    SpritePromptModule,
+    AdminAvgCmsModule,
     DashboardModule,
     LibraryModule,
   ],

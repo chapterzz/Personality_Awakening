@@ -1,7 +1,7 @@
 /**
  * 标准模式测评页（客户端）：自适应题库 + 进度条/题卡/选项 + 自动保存与 409 处理。
  * T2.7 使用 useAdaptiveStandardTest 从服务端获取题序，支持筛选轮→追问轮。
- * 2026-05-01 UI 重构：font-display 标题 + Claymorphism 完成卡片。
+ * T4.7：精灵文案从 API 拉取（失败时 fallback 本地常量）。
  */
 'use client';
 
@@ -14,6 +14,7 @@ import { getHesitationLine, getMutexLine } from '@/data/sprite-lines';
 import { useSpriteInteraction } from '@/hooks/use-sprite-interaction';
 import { buildStandardSignals, fetchMbtiReport, ReportScoringError } from '@/lib/report-scoring';
 import { saveReportSnapshot } from '@/lib/report-storage';
+import { createSpriteLineGetters, fetchPublishedSpritePrompts } from '@/lib/sprite-prompt-api';
 import { useAdaptiveStandardTest } from '@/hooks/use-adaptive-standard-test';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -22,15 +23,29 @@ import { useEffect, useState } from 'react';
 
 const QUESTIONNAIRE_ID = 'adaptive-demo-v1';
 
+const FALLBACK_SPRITE_GETTERS = { getHesitationLine, getMutexLine };
+
 export function StandardTestClient() {
   const t = useAdaptiveStandardTest(QUESTIONNAIRE_ID);
   const router = useRouter();
-  const sprite = useSpriteInteraction({
-    getHesitationLine,
-    getMutexLine,
-  });
+  const [spriteGetters, setSpriteGetters] = useState(FALLBACK_SPRITE_GETTERS);
+  const sprite = useSpriteInteraction(spriteGetters);
   const [buildingReport, setBuildingReport] = useState(false);
   const [reportError, setReportError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchPublishedSpritePrompts()
+      .then((prompts) => {
+        if (!cancelled) setSpriteGetters(createSpriteLineGetters(prompts));
+      })
+      .catch(() => {
+        /* 保留 FALLBACK_SPRITE_GETTERS */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const q = t.currentQuestion;
   const choiceActive = t.phase === 'ready' && !t.isComplete && Boolean(q) && !t.saving;

@@ -155,3 +155,109 @@ export async function deleteQuestion(questionnaireId: string, questionId: string
   );
   await parseEnvelope(res);
 }
+
+// --- T4.7 AVG / 精灵文案 CMS ---
+
+export type AdminAvgScriptSummary = {
+  id: string;
+  title: string;
+  isPublished: boolean;
+  publishedAt: string | null;
+  nodesJson: {
+    start_node_id: string;
+    backgrounds: Record<string, unknown>;
+    nodes: Record<string, unknown>;
+  };
+};
+
+export type AdminAvgScriptDetail = AdminAvgScriptSummary;
+
+export type AdminSpritePromptDetail = {
+  id: string;
+  hesitationLines: string[];
+  mutexLines: Record<string, string[]>;
+  isPublished: boolean;
+  publishedAt: string | null;
+};
+
+/** AVG 脚本列表 */
+export async function fetchAdminAvgScripts(): Promise<AdminAvgScriptSummary[]> {
+  const res = await fetch(`${apiBase()}/admin/avg-scripts`, { headers: authHeaders() });
+  return parseEnvelope(res);
+}
+
+/** AVG 脚本详情 */
+export async function fetchAdminAvgScript(id: string): Promise<AdminAvgScriptDetail> {
+  const res = await fetch(`${apiBase()}/admin/avg-scripts/${encodeURIComponent(id)}`, {
+    headers: authHeaders(),
+  });
+  return parseEnvelope(res);
+}
+
+/** 更新 AVG nodesJson */
+export async function updateAvgScriptNodes(
+  id: string,
+  nodesJson: AdminAvgScriptDetail['nodesJson'],
+): Promise<void> {
+  const res = await fetch(`${apiBase()}/admin/avg-scripts/${encodeURIComponent(id)}/nodes`, {
+    method: 'PUT',
+    headers: authHeaders(),
+    body: JSON.stringify({ nodesJson }),
+  });
+  await parseEnvelope(res);
+}
+
+/** 发布 AVG 脚本 */
+export async function publishAvgScript(id: string): Promise<void> {
+  const res = await fetch(`${apiBase()}/admin/avg-scripts/${encodeURIComponent(id)}/publish`, {
+    method: 'POST',
+    headers: authHeaders(),
+  });
+  await parseEnvelope(res);
+}
+
+/** 下架 AVG 脚本 */
+export async function unpublishAvgScript(id: string): Promise<void> {
+  const res = await fetch(`${apiBase()}/admin/avg-scripts/${encodeURIComponent(id)}/unpublish`, {
+    method: 'POST',
+    headers: authHeaders(),
+  });
+  await parseEnvelope(res);
+}
+
+/** 精灵文案详情（含草稿） */
+export async function fetchAdminSpritePrompts(): Promise<AdminSpritePromptDetail> {
+  const res = await fetch(`${apiBase()}/admin/sprite-prompts`, { headers: authHeaders() });
+  return parseEnvelope(res);
+}
+
+/** 更新精灵文案 */
+export async function updateAdminSpritePrompts(payload: {
+  hesitationLines: string[];
+  mutexLines: Record<string, string[]>;
+}): Promise<void> {
+  const res = await fetch(`${apiBase()}/admin/sprite-prompts`, {
+    method: 'PUT',
+    headers: authHeaders(),
+    body: JSON.stringify(payload),
+  });
+  await parseEnvelope(res);
+}
+
+/** 发布精灵文案 */
+export async function publishSpritePrompts(): Promise<void> {
+  const res = await fetch(`${apiBase()}/admin/sprite-prompts/publish`, {
+    method: 'POST',
+    headers: authHeaders(),
+  });
+  await parseEnvelope(res);
+}
+
+/** 下架精灵文案 */
+export async function unpublishSpritePrompts(): Promise<void> {
+  const res = await fetch(`${apiBase()}/admin/sprite-prompts/unpublish`, {
+    method: 'POST',
+    headers: authHeaders(),
+  });
+  await parseEnvelope(res);
+}

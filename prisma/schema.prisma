@@ -133,6 +133,17 @@ model AvgScript {
   @@map("avg_scripts")
 }
 
+/// T4.7：精灵犹豫/互斥文案 CMS（标准与 AVG 模式共用，单行 id=default）。
+model SpritePromptConfig {
+  id              String    @id @default("default")
+  hesitationLines Json      @map("hesitation_lines")
+  mutexLines      Json      @map("mutex_lines")
+  publishedAt     DateTime? @map("published_at")
+  isPublished     Boolean   @default(false) @map("is_published")
+
+  @@map("sprite_prompt_configs")
+}
+
 model LibraryArticle {
   id          String    @id @default(uuid()) @db.Uuid
   title       String
