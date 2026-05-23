@@ -72,6 +72,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           >
             精灵文案
           </Link>
+          <Link
+            className={cn(buttonVariants({ variant: 'outline', size: 'sm' }))}
+            href="/admin/library/articles"
+          >
+            科普文章
+          </Link>
           <button
             type="button"
             className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }))}

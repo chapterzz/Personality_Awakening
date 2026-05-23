@@ -5,6 +5,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AdminAvgCmsModule } from './admin-avg-cms/admin-avg-cms.module';
+import { AdminLibraryCmsModule } from './admin-library-cms/admin-library-cms.module';
 import { AdminQuestionnaireModule } from './admin-questionnaire/admin-questionnaire.module';
 import { AuthModule } from './auth/auth.module';
 import { AvgScriptModule } from './avg-script/avg-script.module';
@@ -24,6 +25,7 @@ import { SpritePromptModule } from './sprite-prompt/sprite-prompt.module';
     ScoringModule,
     QuestionnaireModule,
     AdminQuestionnaireModule,
+    AdminLibraryCmsModule,
     AvgScriptModule,
     SpritePromptModule,
     AdminAvgCmsModule,
