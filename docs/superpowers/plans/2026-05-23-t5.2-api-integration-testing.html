@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>T5.2 API 集成测试 — 实施计划审阅</title>
+  <style>
+    :root {
+      --bg: #f0f4f8;
+      --card: #fff;
+      --border: #1e293b;
+      --text: #0f172a;
+      --muted: #64748b;
+      --primary: #0d9488;
+      --primary-light: #ccfbf1;
+      --ok: #059669;
+      --warn: #ea580c;
+      --danger: #dc2626;
+      --gap: #f59e0b;
+      --old: #6366f1;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      margin: 0;
+      padding: 1.5rem;
+    }
+    .wrap { max-width: 980px; margin: 0 auto; }
+    h1 { font-size: 1.45rem; margin: 0 0 0.5rem; }
+    h2 { font-size: 1.1rem; margin: 2rem 0 0.65rem; border-bottom: 2px solid var(--border); padding-bottom: 0.2rem; }
+    .meta { color: var(--muted); font-size: 0.88rem; }
+    .meta a { color: var(--primary); }
+    .card {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.2rem;
+      margin: 0.65rem 0;
+      box-shadow: 3px 3px 0 var(--border);
+    }
+    .badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      border: 1px solid;
+      padding: 0.08rem 0.45rem;
+      border-radius: 999px;
+      margin-left: 0.3rem;
+    }
+    .badge-ok { background: #d1fae5; border-color: var(--ok); }
+    .badge-gap { background: #fef3c7; border-color: var(--gap); }
+    .badge-warn { background: #ffedd5; border-color: var(--warn); }
+    .badge-p0 { background: var(--primary-light); border-color: var(--primary); }
+    .badge-new { background: #dbeafe; border-color: #2563eb; }
+    .gate {
+      background: #ecfdf5;
+      border: 2px solid var(--primary);
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      font-weight: 600;
+      margin: 1rem 0;
+    }
+    .gate-review {
+      background: #fef2f2;
+      border: 2px solid var(--danger);
+    }
+    .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    @media (max-width: 700px) { .compare { grid-template-columns: 1fr; } }
+    .compare-col { border: 2px solid #cbd5e1; border-radius: 10px; padding: 0.75rem; font-size: 0.85rem; }
+    .compare-col.old { border-color: var(--old); opacity: 0.85; }
+    .compare-col.new { border-color: var(--primary); background: #f0fdfa; }
+    .dep-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .dep-table th, .dep-table td {
+      border: 1px solid #e2e8f0;
+      padding: 0.35rem 0.55rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    .dep-table th { background: #e2e8f0; }
+    .row-gap { background: #fffbeb; }
+    .row-ok { background: #ecfdf5; }
+    .flow-demo { display: grid; gap: 1rem; }
+    .journey {
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .journey-head {
+      background: var(--primary);
+      color: #fff;
+      padding: 0.5rem 0.75rem;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+    .journey-body {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: stretch;
+      gap: 0;
+      padding: 0.75rem;
+      background: #f8fafc;
+    }
+    .step {
+      flex: 1;
+      min-width: 120px;
+      border: 2px solid #cbd5e1;
+      border-radius: 10px;
+      background: #fff;
+      padding: 0.5rem;
+      font-size: 0.72rem;
+    }
+    .step.new { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
+    .step-title { font-weight: 800; font-size: 0.75rem; margin-bottom: 0.35rem; color: var(--primary); }
+    .step-mock {
+      border: 1px dashed #94a3b8;
+      border-radius: 6px;
+      padding: 0.35rem;
+      min-height: 64px;
+      background: #fafafa;
+      font-family: ui-monospace, monospace;
+      font-size: 0.68rem;
+      line-height: 1.4;
+    }
+    .arrow-box { display: flex; align-items: center; padding: 0 0.2rem; color: var(--muted); font-size: 1.1rem; font-weight: bold; }
+    .assert { display: block; margin-top: 0.25rem; font-size: 0.65rem; color: var(--ok); font-weight: 600; }
+    .option-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.6rem; }
+    .option { border: 2px solid #cbd5e1; border-radius: 10px; padding: 0.65rem; font-size: 0.82rem; }
+    .option.selected { border-color: var(--primary); background: var(--primary-light); }
+    .skip-note {
+      background: #fff7ed;
+      border: 2px solid var(--warn);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      font-size: 0.88rem;
+    }
+    code { font-size: 0.85em; background: #f1f5f9; padding: 0.1rem 0.3rem; border-radius: 4px; }
+    .task-list { font-size: 0.88rem; padding-left: 1.2rem; }
+    .task-list li { margin: 0.25rem 0; }
+    .checklist { list-style: none; padding: 0; margin: 0; }
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.45rem;
+      padding: 0.3rem 0;
+      border-bottom: 1px dashed #e2e8f0;
+      font-size: 0.9rem;
+    }
+    .checklist input { margin-top: 0.3rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>T5.2 API 集成测试（Golden Path）— 实施计划审阅</h1>
+    <p class="meta">
+      日期 2026-05-23 · <span class="badge badge-new">API 集成测方案</span> ·
+      <a href="../specs/2026-05-23-t5.2-api-integration-testing-design.md">设计规格</a> ·
+      <a href="./2026-05-23-t5.2-api-integration-testing.md">Markdown 任务清单</a> ·
+      <a href="./2026-05-23-t5.2-e2e-testing.html">原 Playwright 计划（已替代）</a>
+    </p>
+
+    <div class="gate gate-review">⛔ 阶段 B 审阅页 — 请确认下方选型后再批准进入阶段 C。批准前不修改 <code>apps/</code>、<code>prisma/</code>、<code>e2e/</code> 业务代码。</div>
+
+    <h2>一、目标（一句话）</h2>
+    <div class="card">
+      <p>在现有 <strong>~58 条</strong> supertest 集成测基础上，补齐 <strong>Golden Path HTTP 链</strong>（注册→TestResult→看板、测评→scoring→报告数据、guest vs logged-in），使 <code>pnpm test:integration</code> <strong>100% 通过</strong>，作为 T5.2 收口（<strong>不新增 Playwright</strong>）。</p>
+    </div>
+
+    <h2>二、方案变更：Playwright → API 集成测</h2>
+    <div class="compare">
+      <div class="compare-col old">
+        <strong>原 Playwright 方案</strong>（已替代，文档保留）
+        <ul style="margin:0.5rem 0 0 1rem;padding:0;font-size:0.82rem;">
+          <li>验收：<code>pnpm test:e2e</code></li>
+          <li>新增 3–4 个 <code>e2e/*.spec.ts</code></li>
+          <li>验 UI：Recharts、Header 导航</li>
+          <li>可选 <code>test:gate:release</code></li>
+          <li>不在日常 <code>test:gate</code> 内</li>
+        </ul>
+      </div>
+      <div class="compare-col new">
+        <strong>新 API 集成测方案</strong>（当前生效）
+        <ul style="margin:0.5rem 0 0 1rem;padding:0;font-size:0.82rem;">
+          <li>验收：<code>pnpm test:integration</code></li>
+          <li>新增 2–3 个 <code>apps/api/test/golden-path-*.e2e-spec.ts</code> + helper</li>
+          <li>验 HTTP：JWT、Prisma 聚合、MBTI 计分</li>
+          <li><strong>不</strong>新增 <code>test:gate:release</code></li>
+          <li>已在 <code>test:gate</code> 内 — CI 更稳</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>三、跳过 T5.1 的说明 <span class="badge badge-warn">已跳过</span></h2>
+    <div class="skip-note">
+      <strong>T5.1 安全审计未做</strong> — 不影响 API Golden Path，补偿如下：
+      <ul style="margin:0.5rem 0 0 1rem;padding:0;">
+        <li><strong>已有</strong>：<code>admin-questionnaire/avg/library.e2e-spec.ts</code> 验 STUDENT→403、无 token→401</li>
+        <li><strong>不重复</strong>：原 Playwright <code>admin-guard.spec.ts</code> 计划 <strong>取消</strong></li>
+        <li><strong>Out of scope</strong>：XSS payload、审计日志、Rate limit 专项</li>
+      </ul>
+    </div>
+
+    <h2>四、集成测覆盖矩阵（现状 vs 计划）</h2>
+    <div class="card">
+      <table class="dep-table">
+        <thead>
+          <tr><th>用户路径</th><th>现有 spec</th><th>T5.2 新增</th><th>优先级</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-ok"><td>Auth 注册/登录/游客绑定</td><td>✅ auth.e2e-spec（5）</td><td>—（模块级已足）</td><td>回归</td></tr>
+          <tr class="row-ok"><td>Progress CRUD / 409</td><td>✅ progress.e2e-spec（17）</td><td>—</td><td>回归</td></tr>
+          <tr class="row-ok"><td>Scoring MBTI</td><td>✅ scoring.e2e-spec（3）</td><td>串联 progress→scoring</td><td>P0 延伸</td></tr>
+          <tr class="row-ok"><td>Dashboard stats / comparison</td><td>✅ dashboard.e2e-spec（5）</td><td>Golden Path 串联</td><td>P0 延伸</td></tr>
+          <tr class="row-ok"><td>Admin CMS 403</td><td>✅ admin-*.e2e-spec</td><td>—（T5.1 补偿）</td><td>回归</td></tr>
+          <tr class="row-ok"><td>Library / OpenAPI / Health</td><td>✅ 3 文件</td><td>—</td><td>回归</td></tr>
+          <tr class="row-gap"><td><strong>Guest 看板 API smoke</strong></td><td>⚠️ 分散在 dashboard</td><td><code>golden-path-guest-dashboard.e2e-spec.ts</code></td><td><span class="badge badge-p0">P0</span></td></tr>
+          <tr class="row-gap"><td><strong>注册 demo → 看板</strong></td><td>❌ 未串联</td><td><code>golden-path-register-dashboard.e2e-spec.ts</code></td><td><span class="badge badge-p0">P0</span></td></tr>
+          <tr class="row-gap"><td><strong>测评 → scoring 报告数据</strong></td><td>❌ 未串联</td><td><code>golden-path-assessment-report.e2e-spec.ts</code></td><td><span class="badge badge-p0">P0</span></td></tr>
+          <tr class="row-gap"><td>Questionnaire 公开 API</td><td>❌ 无独立 smoke</td><td>helper 内调用 或 G3-B 独立文件</td><td>P1</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.82rem;color:var(--muted);margin:0.5rem 0 0;">实施后预计：<strong>~65–67</strong> 用例 / <strong>14–15</strong> 文件</p>
+    </div>
+
+    <h2>五、Golden Path HTTP 旅程（新增用例）</h2>
+    <div class="flow-demo">
+      <div class="journey">
+        <div class="journey-head">路径 A — 注册演示 TestResult → 看板（P0 · golden-path-register-dashboard.e2e-spec.ts）</div>
+        <div class="journey-body">
+          <div class="step">
+            <div class="step-title">PUT /progress</div>
+            <div class="step-mock">session_id<br/>mode: STANDARD<br/>answers: demo</div>
+          </div>
+          <div class="arrow-box">→</div>
+          <div class="step">
+            <div class="step-title">POST /auth/register</div>
+            <div class="step-mock">finalize_submission: true<br/>mbti_type: INFP</div>
+          </div>
+          <div class="arrow-box">→</div>
+          <div class="step new">
+            <div class="step-title">GET /dashboard/*</div>
+            <div class="step-mock">/stats → INFP count↑<br/>/my-comparison → myType INFP</div>
+            <span class="assert">✓ 等价 registerWithDemoTestResult</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="journey">
+        <div class="journey-head">路径 B — Guest 看板 API（P0 · golden-path-guest-dashboard.e2e-spec.ts）</div>
+        <div class="journey-body">
+          <div class="step new">
+            <div class="step-title">GET /dashboard/stats</div>
+            <div class="step-mock">无 Authorization<br/>200 · 16 types</div>
+            <span class="assert">✓ 不断言 totalUsers&gt;0</span>
+          </div>
+          <div class="arrow-box">|</div>
+          <div class="step new">
+            <div class="step-title">GET /dashboard/my-comparison</div>
+            <div class="step-mock">无 Authorization<br/>401</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="journey">
+        <div class="journey-head">路径 C — 测评 → 报告 API 数据（P0 · golden-path-assessment-report.e2e-spec.ts）</div>
+        <div class="journey-body">
+          <div class="step">
+            <div class="step-title">POST .../sequence</div>
+            <div class="step-mock">adaptive-demo-v1<br/>ordered_question_ids</div>
+          </div>
+          <div class="arrow-box">→</div>
+          <div class="step">
+            <div class="step-title">PUT /progress</div>
+            <div class="step-mock">完成态 standard<br/>answered_count = N</div>
+          </div>
+          <div class="arrow-box">→</div>
+          <div class="step new">
+            <div class="step-title">POST /scoring/mbti</div>
+            <div class="step-mock">mbti_type: ENTJ<br/>scores.EI.winner: E</div>
+            <span class="assert">✓ 报告页数据源（非 DOM）</span>
+          </div>
+          <div class="arrow-box">→</div>
+          <div class="step" style="opacity:0.85;">
+            <div class="step-title">（G2-A 可选）</div>
+            <div class="step-mock">register finalize<br/>→ stats 含 ENTJ</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2>六、待你选型（批准前请确认）</h2>
+    <div class="option-grid">
+      <div class="option selected">
+        <strong>G1-A · 分层 Golden Path（推荐）</strong><br/>
+        2–3 个 <code>golden-path-*.e2e-spec.ts</code> + <code>helpers/golden-path-helpers.ts</code>
+      </div>
+      <div class="option">
+        <strong>G1-B · 单文件 mega spec</strong><br/>
+        全部链放一个 describe — 难维护
+      </div>
+      <div class="option selected">
+        <strong>G2-A · scoring 为主 + 可选 finalize（推荐）</strong><br/>
+        测评链核心验 <code>/scoring/mbti</code>；第 3 条可选延伸到 dashboard
+      </div>
+      <div class="option">
+        <strong>G2-B · 每条必须到 dashboard</strong><br/>
+        更重，与模块 spec 重复风险高
+      </div>
+      <div class="option selected">
+        <strong>G3-A · sequence 内嵌 helper（推荐）</strong><br/>
+        不单独建 questionnaire-public spec
+      </div>
+      <div class="option">
+        <strong>G3-B · 独立 questionnaire smoke</strong><br/>
+        新增 2 条 GET/POST sequence 用例
+      </div>
+    </div>
+    <p class="meta" style="margin-top:0.5rem;">本 Markdown 计划按 <strong>G1-A + G2-A + G3-A</strong> 编写。<strong>不</strong>含 <code>test:gate:release</code>。</p>
+
+    <h2>七、文件地图</h2>
+    <div class="card">
+      <table class="dep-table">
+        <thead><tr><th>操作</th><th>路径</th><th>职责</th></tr></thead>
+        <tbody>
+          <tr><td>Create</td><td><code>apps/api/test/helpers/golden-path-helpers.ts</code></td><td>演示注册链、adaptive seed、清理</td></tr>
+          <tr><td>Create</td><td><code>apps/api/test/golden-path-guest-dashboard.e2e-spec.ts</code></td><td>Guest stats 200 / comparison 401</td></tr>
+          <tr><td>Create</td><td><code>apps/api/test/golden-path-register-dashboard.e2e-spec.ts</code></td><td>注册→TestResult→看板</td></tr>
+          <tr><td>Create</td><td><code>apps/api/test/golden-path-assessment-report.e2e-spec.ts</code></td><td>progress→scoring→（可选）dashboard</td></tr>
+          <tr><td>Modify</td><td><code>docs/本地环境调试指南.md</code></td><td>集成测 DB 前置（按需一句）</td></tr>
+          <tr><td>—</td><td><code>package.json</code></td><td><strong>不修改</strong>；门禁仍为 test:gate</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>八、任务清单摘要</h2>
+    <div class="card">
+      <ol class="task-list">
+        <li><strong>Task 1</strong> — <code>golden-path-helpers.ts</code>（registerWithDemo + adaptive seed + cleanup）</li>
+        <li><strong>Task 2</strong> — <code>golden-path-guest-dashboard.e2e-spec.ts</code></li>
+        <li><strong>Task 3</strong> — <code>golden-path-register-dashboard.e2e-spec.ts</code>（3 用例）</li>
+        <li><strong>Task 4</strong> — <code>golden-path-assessment-report.e2e-spec.ts</code>（2–3 用例）</li>
+        <li><strong>Task 5</strong> — 全量 <code>pnpm test:integration</code> + <code>pnpm test:gate</code> + 文档</li>
+      </ol>
+      <p class="meta">逐步代码与命令见 <a href="./2026-05-23-t5.2-api-integration-testing.md">Markdown 任务清单</a>。</p>
+    </div>
+
+    <h2>九、验收勾选（阶段 E 对照）</h2>
+    <ul class="checklist">
+      <li><input type="checkbox" disabled /> <code>pnpm test:integration</code> 全部 PASS</li>
+      <li><input type="checkbox" disabled /> 注册→看板链 my-comparison 返回 INFP</li>
+      <li><input type="checkbox" disabled /> Guest stats 200 / comparison 401</li>
+      <li><input type="checkbox" disabled /> progress→scoring 返回 ENTJ 报告字段</li>
+      <li><input type="checkbox" disabled /> 既有 ~58 条模块 spec 无回归</li>
+      <li><input type="checkbox" disabled /> <code>test:gate</code> 脚本未改、无 test:gate:release</li>
+    </ul>
+
+    <div class="gate" style="margin-top:2rem;">
+      ✅ 审阅完成后，请回复「<strong>批准 T5.2 API 计划</strong>」或指出选型变更（G1/G2/G3）。协调者将进入阶段 C 按 Markdown 清单实施。
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>T5.2 E2E 全链路测试 — 实施计划审阅</title>
+  <style>
+    :root {
+      --bg: #f0f4f8;
+      --card: #fff;
+      --border: #1e293b;
+      --text: #0f172a;
+      --muted: #64748b;
+      --primary: #6366f1;
+      --primary-light: #e0e7ff;
+      --ok: #059669;
+      --warn: #ea580c;
+      --danger: #dc2626;
+      --gap: #f59e0b;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      margin: 0;
+      padding: 1.5rem;
+    }
+    .wrap { max-width: 980px; margin: 0 auto; }
+    h1 { font-size: 1.45rem; margin: 0 0 0.5rem; }
+    h2 { font-size: 1.1rem; margin: 2rem 0 0.65rem; border-bottom: 2px solid var(--border); padding-bottom: 0.2rem; }
+    h3 { font-size: 0.95rem; margin: 1rem 0 0.4rem; }
+    .meta { color: var(--muted); font-size: 0.88rem; }
+    .meta a { color: var(--primary); }
+    .card {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.2rem;
+      margin: 0.65rem 0;
+      box-shadow: 3px 3px 0 var(--border);
+    }
+    .badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      border: 1px solid;
+      padding: 0.08rem 0.45rem;
+      border-radius: 999px;
+      margin-left: 0.3rem;
+    }
+    .badge-ok { background: #d1fae5; border-color: var(--ok); }
+    .badge-gap { background: #fef3c7; border-color: var(--gap); }
+    .badge-warn { background: #ffedd5; border-color: var(--warn); }
+    .badge-p0 { background: var(--primary-light); border-color: var(--primary); }
+    .dep-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .dep-table th, .dep-table td {
+      border: 1px solid #e2e8f0;
+      padding: 0.35rem 0.55rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    .dep-table th { background: #e2e8f0; }
+    .row-gap { background: #fffbeb; }
+    .row-ok { background: #ecfdf5; }
+    .gate {
+      background: #fef2f2;
+      border: 2px solid var(--danger);
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      font-weight: 600;
+      margin: 1rem 0;
+    }
+    .flow-demo {
+      display: grid;
+      gap: 1rem;
+    }
+    .journey {
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .journey-head {
+      background: var(--primary);
+      color: #fff;
+      padding: 0.5rem 0.75rem;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+    .journey-body {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: stretch;
+      gap: 0;
+      padding: 0.75rem;
+      background: #f8fafc;
+    }
+    .screen {
+      flex: 1;
+      min-width: 140px;
+      border: 2px solid #cbd5e1;
+      border-radius: 10px;
+      background: #fff;
+      padding: 0.5rem;
+      font-size: 0.72rem;
+      position: relative;
+    }
+    .screen.new { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
+    .screen-title {
+      font-weight: 800;
+      font-size: 0.75rem;
+      margin-bottom: 0.35rem;
+      color: var(--primary);
+    }
+    .screen-mock {
+      border: 1px dashed #94a3b8;
+      border-radius: 6px;
+      padding: 0.35rem;
+      min-height: 72px;
+      background: #fafafa;
+      line-height: 1.35;
+    }
+    .arrow-box {
+      display: flex;
+      align-items: center;
+      padding: 0 0.25rem;
+      color: var(--muted);
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+    .assert {
+      display: block;
+      margin-top: 0.25rem;
+      font-size: 0.65rem;
+      color: var(--ok);
+      font-weight: 600;
+    }
+    .option-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 0.6rem;
+    }
+    .option {
+      border: 2px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 0.65rem;
+      font-size: 0.82rem;
+    }
+    .option.selected { border-color: var(--primary); background: var(--primary-light); }
+    .matrix { font-size: 0.78rem; }
+    .checklist { list-style: none; padding: 0; margin: 0; }
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.45rem;
+      padding: 0.3rem 0;
+      border-bottom: 1px dashed #e2e8f0;
+      font-size: 0.9rem;
+    }
+    .checklist input { margin-top: 0.3rem; }
+    code { font-size: 0.85em; background: #f1f5f9; padding: 0.1rem 0.3rem; border-radius: 4px; }
+    .task-list { font-size: 0.88rem; padding-left: 1.2rem; }
+    .task-list li { margin: 0.25rem 0; }
+    .skip-note {
+      background: #fff7ed;
+      border: 2px solid var(--warn);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      font-size: 0.88rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>T5.2 E2E 全链路测试 — 实施计划审阅</h1>
+    <p class="meta">
+      日期 2026-05-23 ·
+      <a href="../specs/2026-05-23-t5.2-e2e-testing-design.md">设计规格</a> ·
+      <a href="./2026-05-23-t5.2-e2e-testing.md">Markdown 任务清单</a>
+    </p>
+
+    <div class="gate">⛔ 阶段 B 审阅页 — 请确认下方选型后再批准进入阶段 C 实施。批准前不修改 <code>apps/</code>、<code>prisma/</code>、<code>e2e/</code> 业务代码。</div>
+
+    <h2>一、目标（一句话）</h2>
+    <div class="card">
+      <p>在现有 <strong>14 条</strong> Playwright 用例基础上，补齐 <strong>看板</strong> 与 <strong>注册→看板</strong>、<strong>测评→报告→看板</strong> 全链路 E2E，使 <code>pnpm test:e2e</code> <strong>100% 通过</strong>，满足任务书 T5.2 与 PPA_Tech_SPEC §5.3 收口要求。</p>
+    </div>
+
+    <h2>二、跳过 T5.1 的说明 <span class="badge badge-warn">已跳过</span></h2>
+    <div class="skip-note">
+      <strong>T5.1 安全审计未做</strong> — 不影响本任务学生主路径 E2E，但存在以下缺口与降级：
+      <ul style="margin:0.5rem 0 0 1rem;padding:0;">
+        <li><strong>缺口</strong>：无 XSS/CSRF 浏览器向量、无审计日志、无 Admin 批量导出专项扫描</li>
+        <li><strong>降级</strong>：Admin API 403 已由 <code>apps/api/test/admin-*.e2e-spec.ts</code> 覆盖；T5.2 可选 1 条 Admin 前端未登录 guard（选型 G2）</li>
+        <li><strong>后续</strong>：T5.1 补做时再增安全 E2E / 扫描，不与 T5.2 阻塞</li>
+      </ul>
+    </div>
+
+    <h2>三、E2E 覆盖矩阵（现状 vs 计划）</h2>
+    <div class="card matrix">
+      <table class="dep-table">
+        <thead>
+          <tr><th>用户路径</th><th>现有</th><th>T5.2 新增</th><th>优先级</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-ok"><td>首页 smoke / 布局</td><td>✅ smoke, home-layout</td><td>—</td><td>回归</td></tr>
+          <tr class="row-ok"><td>API health</td><td>✅ api-health</td><td>—</td><td>回归</td></tr>
+          <tr class="row-ok"><td>AVG 测评 UI / 续答 / 重开</td><td>✅ 4 specs</td><td>—</td><td>回归</td></tr>
+          <tr class="row-ok"><td>标准测评完成 / 重开</td><td>✅ 2 specs</td><td>—</td><td>回归</td></tr>
+          <tr class="row-ok"><td>报告页（标准/AVG/海报）</td><td>✅ 3 specs</td><td>—</td><td>回归</td></tr>
+          <tr class="row-ok"><td>图书馆</td><td>✅ library</td><td>—</td><td>回归</td></tr>
+          <tr class="row-gap"><td><strong>看板页 guest smoke</strong></td><td>❌</td><td><code>dashboard-guest.spec.ts</code></td><td><span class="badge badge-p0">P0</span></td></tr>
+          <tr class="row-gap"><td><strong>注册 → 看板个人对比</strong></td><td>❌</td><td><code>golden-path-register-dashboard.spec.ts</code></td><td><span class="badge badge-p0">P0</span></td></tr>
+          <tr class="row-gap"><td><strong>测评完成 → 报告 → 看板</strong></td><td>❌ 分段有、未串联</td><td><code>golden-path-test-to-dashboard.spec.ts</code></td><td><span class="badge badge-p0">P0</span></td></tr>
+          <tr class="row-gap"><td>Admin 未登录 guard</td><td>❌（集成测有 API）</td><td><code>admin-guard.spec.ts</code></td><td><span class="badge badge-warn">P1</span></td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.82rem;color:var(--muted);margin:0.5rem 0 0;">实施后预计：<strong>17–18</strong> tests / <strong>16–17</strong> files（取决于 G2 选型）</p>
+    </div>
+
+    <h2>四、Golden Path 线框 Demo（新增用例用户旅程）</h2>
+    <div class="flow-demo">
+      <!-- Journey 1 -->
+      <div class="journey">
+        <div class="journey-head">路径 A — 注册 → 看板（P0 新增 · golden-path-register-dashboard.spec.ts）</div>
+        <div class="journey-body">
+          <div class="screen">
+            <div class="screen-title">/login</div>
+            <div class="screen-mock">
+              [注册] 昵称 / 密码<br/>
+              ☑ 写入演示测评结果<br/>
+              MBTI: INFP<br/>
+              [注册] 按钮
+            </div>
+          </div>
+          <div class="arrow-box">→</div>
+          <div class="screen new">
+            <div class="screen-title">/dashboard</div>
+            <div class="screen-mock">
+              性格星球 · 全局洞察<br/>
+              类型分布 | 精灵热力图<br/>
+              <strong>你的位置</strong><br/>
+              你是 INFP 类型
+            </div>
+            <span class="assert">✓ assert PersonalComparison</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Journey 2 -->
+      <div class="journey">
+        <div class="journey-head">路径 B — Guest 看板 smoke（P0 新增 · dashboard-guest.spec.ts）</div>
+        <div class="journey-body">
+          <div class="screen">
+            <div class="screen-title">/</div>
+            <div class="screen-mock">首页 CTA<br/>[全局洞察看板]</div>
+          </div>
+          <div class="arrow-box">→</div>
+          <div class="screen new">
+            <div class="screen-title">/dashboard</div>
+            <div class="screen-mock">
+              Hero + 图表区<br/>
+              虚线提示：登录后可高亮…
+            </div>
+            <span class="assert">✓ 不断言 totalUsers&gt;0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Journey 3 -->
+      <div class="journey">
+        <div class="journey-head">路径 C — 测评 → 报告 → 看板（P0 新增 · golden-path-test-to-dashboard.spec.ts）</div>
+        <div class="journey-body">
+          <div class="screen">
+            <div class="screen-title">API seed</div>
+            <div class="screen-mock">PUT /progress<br/>标准模式完成态</div>
+          </div>
+          <div class="arrow-box">→</div>
+          <div class="screen">
+            <div class="screen-title">/report</div>
+            <div class="screen-mock">ENTJ 雷达图<br/>人格精灵</div>
+          </div>
+          <div class="arrow-box">→</div>
+          <div class="screen new">
+            <div class="screen-title">/dashboard</div>
+            <div class="screen-mock">Header 链「看板」<br/>看板加载完成</div>
+            <span class="assert">✓ 串联既有 seed + 导航</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Journey 4 optional -->
+      <div class="journey">
+        <div class="journey-head">路径 D — Admin guard（P1 可选 · admin-guard.spec.ts · 补偿 T5.1）</div>
+        <div class="journey-body">
+          <div class="screen">
+            <div class="screen-title">/admin/questionnaires</div>
+            <div class="screen-mock">无 admin token</div>
+          </div>
+          <div class="arrow-box">→</div>
+          <div class="screen new">
+            <div class="screen-title">/admin/login</div>
+            <div class="screen-mock">重定向 + 登录表单</div>
+            <span class="assert">✓ 仅前端路由 guard</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2>五、待你选型（批准前请确认）</h2>
+    <div class="option-grid">
+      <div class="option selected">
+        <strong>G1-A · 分层 Golden Path（推荐）</strong><br/>
+        「测试」= 既有 AVG/标准 seed 报告 spec + 新注册演示 TestResult；不 UI 点完 93 题
+      </div>
+      <div class="option">
+        <strong>G1-B · 完整 UI 点题</strong><br/>
+        新增从第 1 题点到完成的 spec — CI 慢、易 flaky，不推荐 MVP
+      </div>
+      <div class="option selected">
+        <strong>G2-A · Admin guard smoke（推荐）</strong><br/>
+        1 条 Playwright 验 <code>/admin/*</code> 未登录重定向，补偿 T5.1 跳过
+      </div>
+      <div class="option">
+        <strong>G2-B · 不做 Admin E2E</strong><br/>
+        完全依赖 supertest 集成测
+      </div>
+      <div class="option selected">
+        <strong>C1-A · 独立 release 门禁（推荐）</strong><br/>
+        新增 <code>test:gate:release</code> = gate + e2e；日常 test:gate 不变
+      </div>
+      <div class="option">
+        <strong>C1-B · e2e 并入 test:gate</strong><br/>
+        每次合并都跑 Playwright，CI 时间显著增加
+      </div>
+    </div>
+    <p class="meta" style="margin-top:0.5rem;">本 Markdown 计划按 <strong>G1-A + G2-A + C1-A</strong> 编写。若选 G1-B / G2-B / C1-B，请在批准留言中说明。</p>
+
+    <h2>六、文件地图（计划新增/修改）</h2>
+    <div class="card">
+      <table class="dep-table">
+        <thead><tr><th>操作</th><th>路径</th><th>职责</th></tr></thead>
+        <tbody>
+          <tr><td>Create</td><td><code>e2e/helpers/auth-ui.ts</code></td><td>唯一昵称、UI 注册封装</td></tr>
+          <tr><td>Create</td><td><code>e2e/helpers/dashboard-assertions.ts</code></td><td>看板加载与个人对比断言</td></tr>
+          <tr><td>Create</td><td><code>e2e/dashboard-guest.spec.ts</code></td><td>Guest 看板 smoke</td></tr>
+          <tr><td>Create</td><td><code>e2e/golden-path-register-dashboard.spec.ts</code></td><td>注册→看板 Golden Path</td></tr>
+          <tr><td>Create</td><td><code>e2e/golden-path-test-to-dashboard.spec.ts</code></td><td>测评→报告→看板</td></tr>
+          <tr><td>Create</td><td><code>e2e/admin-guard.spec.ts</code></td><td>Admin 未登录 guard（G2-A）</td></tr>
+          <tr><td>Modify</td><td><code>package.json</code></td><td>可选 <code>test:gate:release</code></td></tr>
+          <tr><td>Modify</td><td><code>docs/本地环境调试指南.md</code></td><td>E2E 前置说明（按需）</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>七、任务清单摘要</h2>
+    <div class="card">
+      <ol class="task-list">
+        <li><strong>Task 1</strong> — 新增 <code>dashboard-assertions</code> helper + 失败用例驱动</li>
+        <li><strong>Task 2</strong> — <code>dashboard-guest.spec.ts</code></li>
+        <li><strong>Task 3</strong> — <code>auth-ui</code> helper + <code>golden-path-register-dashboard.spec.ts</code></li>
+        <li><strong>Task 4</strong> — <code>golden-path-test-to-dashboard.spec.ts</code></li>
+        <li><strong>Task 5</strong> — <code>admin-guard.spec.ts</code>（G2-A）</li>
+        <li><strong>Task 6</strong> — 全量 <code>pnpm test:e2e</code> + 文档 + 可选 gate 脚本</li>
+      </ol>
+      <p class="meta">逐步代码与命令见 <a href="./2026-05-23-t5.2-e2e-testing.md">Markdown 任务清单</a>。</p>
+    </div>
+
+    <h2>八、验收勾选（阶段 E 对照）</h2>
+    <ul class="checklist">
+      <li><input type="checkbox" disabled /> <code>pnpm test:e2e</code> 全部 PASS（0 failed）</li>
+      <li><input type="checkbox" disabled /> 注册→看板 spec 可见 INFP 个人对比</li>
+      <li><input type="checkbox" disabled /> Guest 看板 Hero + 图表区可见</li>
+      <li><input type="checkbox" disabled /> 报告→看板导航 spec 通过</li>
+      <li><input type="checkbox" disabled /> 既有 14 条回归无破坏</li>
+      <li><input type="checkbox" disabled /> T5.1 缺口已在 spec/plan 文档化</li>
+    </ul>
+
+    <div class="gate" style="margin-top:2rem;">
+      ✅ 审阅完成后，请回复「批准 T5.2 计划」或指出选型变更（G1/G2/C1）。协调者将进入阶段 C 按 Markdown 清单实施。
+    </div>
+  </div>
+</body>
+</html>
