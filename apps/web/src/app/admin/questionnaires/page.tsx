@@ -1,37 +1,64 @@
 /**
- * Admin 问卷列表页（T4.6）。
+ * Admin 问卷列表页（T4.6）：含导入导出工具栏。
  */
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { CmsImportDialog } from '@/components/admin/cms-import-dialog';
+import { CmsExportDropdown, CmsRowExportLinks } from '@/components/admin/cms-export-buttons';
 import { buttonVariants } from '@/components/ui/button';
 import { fetchAdminQuestionnaires, type AdminQuestionnaireSummary } from '@/lib/admin-api';
+import { downloadAdminExport, exportDateStamp } from '@/lib/admin-import-export-api';
 import { cn } from '@/lib/utils';
 
 export default function AdminQuestionnairesPage() {
   const [items, setItems] = useState<AdminQuestionnaireSummary[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [exportError, setExportError] = useState<string | null>(null);
+
+  const reload = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await fetchAdminQuestionnaires();
+      setItems(data);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'load_failed');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const data = await fetchAdminQuestionnaires();
-        if (!cancelled) setItems(data);
-      } catch (err: unknown) {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'load_failed');
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    void reload();
+  }, [reload]);
+
+  async function handleExportAll(format: 'json' | 'csv') {
+    setExportError(null);
+    try {
+      const date = exportDateStamp();
+      await downloadAdminExport(
+        `/admin/questionnaires/export-all?format=${format}`,
+        `questionnaires-all-${date}.${format}`,
+      );
+    } catch (err: unknown) {
+      setExportError(err instanceof Error ? err.message : 'export_failed');
+    }
+  }
+
+  async function handleExportOne(id: string, format: 'json' | 'csv') {
+    setExportError(null);
+    try {
+      await downloadAdminExport(
+        `/admin/questionnaires/${encodeURIComponent(id)}/export?format=${format}`,
+        `questionnaire-${id}.${format}`,
+      );
+    } catch (err: unknown) {
+      setExportError(err instanceof Error ? err.message : 'export_failed');
+    }
+  }
 
   if (loading) {
     return <p className="text-muted-foreground">加载问卷列表…</p>;
@@ -47,6 +74,17 @@ export default function AdminQuestionnairesPage() {
 
   return (
     <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <CmsImportDialog kind="questionnaire" onSuccess={() => void reload()} />
+        <CmsExportDropdown label="导出全部" formats={['json', 'csv']} onExport={handleExportAll} />
+      </div>
+
+      {exportError ? (
+        <p className="rounded-xl border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm">
+          导出失败：{exportError}
+        </p>
+      ) : null}
+
       <p className="text-sm text-muted-foreground">
         学生端默认使用 <code className="rounded bg-muted px-1">adaptive-demo-v1</code>；原地编辑同一
         ID 发布后对学生生效。
@@ -81,12 +119,18 @@ export default function AdminQuestionnairesPage() {
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <Link
-                    className={cn(buttonVariants({ variant: 'outline', size: 'sm' }))}
-                    href={`/admin/questionnaires/${encodeURIComponent(q.id)}`}
-                  >
-                    编辑
-                  </Link>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Link
+                      className={cn(buttonVariants({ variant: 'outline', size: 'sm' }))}
+                      href={`/admin/questionnaires/${encodeURIComponent(q.id)}`}
+                    >
+                      编辑
+                    </Link>
+                    <CmsRowExportLinks
+                      formats={['json', 'csv']}
+                      onExport={(format) => void handleExportOne(q.id, format)}
+                    />
+                  </div>
                 </td>
               </tr>
             ))}

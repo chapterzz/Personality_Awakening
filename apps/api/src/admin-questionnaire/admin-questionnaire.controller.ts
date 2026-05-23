@@ -1,13 +1,33 @@
 /**
  * Admin 题库 CMS HTTP 接口（T4.6）：需 ADMIN JWT。
  */
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Res,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
+import type { Response } from 'express';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { AdminQuestionnaireService } from './admin-questionnaire.service';
+import {
+  ExportQuestionnaireQueryDto,
+  ImportQuestionnaireQueryDto,
+} from './dto/import-questionnaire.dto';
 import { CreateOptionDto, UpdateOptionDto } from './dto/option.dto';
 import { CreateQuestionDto, UpdateQuestionDto } from './dto/question.dto';
 import { CreateQuestionnaireDto, UpdateQuestionnaireDto } from './dto/questionnaire.dto';
@@ -32,6 +52,54 @@ export class AdminQuestionnaireController {
   async create(@Body() dto: CreateQuestionnaireDto) {
     const data = await this.service.createQuestionnaire(dto);
     return { success: true, data, message: 'ok' };
+  }
+
+  @Get('questionnaires/export-all')
+  @ApiOperation({ summary: '导出全部问卷（JSON/CSV 单文件）' })
+  async exportAll(
+    @Query() query: ExportQuestionnaireQueryDto,
+    @Res({ passthrough: false }) res: Response,
+  ) {
+    const { body, filename, contentType } = await this.service.exportAllQuestionnaires(
+      query.format,
+    );
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(body);
+  }
+
+  @Post('questionnaires/import')
+  @ApiOperation({ summary: '导入问卷（JSON/CSV）' })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file'))
+  async importQuestionnaires(
+    @UploadedFile() file: { buffer: Buffer } | undefined,
+    @Query() query: ImportQuestionnaireQueryDto,
+  ) {
+    if (!file?.buffer) {
+      throw new BadRequestException({
+        success: false,
+        data: null,
+        message: 'file_required',
+      });
+    }
+    return this.service.importQuestionnaires(file.buffer, query);
+  }
+
+  @Get('questionnaires/:id/export')
+  @ApiOperation({ summary: '导出单条问卷（JSON/CSV）' })
+  async exportOne(
+    @Param('id') id: string,
+    @Query() query: ExportQuestionnaireQueryDto,
+    @Res({ passthrough: false }) res: Response,
+  ) {
+    const { body, filename, contentType } = await this.service.exportQuestionnaire(
+      id,
+      query.format,
+    );
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(body);
   }
 
   @Get('questionnaires/:id')

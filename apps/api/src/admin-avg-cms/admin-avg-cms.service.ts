@@ -12,12 +12,22 @@ import {
   AvgScriptValidationError,
   validateAvgNodesJson,
 } from '../avg-script/avg-script-validation';
+import { OnConflict, resolveImportIds } from '../common/cms-export/import-conflict';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   SpritePromptValidationError,
   validateSpritePromptPayload,
 } from '../sprite-prompt/sprite-prompt-validation';
+import {
+  avgImportItemToNodesJson,
+  avgScriptRowToImportItem,
+  AvgImportItem,
+  parseAvgImportJson,
+  serializeAvgExportJson,
+  validateAvgImportItems,
+} from './avg-import-export';
 import { CreateAvgScriptDto, UpdateAvgScriptDto } from './dto/avg-script.dto';
+import { ImportAvgScriptQueryDto } from './dto/import-avg-script.dto';
 import { UpdateAvgNodesDto } from './dto/update-avg-nodes.dto';
 import { UpdateSpritePromptDto } from './dto/update-sprite-prompt.dto';
 
@@ -39,6 +49,140 @@ export class AdminAvgCmsService {
       data: null,
       message: err.code,
     });
+  }
+
+  /** 导出单条 AVG 脚本为 JSON 文件内容 */
+  async exportAvgScript(
+    id: string,
+  ): Promise<{ body: string; filename: string; contentType: string }> {
+    const row = await this.getAvgScript(id);
+    const item = avgScriptRowToImportItem(row);
+    return {
+      body: serializeAvgExportJson([item]),
+      filename: `avg-script-${id}.json`,
+      contentType: 'application/json; charset=utf-8',
+    };
+  }
+
+  /** 导出全部 AVG 脚本为单文件 JSON */
+  async exportAllAvgScripts(): Promise<{ body: string; filename: string; contentType: string }> {
+    const rows = await this.prisma.avgScript.findMany({ orderBy: { id: 'asc' } });
+    const items = rows.map((row) => avgScriptRowToImportItem(row));
+    const date = new Date().toISOString().slice(0, 10);
+    return {
+      body: serializeAvgExportJson(items),
+      filename: `avg-scripts-all-${date}.json`,
+      contentType: 'application/json; charset=utf-8',
+    };
+  }
+
+  /** 导入 AVG 脚本：解析、校验、冲突处理与可选发布 */
+  async importAvgScripts(fileBuffer: Buffer, opts: ImportAvgScriptQueryDto) {
+    const text = fileBuffer.toString('utf-8');
+    const items = this.parseImportJson(text);
+
+    const validationErrors = validateAvgImportItems(items);
+    if (validationErrors.length > 0) {
+      throw new BadRequestException({
+        success: false,
+        data: { validation_errors: validationErrors },
+        message: 'validation_failed',
+      });
+    }
+
+    const incomingIds = items.map((item) => item.id);
+    const existingRows = await this.prisma.avgScript.findMany({
+      where: { id: { in: incomingIds } },
+      select: { id: true, title: true },
+    });
+    const existingIds = new Set(existingRows.map((row) => row.id));
+    const titleById = new Map(existingRows.map((row) => [row.id, row.title]));
+
+    const onConflict: OnConflict = opts.on_conflict ?? 'cancel';
+    const newIdSuffix = opts.new_id_suffix ?? this.randomImportSuffix();
+    const { targetIds, conflicts: rawConflicts } = resolveImportIds(
+      incomingIds,
+      existingIds,
+      opts.dry_run ? 'cancel' : onConflict,
+      newIdSuffix,
+    );
+    const conflicts = rawConflicts.map((c) => ({
+      id: c.id,
+      existing_title: titleById.get(c.id) ?? '',
+    }));
+
+    if (opts.dry_run) {
+      return {
+        success: true,
+        data: {
+          valid: true,
+          conflicts,
+          preview: {
+            count: items.length,
+            items: items.map((item) => ({
+              id: item.id,
+              title: item.title,
+              node_count: Object.keys(item.nodes).length,
+            })),
+          },
+          validation_errors: [] as Array<{ code: string; path?: string }>,
+        },
+        message: 'ok',
+      };
+    }
+
+    if (onConflict === 'cancel' && conflicts.length > 0) {
+      throw new ConflictException({
+        success: false,
+        data: null,
+        message: 'import_conflict',
+      });
+    }
+
+    const imported: Array<{ id: string; title: string }> = [];
+
+    for (let index = 0; index < items.length; index += 1) {
+      const item = items[index];
+      const targetId = targetIds[index];
+      const isOverwrite =
+        existingIds.has(item.id) && onConflict === 'overwrite' && targetId === item.id;
+      const nodesJson = avgImportItemToNodesJson(item);
+
+      if (isOverwrite) {
+        await this.prisma.avgScript.update({
+          where: { id: targetId },
+          data: {
+            title: item.title,
+            nodesJson: nodesJson as Prisma.InputJsonValue,
+            isPublished: false,
+            publishedAt: null,
+          },
+        });
+      } else {
+        await this.prisma.avgScript.create({
+          data: {
+            id: targetId,
+            title: item.title,
+            nodesJson: nodesJson as Prisma.InputJsonValue,
+            isPublished: false,
+          },
+        });
+      }
+
+      imported.push({ id: targetId, title: item.title });
+    }
+
+    if (opts.publish_after) {
+      for (const row of imported) {
+        await this.publishAvgScript(row.id);
+      }
+    }
+
+    return {
+      success: true,
+      data: { imported },
+      message: 'ok',
+    };
   }
 
   /** AVG 脚本列表（含未发布） */
@@ -240,5 +384,32 @@ export class AdminAvgCmsService {
     return (
       typeof e === 'object' && e !== null && 'code' in e && (e as { code: string }).code === 'P2002'
     );
+  }
+
+  private parseImportJson(text: string): AvgImportItem[] {
+    try {
+      return parseAvgImportJson(text);
+    } catch (err) {
+      if (this.isImportParseError(err)) {
+        throw new BadRequestException({
+          success: false,
+          data: null,
+          message: (err as Error).message,
+        });
+      }
+      throw err;
+    }
+  }
+
+  private isImportParseError(err: unknown): boolean {
+    if (!(err instanceof Error)) {
+      return false;
+    }
+    const { message } = err;
+    return message === 'unsupported_schema_version' || message === 'invalid_json';
+  }
+
+  private randomImportSuffix(): string {
+    return Math.random().toString(36).slice(2, 8);
   }
 }

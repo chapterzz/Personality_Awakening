@@ -1,14 +1,31 @@
 /**
  * Admin AVG / 精灵文案 CMS HTTP 接口（T4.7）：需 ADMIN JWT。
  */
-import { Body, Controller, Get, Param, Patch, Post, Put, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query,
+  Res,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
+import type { Response } from 'express';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { AdminAvgCmsService } from './admin-avg-cms.service';
 import { CreateAvgScriptDto, UpdateAvgScriptDto } from './dto/avg-script.dto';
+import { ImportAvgScriptQueryDto } from './dto/import-avg-script.dto';
 import { UpdateAvgNodesDto } from './dto/update-avg-nodes.dto';
 import { UpdateSpritePromptDto } from './dto/update-sprite-prompt.dto';
 
@@ -32,6 +49,42 @@ export class AdminAvgCmsController {
   async createAvgScript(@Body() dto: CreateAvgScriptDto) {
     const data = await this.service.createAvgScript(dto);
     return { success: true, data, message: 'ok' };
+  }
+
+  @Get('avg-scripts/export-all')
+  @ApiOperation({ summary: '导出全部 AVG 脚本（JSON 单文件）' })
+  async exportAllAvgScripts(@Res({ passthrough: false }) res: Response) {
+    const { body, filename, contentType } = await this.service.exportAllAvgScripts();
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(body);
+  }
+
+  @Post('avg-scripts/import')
+  @ApiOperation({ summary: '导入 AVG 脚本（JSON）' })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file'))
+  async importAvgScripts(
+    @UploadedFile() file: { buffer: Buffer } | undefined,
+    @Query() query: ImportAvgScriptQueryDto,
+  ) {
+    if (!file?.buffer) {
+      throw new BadRequestException({
+        success: false,
+        data: null,
+        message: 'file_required',
+      });
+    }
+    return this.service.importAvgScripts(file.buffer, query);
+  }
+
+  @Get('avg-scripts/:id/export')
+  @ApiOperation({ summary: '导出单条 AVG 脚本（JSON）' })
+  async exportAvgScript(@Param('id') id: string, @Res({ passthrough: false }) res: Response) {
+    const { body, filename, contentType } = await this.service.exportAvgScript(id);
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(body);
   }
 
   @Get('avg-scripts/:id')
