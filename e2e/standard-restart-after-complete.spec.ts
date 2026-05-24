@@ -1,15 +1,16 @@
 /**
  * 端到端：标准测评完成态 seed 后，进入 `/test/standard` 展示「重新开始」入口，
- * 确认后应从第 1 题开始，且不再展示“本卷已完成”卡死态。
+ * 选择「换一批新题目」后应从第 1 题开始，且不再展示“本卷已完成”卡死态。
  */
 import { randomUUID } from 'crypto';
 
 import { test, expect, type APIRequestContext } from '@playwright/test';
 
 import {
-  fetchAdaptiveOrderedIds,
-  seedGuestAdaptiveStandardComplete,
-} from './helpers/adaptive-standard-seed';
+  EXPECTED_PRESENTED_COUNT,
+  fetchRandomOrderedIds,
+  seedGuestRandomStandardComplete,
+} from './helpers/random-standard-seed';
 
 const API_BASE = process.env.PLAYWRIGHT_API_URL ?? 'http://127.0.0.1:3001';
 
@@ -64,16 +65,10 @@ async function deleteProgressAllowMissing(request: APIRequestContext, sessionId:
 }
 
 test.describe('标准测评完成后可重新开始', () => {
-  test('完成态 seed -> 展示重开入口 -> 确认后从第 1 题开始', async ({ page, request }) => {
+  test('完成态 seed -> 展示重开入口 -> shuffle 后从第 1 题开始', async ({ page, request }) => {
     const sessionId = `e2e-pw-${randomUUID()}`;
-    const screeningIds = await fetchAdaptiveOrderedIds(request);
-    const screeningCount = screeningIds.length;
 
-    await seedGuestAdaptiveStandardComplete(request, sessionId);
-    const fullOrdered = await fetchAdaptiveOrderedIds(
-      request,
-      Object.fromEntries(screeningIds.map((id) => [id, `${id}_A`])),
-    );
+    const fullOrdered = await seedGuestRandomStandardComplete(request, sessionId);
     await assertGuestProgressIsStandardComplete(request, sessionId, fullOrdered.length);
 
     await page.addInitScript((sid: string) => {
@@ -87,15 +82,15 @@ test.describe('标准测评完成后可重新开始', () => {
     await expect(page.getByText('本卷已完成')).toBeVisible({ timeout: 30_000 });
     await expect(page.getByRole('button', { name: '重新开始' })).toBeVisible({ timeout: 30_000 });
 
-    page.once('dialog', (dialog) => dialog.accept());
     await page.getByRole('button', { name: '重新开始' }).click();
+    await page.getByRole('button', { name: '换一批新题目' }).click();
 
     await expect(page.getByText('本卷已完成')).toHaveCount(0);
-    await expect(page.getByText(new RegExp(`第\\s*1\\s*/\\s*${screeningCount}\\s*题`))).toBeVisible(
-      {
-        timeout: 30_000,
-      },
-    );
+    await expect(
+      page.getByText(new RegExp(`第\\s*1\\s*/\\s*${EXPECTED_PRESENTED_COUNT}\\s*题`)),
+    ).toBeVisible({
+      timeout: 30_000,
+    });
 
     const maybeNewSid = await page.evaluate(() =>
       window.localStorage.getItem('ppa_guest_session_id'),
@@ -104,5 +99,14 @@ test.describe('标准测评完成后可重新开始', () => {
     if (maybeNewSid && maybeNewSid !== sessionId) {
       await deleteProgressAllowMissing(request, maybeNewSid);
     }
+  });
+
+  test('restart reuse 保持相同题序', async ({ request }) => {
+    const first = await fetchRandomOrderedIds(request, { strategy: 'shuffle' });
+    const reused = await fetchRandomOrderedIds(request, {
+      strategy: 'reuse',
+      previous_ordered_question_ids: first,
+    });
+    expect(reused).toEqual(first);
   });
 });

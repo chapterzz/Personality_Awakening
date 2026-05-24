@@ -12,6 +12,7 @@ import {
   DEMO_AVG_SCRIPT_ID,
   DEMO_AVG_SCRIPT_TITLE,
 } from './seed-avg-data';
+import { seedStandardRandomQuestionnaire } from './seed-standard-random';
 
 const prisma = new PrismaClient();
 
@@ -491,6 +492,8 @@ async function main() {
   }
 
   console.log(`Seeded questionnaire "${QUESTIONNAIRE_ID}" with ${questions.length} questions.`);
+
+  await seedStandardRandomQuestionnaire(prisma);
 
   await seedAvgAndSpritePrompts();
 }

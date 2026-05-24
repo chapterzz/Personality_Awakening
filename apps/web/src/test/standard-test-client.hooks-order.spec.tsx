@@ -49,23 +49,25 @@ const BASE = {
   revision: 0,
   saving: false,
   conflictNotice: false,
-  totalQuestions: 12,
+  totalQuestions: 48,
   answeredCount: 0,
   currentQuestion: null,
   isComplete: false,
+  questionsMap: {},
+  restart: async () => {},
   selectOption: async () => {},
 };
 
-const useStandardTestMock = vi.fn();
-vi.mock('@/hooks/use-standard-test', () => ({
-  useStandardTest: (...args: unknown[]) => useStandardTestMock(...args),
+const useRandomStandardTestMock = vi.fn();
+vi.mock('@/hooks/use-random-standard-test', () => ({
+  useRandomStandardTest: (...args: unknown[]) => useRandomStandardTestMock(...args),
 }));
 
 describe('StandardTestClient hooks order', () => {
   it('loading -> ready rerender should not log Rendered more hooks', () => {
     const err = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    useStandardTestMock.mockReturnValueOnce({ ...BASE, phase: 'loading' as const });
+    useRandomStandardTestMock.mockReturnValueOnce({ ...BASE, phase: 'loading' as const });
     const readyQuestion = {
       id: 'q01',
       text: 'Q1?',
@@ -86,7 +88,7 @@ describe('StandardTestClient hooks order', () => {
         },
       ],
     };
-    useStandardTestMock.mockReturnValueOnce({
+    useRandomStandardTestMock.mockReturnValueOnce({
       ...BASE,
       phase: 'ready' as const,
       currentQuestion: readyQuestion,

@@ -41,9 +41,9 @@ vi.mock('@/hooks/use-sprite-interaction', () => ({
   }),
 }));
 
-const useAdaptiveStandardTestMock = vi.fn();
-vi.mock('@/hooks/use-adaptive-standard-test', () => ({
-  useAdaptiveStandardTest: (...args: unknown[]) => useAdaptiveStandardTestMock(...args),
+const useRandomStandardTestMock = vi.fn();
+vi.mock('@/hooks/use-random-standard-test', () => ({
+  useRandomStandardTest: (...args: unknown[]) => useRandomStandardTestMock(...args),
 }));
 
 const useAvgTestMock = vi.fn();
@@ -92,7 +92,7 @@ vi.mock('@/lib/sprite-prompt-api', () => ({
 
 describe('report navigation', () => {
   it('标准模式完成态可生成报告并跳转', async () => {
-    useAdaptiveStandardTestMock.mockReturnValue({
+    useRandomStandardTestMock.mockReturnValue({
       phase: 'ready',
       loadError: null,
       saveError: null,
@@ -102,7 +102,7 @@ describe('report navigation', () => {
       progressData: {
         schema_version: 1,
         mode: 'STANDARD',
-        questionnaire_id: 'adaptive-demo-v1',
+        questionnaire_id: 'standard-v1',
         standard: {
           current_index: 12,
           answers: { sq01: 'sq01_A' },

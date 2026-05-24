@@ -1,7 +1,6 @@
 /**
- * 标准模式测评页（客户端）：自适应题库 + 进度条/题卡/选项 + 自动保存与 409 处理。
- * T2.7 使用 useAdaptiveStandardTest 从服务端获取题序，支持筛选轮→追问轮。
- * T4.7：精灵文案从 API 拉取（失败时 fallback 本地常量）。
+ * 标准模式测评页（客户端）：随机 48 题 + 进度条/题卡/选项 + 自动保存与 409 处理。
+ * 使用 useRandomStandardTest 从服务端获取题序；重新开始支持 shuffle / reuse。
  */
 'use client';
 
@@ -11,27 +10,28 @@ import { StandardQuestionCard } from '@/components/standard-test/standard-questi
 import { StandardTestProgressBar } from '@/components/standard-test/standard-test-progress-bar';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { getHesitationLine, getMutexLine } from '@/data/sprite-lines';
+import { useRandomStandardTest } from '@/hooks/use-random-standard-test';
 import { useSpriteInteraction } from '@/hooks/use-sprite-interaction';
 import { buildStandardSignals, fetchMbtiReport, ReportScoringError } from '@/lib/report-scoring';
 import { saveReportSnapshot } from '@/lib/report-storage';
 import { createSpriteLineGetters, fetchPublishedSpritePrompts } from '@/lib/sprite-prompt-api';
-import { useAdaptiveStandardTest } from '@/hooks/use-adaptive-standard-test';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-const QUESTIONNAIRE_ID = 'adaptive-demo-v1';
+const QUESTIONNAIRE_ID = 'standard-v1';
 
 const FALLBACK_SPRITE_GETTERS = { getHesitationLine, getMutexLine };
 
 export function StandardTestClient() {
-  const t = useAdaptiveStandardTest(QUESTIONNAIRE_ID);
+  const t = useRandomStandardTest(QUESTIONNAIRE_ID);
   const router = useRouter();
   const [spriteGetters, setSpriteGetters] = useState(FALLBACK_SPRITE_GETTERS);
   const sprite = useSpriteInteraction(spriteGetters);
   const [buildingReport, setBuildingReport] = useState(false);
   const [reportError, setReportError] = useState<string | null>(null);
+  const [restartOpen, setRestartOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -144,7 +144,7 @@ export function StandardTestClient() {
       </div>
 
       <div className="space-y-1">
-        <p className="text-sm font-medium text-muted-foreground">标准模式 · 自适应题库</p>
+        <p className="text-sm font-medium text-muted-foreground">标准模式 · 随机 48 题</p>
         <h1 className="font-display text-2xl font-extrabold tracking-tight text-foreground">
           性格倾向小测
         </h1>
@@ -179,9 +179,7 @@ export function StandardTestClient() {
 
       {t.saving && <p className="text-sm text-muted-foreground">正在保存…</p>}
 
-      {t.screeningExtending && <p className="text-sm text-muted-foreground">正在生成个性化题目…</p>}
-
-      {t.isComplete && !t.screeningExtending && (
+      {t.isComplete && (
         <div className="rounded-3xl border-[3px] border-[var(--border)] bg-card p-8 text-center shadow-clay">
           <p className="font-display text-lg font-bold text-foreground">本卷已完成</p>
           <p className="mt-2 text-sm text-muted-foreground">
@@ -191,7 +189,7 @@ export function StandardTestClient() {
             你可以重新开始一轮测试。重新开始将丢弃当前测试结果。
           </p>
           {reportError && <p className="mt-2 text-sm text-destructive">{reportError}</p>}
-          <div className="mt-6 flex justify-center">
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Button
               type="button"
               disabled={buildingReport || t.saving}
@@ -199,23 +197,58 @@ export function StandardTestClient() {
             >
               {buildingReport ? '正在生成报告…' : '查看结果报告'}
             </Button>
-            <span className="w-3" />
             <Button
               type="button"
+              variant="outline"
               disabled={buildingReport || t.saving}
-              onClick={() => {
-                const ok = window.confirm('重新开始将丢弃当前测试结果，确定重新开始吗？');
-                if (ok) {
-                  void t.restart();
-                }
-              }}
+              onClick={() => setRestartOpen(true)}
             >
               重新开始
             </Button>
-            <span className="w-3" />
             <Link className={cn(buttonVariants(), 'inline-flex')} href="/">
               返回首页
             </Link>
+          </div>
+        </div>
+      )}
+
+      {restartOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div
+            className="w-full max-w-md rounded-2xl border-[3px] border-[var(--border)] bg-card p-6 shadow-clay"
+            role="dialog"
+            aria-labelledby="restart-dialog-title"
+          >
+            <p id="restart-dialog-title" className="font-display text-lg font-bold text-foreground">
+              重新开始
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">请选择如何开始新一轮测试：</p>
+            <div className="mt-6 flex flex-col gap-3">
+              <Button
+                type="button"
+                disabled={t.saving}
+                onClick={() => {
+                  setRestartOpen(false);
+                  void t.restart('shuffle');
+                }}
+              >
+                换一批新题目
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={t.saving}
+                onClick={() => {
+                  setRestartOpen(false);
+                  void t.restart('reuse');
+                }}
+              >
+                相同题目再做一次
+              </Button>
+              <Button type="button" variant="ghost" onClick={() => setRestartOpen(false)}>
+                取消
+              </Button>
+            </div>
           </div>
         </div>
       )}
@@ -240,7 +273,7 @@ export function StandardTestClient() {
         </StandardQuestionCard>
       )}
 
-      {!t.isComplete && !q && !t.screeningExtending && (
+      {!t.isComplete && !q && (
         <p className="text-sm text-destructive">当前题目配置缺失，请刷新页面或联系管理员。</p>
       )}
 

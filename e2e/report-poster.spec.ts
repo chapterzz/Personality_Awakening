@@ -5,12 +5,12 @@ import { randomUUID } from 'crypto';
 
 import { expect, test } from '@playwright/test';
 
-import { seedGuestAdaptiveStandardComplete } from './helpers/adaptive-standard-seed';
+import { seedGuestRandomStandardComplete } from './helpers/random-standard-seed';
 
 test('standard completed -> report page shows poster action', async ({ page, request }) => {
   const sessionId = `e2e-pw-poster-${randomUUID()}`;
 
-  await seedGuestAdaptiveStandardComplete(request, sessionId);
+  await seedGuestRandomStandardComplete(request, sessionId);
 
   await page.addInitScript((sid: string) => {
     window.localStorage.setItem('ppa_guest_session_id', sid);

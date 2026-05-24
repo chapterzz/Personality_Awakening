@@ -1,5 +1,5 @@
 /**
- * 浏览器端调用 Nest `/questionnaire` API：获取问卷结构与自适应题序（T2.7）。
+ * 浏览器端调用 Nest `/questionnaire` API：获取问卷结构与随机 48 题题序。
  */
 import { getBrowserApiBaseUrl } from './api-base';
 
@@ -29,13 +29,20 @@ export type ApiQuestionnaireData = {
   questions: ApiQuestionnaireQuestion[];
 };
 
-/** 自适应题序响应 */
+/** 题序响应 */
 export type ApiSequenceData = {
   questionnaire_id: string;
   ordered_question_ids: string[];
 };
 
-class QuestionnaireApiError extends Error {
+export type SequenceStrategy = 'shuffle' | 'reuse';
+
+export type FetchQuestionSequenceOptions = {
+  strategy?: SequenceStrategy;
+  previousOrderedQuestionIds?: string[];
+};
+
+export class QuestionnaireApiError extends Error {
   readonly name = 'QuestionnaireApiError';
   constructor(
     message: string,
@@ -74,19 +81,27 @@ export async function fetchQuestionnaire(id: string): Promise<ApiQuestionnaireDa
 }
 
 /**
- * 生成自适应题序。可传入已有答案以触发弱信号维度追问。
+ * 生成随机 48 题题序。strategy=reuse 时传入上次 ordered_question_ids。
  */
 export async function fetchQuestionSequence(
   id: string,
-  answers?: Record<string, string | number>,
+  options?: FetchQuestionSequenceOptions,
 ): Promise<ApiSequenceData> {
   const base = getBrowserApiBaseUrl();
+  const payload: Record<string, unknown> = {};
+  if (options?.strategy) {
+    payload.strategy = options.strategy;
+  }
+  if (options?.previousOrderedQuestionIds) {
+    payload.previous_ordered_question_ids = options.previousOrderedQuestionIds;
+  }
+
   const response = await fetch(
     `${base.replace(/\/$/, '')}/questionnaire/${encodeURIComponent(id)}/sequence`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ answers }),
+      body: JSON.stringify(payload),
       credentials: 'omit',
     },
   );

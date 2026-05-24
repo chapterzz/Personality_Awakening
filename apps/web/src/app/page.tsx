@@ -11,6 +11,9 @@ import { PosterQueryRedirect } from '@/components/voice/poster-query-redirect';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
+/** 首页标准模式卡片文案（与随机 48 题特性一致） */
+const STANDARD_MODE_CARD_DESCRIPTION = '从大题库随机抽取 48 道题目，快速了解你的 MBTI 类型。';
+
 export default function Home() {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-10">
@@ -87,9 +90,7 @@ export default function Home() {
             </svg>
           </div>
           <h3 className="font-display text-base font-bold text-foreground">标准模式</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            93 道精选题目，快速了解你的 MBTI 类型。
-          </p>
+          <p className="mt-1 text-sm text-muted-foreground">{STANDARD_MODE_CARD_DESCRIPTION}</p>
         </div>
         <div className="rounded-3xl border-[3px] border-[var(--border)] bg-card p-6 shadow-clay">
           <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-[#FB7185] text-white">

@@ -1,7 +1,7 @@
 /**
  * 问卷 HTTP 接口（T2.7）：
  * - GET /questionnaire/:id — 获取问卷结构
- * - POST /questionnaire/:id/sequence — 生成自适应题序
+ * - POST /questionnaire/:id/sequence — 生成随机 48 题题序
  */
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
@@ -43,10 +43,13 @@ export class QuestionnaireController {
   }
 
   @Post(':id/sequence')
-  @ApiOperation({ summary: '生成自适应题序（T2.7）' })
+  @ApiOperation({ summary: '生成随机 48 题题序（分层抽样 + 全局洗牌）' })
   @ApiParam({ name: 'id', description: '问卷 ID' })
   async generateSequence(@Param('id') id: string, @Body() body: GenerateSequenceDto) {
-    const orderedQuestionIds = await this.service.generateOrderedQuestionIds(id, body.answers);
+    const orderedQuestionIds = await this.service.generateOrderedQuestionIds(id, {
+      strategy: body.strategy ?? 'shuffle',
+      previousOrderedQuestionIds: body.previous_ordered_question_ids,
+    });
     return {
       success: true,
       data: {

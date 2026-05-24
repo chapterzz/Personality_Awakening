@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>标准模式随机 48 题 — 实施计划审阅</title>
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --card: #fff;
+      --border: #1e293b;
+      --text: #0f172a;
+      --muted: #64748b;
+      --primary: #0d9488;
+      --warn: #ea580c;
+      --danger: #dc2626;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      margin: 0;
+      padding: 1.5rem;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; }
+    h1 { font-size: 1.45rem; margin: 0 0 0.5rem; }
+    h2 { font-size: 1.1rem; margin: 2rem 0 0.65rem; border-bottom: 2px solid var(--border); padding-bottom: 0.2rem; }
+    .meta { color: var(--muted); font-size: 0.88rem; }
+    .meta a { color: var(--primary); }
+    .card {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.2rem;
+      margin: 0.65rem 0;
+      box-shadow: 3px 3px 0 var(--border);
+    }
+    .badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      background: #fef3c7;
+      border: 1px solid #d97706;
+      padding: 0.08rem 0.45rem;
+      border-radius: 999px;
+      margin-left: 0.3rem;
+    }
+    .badge-warn { background: #ffedd5; border-color: var(--warn); }
+    .badge-ok { background: #d1fae5; border-color: #059669; }
+    .checklist { list-style: none; padding: 0; margin: 0; }
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.45rem;
+      padding: 0.3rem 0;
+      border-bottom: 1px dashed #e2e8f0;
+      font-size: 0.9rem;
+    }
+    .checklist input { margin-top: 0.3rem; }
+    .note { font-size: 0.82rem; color: var(--muted); }
+    .dep-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .dep-table th, .dep-table td {
+      border: 1px solid #e2e8f0;
+      padding: 0.35rem 0.55rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    .dep-table th { background: #e2e8f0; }
+    .task-list { font-size: 0.88rem; padding-left: 1.2rem; }
+    .task-list li { margin: 0.35rem 0; }
+    code { font-size: 0.85em; background: #f1f5f9; padding: 0.1rem 0.3rem; border-radius: 4px; }
+    .gate {
+      background: #fef2f2;
+      border: 2px solid var(--danger);
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      font-weight: 600;
+      color: var(--danger);
+    }
+    .flow {
+      font-family: ui-monospace, monospace;
+      font-size: 0.78rem;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      white-space: pre-wrap;
+    }
+    .wf-modal {
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      max-width: 360px;
+      margin: 0.5rem auto;
+      background: var(--card);
+      box-shadow: 4px 4px 0 var(--border);
+    }
+    .wf-btn {
+      display: block;
+      width: 100%;
+      text-align: center;
+      padding: 0.5rem;
+      margin: 0.35rem 0;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      background: #f8fafc;
+    }
+    .wf-btn-primary { background: var(--primary); color: #fff; border-color: #0f766e; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>标准模式随机 48 题 — 实施计划审阅</h1>
+    <p class="meta">
+      日期 2026-05-24 ·
+      <strong class="gate" style="display:inline;background:transparent;border:none;padding:0;">待你批准后再实施（阶段 C 未启动）</strong> ·
+      <a href="../specs/2026-05-24-standard-random-48-questions-design.md">设计规格</a> ·
+      <a href="./2026-05-24-standard-random-48-questions.md">Markdown 任务清单</a>
+    </p>
+
+    <h2>一、目标（一句话）</h2>
+    <div class="card">
+      <p>完全替换 T2.7 自适应逻辑：从已发布大题库（如 96 题）<strong>分层随机抽 48 题</strong>（每维度 12 题），全局洗牌后写入 <code>ordered_question_ids</code>；重新开始时用户可选<strong>重新洗牌</strong>或<strong>相同题目再做一次</strong>。</p>
+    </div>
+
+    <h2>二、架构要点</h2>
+    <div class="card">
+      <table class="dep-table">
+        <thead><tr><th>层</th><th>变更</th></tr></thead>
+        <tbody>
+          <tr><td>后端 util</td><td>新建 <code>random-sequence.util.ts</code> — Fisher-Yates、分层抽样、reuse 校验</td></tr>
+          <tr><td>后端 service</td><td>重写 <code>generateOrderedQuestionIds</code>，删除 adaptive 信号逻辑</td></tr>
+          <tr><td>API</td><td><code>POST /sequence</code> 新 DTO：<code>strategy</code> + <code>previous_ordered_question_ids</code></td></tr>
+          <tr><td>Seed</td><td>新增 <code>standard-v1</code> 问卷，96 题（每维度 24 题）</td></tr>
+          <tr><td>前端</td><td>新 hook <code>use-random-standard-test.ts</code>，移除 screening 扩展</td></tr>
+          <tr><td>UI</td><td>完成页「重新开始」→ 轻量 modal 二选一</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>三、抽题算法（后端）</h2>
+    <div class="card">
+      <div class="flow">1. 按 dimension 分组全部题目
+2. 每维度 ≥ 12？否 → 400 insufficient_questions
+3. strategy=reuse 且 previous_ids 合法？→ 原样返回
+4. 否则每维度随机抽 12 → 合并 48 → Fisher-Yates 全局洗牌</div>
+    </div>
+
+    <h2>四、验收勾选（AC-1～AC-7）</h2>
+    <div class="card">
+      <ul class="checklist">
+        <li><input type="checkbox" id="ac1" /><label for="ac1">AC-1：新会话 sequence 返回恰好 48 题，每维度 12 题，无重复</label></li>
+        <li><input type="checkbox" id="ac2" /><label for="ac2">AC-2：题序经全局洗牌（非维度块顺序）</label></li>
+        <li><input type="checkbox" id="ac3" /><label for="ac3">AC-3：某维度 &lt; 12 题 → 400 insufficient_questions</label></li>
+        <li><input type="checkbox" id="ac4" /><label for="ac4">AC-4：续答沿用 saved ordered_question_ids，不重新抽</label></li>
+        <li><input type="checkbox" id="ac5" /><label for="ac5">AC-5：restart shuffle 新题序；restart reuse 原题序、答案清空</label></li>
+        <li><input type="checkbox" id="ac6" /><label for="ac6">AC-6：前端移除 screeningExtending 等自适应逻辑</label></li>
+        <li><input type="checkbox" id="ac7" /><label for="ac7">AC-7：Seed 96 题 + <code>pnpm test:gate</code> 通过</label></li>
+      </ul>
+    </div>
+
+    <h2>五、重新开始 UI 线框</h2>
+    <div class="card">
+      <div class="wf-modal">
+        <p style="margin:0;font-weight:700;font-size:1rem">重新开始</p>
+        <p class="note" style="margin:0.5rem 0">请选择如何开始新一轮测试：</p>
+        <div class="wf-btn wf-btn-primary">换一批新题目</div>
+        <div class="wf-btn">相同题目再做一次</div>
+        <div class="wf-btn" style="background:transparent;border-style:dashed">取消</div>
+      </div>
+      <p class="note">无 Shadcn AlertDialog，使用 Tailwind 轻量 modal（与现有 clay 风格一致）。</p>
+    </div>
+
+    <h2>六、任务分解（8 个 Task）</h2>
+    <div class="card">
+      <ol class="task-list">
+        <li><strong>Task 1</strong> — <code>random-sequence.util.ts</code> 纯函数 + 单测（TDD）</li>
+        <li><strong>Task 2</strong> — 重写 QuestionnaireService + DTO + controller + service spec</li>
+        <li><strong>Task 3</strong> — Seed <code>standard-v1</code> 96 题（<code>seed-standard-random.ts</code>）</li>
+        <li><strong>Task 4</strong> — 前端 <code>questionnaire-api.ts</code> + spec</li>
+        <li><strong>Task 5</strong> — 新 hook <code>use-random-standard-test.ts</code>，删除 adaptive 逻辑</li>
+        <li><strong>Task 6</strong> — <code>standard-test-client.tsx</code> 重新开始 modal + 问卷 ID 切换</li>
+        <li><strong>Task 7</strong> — E2E / golden-path helpers 更新</li>
+        <li><strong>Task 8</strong> — <code>pnpm test:gate</code> 全量验证</li>
+      </ol>
+    </div>
+
+    <h2>七、关键决策（已锁定）</h2>
+    <div class="card">
+      <table class="dep-table">
+        <thead><tr><th>项</th><th>决策</th></tr></thead>
+        <tbody>
+          <tr><td>问卷 ID</td><td><code>standard-v1</code>（新 Seed，与 demo 12 题解耦）</td></tr>
+          <tr><td>旧 adaptive-demo-v1</td><td>保留 Seed 数据，学生端改指向 standard-v1</td></tr>
+          <tr><td>旧进行中会话</td><td>MVP 可续答旧 12 题 progress；新开始走 48 题</td></tr>
+          <tr><td>GET /questionnaire</td><td>仍返回全量题库（客户端 lookup）</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>八、验证命令</h2>
+    <div class="card">
+      <code>pnpm --filter api test -- random-sequence.util questionnaire</code><br />
+      <code>pnpm --filter web run test:unit -- questionnaire-api</code><br />
+      <code>pnpm test:integration</code><br />
+      <code>pnpm test:gate</code>
+    </div>
+
+    <h2>九、批准门禁</h2>
+    <div class="card gate">
+      请确认本计划后回复「同意计划」或指出需修改处，方可进入阶段 C 实施。
+    </div>
+  </div>
+</body>
+</html>

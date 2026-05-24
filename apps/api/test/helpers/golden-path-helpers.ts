@@ -9,8 +9,12 @@ import { PrismaService } from '../../src/prisma/prisma.service';
 
 export const GOLDEN_PREFIX = 'e2e-golden-';
 
-/** adaptive-demo-v1 问卷 ID，与 Playwright helper 一致 */
-export const ADAPTIVE_QUESTIONNAIRE_ID = 'adaptive-demo-v1';
+/** standard-v1 问卷 ID，与 Playwright helper 一致 */
+export const STANDARD_QUESTIONNAIRE_ID = 'standard-v1';
+export const EXPECTED_PRESENTED_COUNT = 48;
+
+/** @deprecated 使用 STANDARD_QUESTIONNAIRE_ID */
+export const ADAPTIVE_QUESTIONNAIRE_ID = STANDARD_QUESTIONNAIRE_ID;
 
 /**
  * 生成带 e2e-golden- 前缀的唯一昵称，便于 afterEach 清理。
@@ -66,38 +70,37 @@ export async function registerWithDemoTestResultViaHttp(
 }
 
 /**
- * 调用 POST /questionnaire/:id/sequence 获取题序（supertest 版，移植自 Playwright helper）。
+ * 调用 POST /questionnaire/:id/sequence 获取 48 题题序（supertest 版）。
  */
-export async function fetchAdaptiveOrderedIds(
+export async function fetchStandardOrderedIds(
   app: INestApplication,
-  answers?: Record<string, string>,
+  options: { strategy?: 'shuffle' | 'reuse'; previous_ordered_question_ids?: string[] } = {
+    strategy: 'shuffle',
+  },
 ): Promise<string[]> {
   const res = await request(app.getHttpServer())
-    .post(`/questionnaire/${ADAPTIVE_QUESTIONNAIRE_ID}/sequence`)
-    .send(answers ? { answers } : {})
+    .post(`/questionnaire/${STANDARD_QUESTIONNAIRE_ID}/sequence`)
+    .send(options)
     .expect(201);
 
   const ids = res.body.data?.ordered_question_ids as string[] | undefined;
-  if (!Array.isArray(ids) || ids.length === 0) {
+  if (!Array.isArray(ids) || ids.length !== EXPECTED_PRESENTED_COUNT) {
     throw new Error(`unexpected sequence body: ${JSON.stringify(res.body)}`);
   }
   return ids;
 }
 
+/** @deprecated 使用 fetchStandardOrderedIds */
+export const fetchAdaptiveOrderedIds = fetchStandardOrderedIds;
+
 /**
  * 为指定 session 写入已完成的标准模式进度（默认每题选 A 选项）。
- * 内部调用 sequence API 两次（筛查 + 全量），避免与前端 useAdaptiveStandardTest 漂移。
  */
-export async function seedGuestAdaptiveStandardComplete(
+export async function seedGuestRandomStandardComplete(
   app: INestApplication,
   sessionId: string,
 ): Promise<void> {
-  const screeningIds = await fetchAdaptiveOrderedIds(app);
-  const screeningAnswers = Object.fromEntries(screeningIds.map((id) => [id, `${id}_A`])) as Record<
-    string,
-    string
-  >;
-  const fullOrdered = await fetchAdaptiveOrderedIds(app, screeningAnswers);
+  const fullOrdered = await fetchStandardOrderedIds(app);
   const allAnswers = Object.fromEntries(fullOrdered.map((id) => [id, `${id}_A`])) as Record<
     string,
     string
@@ -106,7 +109,7 @@ export async function seedGuestAdaptiveStandardComplete(
   const progress = {
     schema_version: 1,
     mode: 'STANDARD' as const,
-    questionnaire_id: ADAPTIVE_QUESTIONNAIRE_ID,
+    questionnaire_id: STANDARD_QUESTIONNAIRE_ID,
     standard: {
       current_index: fullOrdered.length,
       ordered_question_ids: fullOrdered,
@@ -125,6 +128,9 @@ export async function seedGuestAdaptiveStandardComplete(
     })
     .expect(200);
 }
+
+/** @deprecated 使用 seedGuestRandomStandardComplete */
+export const seedGuestAdaptiveStandardComplete = seedGuestRandomStandardComplete;
 
 /** 按 e2e-golden-* 前缀清理 User、TestResult、TemporarySession */
 export async function cleanupGoldenPath(prisma: PrismaService): Promise<void> {
