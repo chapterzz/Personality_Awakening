@@ -1,12 +1,34 @@
 /**
- * 题库 CMS 共享校验器单元测试（T4.6）。
+ * 题库 CMS 共享校验器单元测试（T4.6 / 随机 48 题发布规则）。
  */
+import { PER_DIMENSION_COUNT } from './random-sequence.util';
 import {
   QuestionnaireValidationError,
   validateOptionScoring,
   validateQuestionGroupFields,
   validateQuestionnaireForPublish,
 } from './questionnaire-validation';
+
+function mkQuestion(dim: string, groupTag: string | null = null) {
+  return {
+    dimension: dim,
+    groupTag,
+    options: [
+      { dimension: dim, side: dim[0], weight: 2 },
+      { dimension: dim, side: dim[1], weight: 2 },
+    ],
+  };
+}
+
+function mkPublishReadyBank() {
+  const questions = [];
+  for (const dim of ['EI', 'SN', 'TF', 'JP'] as const) {
+    for (let i = 0; i < PER_DIMENSION_COUNT; i++) {
+      questions.push(mkQuestion(dim));
+    }
+  }
+  return questions;
+}
 
 describe('validateOptionScoring', () => {
   it('rejects invalid side for dimension EI', () => {
@@ -39,19 +61,24 @@ describe('validateQuestionGroupFields', () => {
     );
   });
 
-  it('accepts screening with dimension', () => {
-    expect(() =>
-      validateQuestionGroupFields({ dimension: 'EI', groupTag: 'screening' }),
-    ).not.toThrow();
+  it('accepts null groupTag with dimension', () => {
+    expect(() => validateQuestionGroupFields({ dimension: 'EI', groupTag: null })).not.toThrow();
   });
 });
 
 describe('validateQuestionnaireForPublish', () => {
-  it('rejects when no screening question', () => {
+  it('rejects when dimension pool insufficient', () => {
+    expect(() => validateQuestionnaireForPublish([mkQuestion('EI')])).toThrow(
+      QuestionnaireValidationError,
+    );
+  });
+
+  it('rejects question without dimension', () => {
     expect(() =>
       validateQuestionnaireForPublish([
         {
-          groupTag: 'ei_followup',
+          dimension: null,
+          groupTag: null,
           options: [
             { dimension: 'EI', side: 'E', weight: 1 },
             { dimension: 'EI', side: 'I', weight: 1 },
@@ -65,24 +92,15 @@ describe('validateQuestionnaireForPublish', () => {
     expect(() =>
       validateQuestionnaireForPublish([
         {
-          groupTag: 'screening',
+          dimension: 'EI',
+          groupTag: null,
           options: [{ dimension: 'EI', side: 'E', weight: 1 }],
         },
       ]),
     ).toThrow(QuestionnaireValidationError);
   });
 
-  it('accepts valid publish-ready questionnaire', () => {
-    expect(() =>
-      validateQuestionnaireForPublish([
-        {
-          groupTag: 'screening',
-          options: [
-            { dimension: 'EI', side: 'E', weight: 1 },
-            { dimension: 'EI', side: 'I', weight: 1 },
-          ],
-        },
-      ]),
-    ).not.toThrow();
+  it('accepts valid publish-ready questionnaire without screening', () => {
+    expect(() => validateQuestionnaireForPublish(mkPublishReadyBank())).not.toThrow();
   });
 });

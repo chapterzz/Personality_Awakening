@@ -269,12 +269,13 @@ export class AdminQuestionnaireService {
     });
   }
 
-  /** 发布问卷：校验 screening 题与选项完整性 */
+  /** 发布问卷：校验各维度题量与选项完整性 */
   async publishQuestionnaire(id: string) {
     const questionnaire = await this.getQuestionnaire(id);
     try {
       validateQuestionnaireForPublish(
         questionnaire.questions.map((q) => ({
+          dimension: q.dimension,
           groupTag: q.groupTag,
           options: q.options.map((o) => ({
             dimension: o.dimension,

@@ -13,8 +13,52 @@ import { PrismaService } from '../src/prisma/prisma.service';
 import { JwtUserService } from '../src/auth/jwt-user.service';
 
 const E2E_Q_PREFIX = 'e2e-admin-q-';
+const PUBLISH_DIMS = ['EI', 'SN', 'TF', 'JP'] as const;
+const PUBLISH_PER_DIM = 12;
 
-jest.setTimeout(30_000);
+/** 写入满足发布校验的最小题库（四维度各 12 题） */
+async function seedPublishableQuestionBank(
+  server: INestApplication['getHttpServer'],
+  qid: string,
+  adminToken: string,
+  firstPrompt = '测试题干',
+) {
+  let sortOrder = 1;
+  for (const dim of PUBLISH_DIMS) {
+    const sides = [dim[0], dim[1]] as const;
+    for (let i = 0; i < PUBLISH_PER_DIM; i++) {
+      const questionId = `${qid}-${dim.toLowerCase()}-${String(i + 1).padStart(2, '0')}`;
+      await request(server)
+        .post(`/admin/questionnaires/${qid}/questions`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          id: questionId,
+          prompt: sortOrder === 1 ? firstPrompt : `[${dim}] 题 ${i + 1}`,
+          sortOrder,
+          dimension: dim,
+        })
+        .expect(201);
+
+      for (const side of sides) {
+        await request(server)
+          .post(`/admin/questions/${questionId}/options`)
+          .set('Authorization', `Bearer ${adminToken}`)
+          .send({
+            id: `${questionId}-${side}`,
+            label: `选项 ${side}`,
+            valueKey: `${questionId}-${side}`,
+            dimension: dim,
+            side,
+            weight: 2,
+          })
+          .expect(201);
+      }
+      sortOrder++;
+    }
+  }
+}
+
+jest.setTimeout(60_000);
 
 describe('Admin Questionnaire API (T4.6)', () => {
   let app: INestApplication;
@@ -97,88 +141,51 @@ describe('Admin Questionnaire API (T4.6)', () => {
 
   it('CRUD + 发布/下架：公开 GET 与 isPublished 一致', async () => {
     const qid = `${E2E_Q_PREFIX}${randomUUID().slice(0, 8)}`;
+    const server = app.getHttpServer();
+    const firstQuestionId = `${qid}-ei-01`;
 
-    await request(app.getHttpServer())
+    await request(server)
       .post('/admin/questionnaires')
       .set('Authorization', `Bearer ${adminToken}`)
       .send({ id: qid, title: 'E2E 测试问卷' })
       .expect(201);
 
-    const qRes = await request(app.getHttpServer())
-      .post(`/admin/questionnaires/${qid}/questions`)
-      .set('Authorization', `Bearer ${adminToken}`)
-      .send({
-        id: `${qid}-q1`,
-        prompt: '测试题干',
-        sortOrder: 1,
-        dimension: 'EI',
-        groupTag: 'screening',
-        groupSortOrder: 1,
-      })
-      .expect(201);
+    await seedPublishableQuestionBank(server, qid, adminToken, '测试题干');
 
-    expect(qRes.body.data.id).toBe(`${qid}-q1`);
+    await request(server).get(`/questionnaire/${qid}`).expect(404);
 
-    await request(app.getHttpServer())
-      .post(`/admin/questions/${qid}-q1/options`)
-      .set('Authorization', `Bearer ${adminToken}`)
-      .send({
-        id: `${qid}-q1-a`,
-        label: '选项 A',
-        valueKey: `${qid}-q1-a`,
-        dimension: 'EI',
-        side: 'E',
-        weight: 1,
-      })
-      .expect(201);
-
-    await request(app.getHttpServer())
-      .post(`/admin/questions/${qid}-q1/options`)
-      .set('Authorization', `Bearer ${adminToken}`)
-      .send({
-        id: `${qid}-q1-b`,
-        label: '选项 B',
-        valueKey: `${qid}-q1-b`,
-        dimension: 'EI',
-        side: 'I',
-        weight: 1,
-      })
-      .expect(201);
-
-    await request(app.getHttpServer()).get(`/questionnaire/${qid}`).expect(404);
-
-    await request(app.getHttpServer())
+    await request(server)
       .post(`/admin/questionnaires/${qid}/publish`)
       .set('Authorization', `Bearer ${adminToken}`)
       .expect(201);
 
-    const pub = await request(app.getHttpServer()).get(`/questionnaire/${qid}`).expect(200);
-    expect(pub.body.data.questions).toHaveLength(1);
+    const pub = await request(server).get(`/questionnaire/${qid}`).expect(200);
+    expect(pub.body.data.questions).toHaveLength(PUBLISH_DIMS.length * PUBLISH_PER_DIM);
     expect(pub.body.data.questions[0].prompt).toBe('测试题干');
 
-    await request(app.getHttpServer())
-      .patch(`/admin/options/${qid}-q1-a`)
+    await request(server)
+      .patch(`/admin/options/${firstQuestionId}-E`)
       .set('Authorization', `Bearer ${adminToken}`)
       .send({ label: '更新后的选项 A' })
       .expect(200);
 
-    await request(app.getHttpServer())
+    await request(server)
       .post(`/admin/questionnaires/${qid}/publish`)
       .set('Authorization', `Bearer ${adminToken}`)
       .expect(201);
 
-    const updated = await request(app.getHttpServer()).get(`/questionnaire/${qid}`).expect(200);
+    const updated = await request(server).get(`/questionnaire/${qid}`).expect(200);
     const optA = updated.body.data.questions[0].options.find(
-      (o: { id: string }) => o.id === `${qid}-q1-a`,
+      (o: { id: string }) => o.id === `${firstQuestionId}-E`,
     );
     expect(optA?.label).toBe('更新后的选项 A');
 
-    await request(app.getHttpServer())
+    await request(server)
       .post(`/admin/questionnaires/${qid}/unpublish`)
       .set('Authorization', `Bearer ${adminToken}`)
       .expect(201);
 
-    await request(app.getHttpServer()).get(`/questionnaire/${qid}`).expect(404);
+    await request(server).get(`/questionnaire/${qid}`).expect(404);
   });
 
   it('POST 选项非法 side → 400', async () => {

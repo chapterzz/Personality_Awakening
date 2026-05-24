@@ -112,7 +112,7 @@ export default function AdminQuestionnaireDetailPage() {
 
       {!detail.isPublished ? (
         <p className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-950 dark:text-amber-100">
-          当前为草稿。发布前请确认每题至少 2 个选项、含 screening 题，且计分选项
+          当前为草稿。发布前请确认每题至少 2 个选项、四维度各至少 12 题，且计分选项
           dimension/side/weight 完整。
         </p>
       ) : null}

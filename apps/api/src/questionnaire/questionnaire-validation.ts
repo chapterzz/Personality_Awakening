@@ -1,6 +1,8 @@
 /**
- * 题库 CMS 共享校验：选项计分三元组、T2.7 题组字段、发布前完整性检查。
+ * 题库 CMS 共享校验：选项计分三元组、题组字段、发布前完整性检查。
+ * 发布规则与随机 48 题抽题一致：每维度至少 PER_DIMENSION_COUNT 题，不再要求 screening。
  */
+import { PER_DIMENSION_COUNT, DIMENSIONS } from './random-sequence.util';
 
 /** MBTI 四维度标签 */
 export const VALID_DIMENSIONS = ['EI', 'SN', 'TF', 'JP'] as const;
@@ -73,6 +75,7 @@ export function validateQuestionGroupFields(input: {
 }
 
 type PublishQuestion = {
+  dimension: string | null;
   groupTag: string | null;
   options: Array<{
     dimension: string | null;
@@ -82,24 +85,35 @@ type PublishQuestion = {
 };
 
 /**
- * 发布前校验：至少 1 道 screening 题；每题 ≥2 选项；计分选项须完整三元组。
+ * 发布前校验：每维度 ≥ PER_DIMENSION_COUNT 题；每题须标注 dimension；每题 ≥2 选项；计分选项须完整三元组。
  */
 export function validateQuestionnaireForPublish(questions: PublishQuestion[]): void {
   if (questions.length === 0) {
     throw new QuestionnaireValidationError('no_questions');
   }
 
-  const hasScreening = questions.some((q) => q.groupTag === 'screening');
-  if (!hasScreening) {
-    throw new QuestionnaireValidationError('missing_screening');
-  }
+  const dimCounts = Object.fromEntries(DIMENSIONS.map((d) => [d, 0])) as Record<
+    (typeof DIMENSIONS)[number],
+    number
+  >;
 
   for (const q of questions) {
+    if (!q.dimension || !VALID_DIMENSIONS.includes(q.dimension as ValidDimension)) {
+      throw new QuestionnaireValidationError('missing_question_dimension');
+    }
+    dimCounts[q.dimension as ValidDimension]++;
+
     if (q.options.length < 2) {
       throw new QuestionnaireValidationError('question_needs_two_options');
     }
     for (const opt of q.options) {
       validateOptionScoring(opt);
+    }
+  }
+
+  for (const dim of DIMENSIONS) {
+    if (dimCounts[dim] < PER_DIMENSION_COUNT) {
+      throw new QuestionnaireValidationError('insufficient_questions');
     }
   }
 }
