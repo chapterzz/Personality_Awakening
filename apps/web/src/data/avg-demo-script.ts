@@ -84,12 +84,18 @@ export const DEMO_AVG_SCRIPT: AvgScriptConfig = {
   script_id: DEMO_AVG_SCRIPT_ID,
   start_node_id: 'intro',
   backgrounds: {
-    night: 'from-indigo-950 via-slate-900 to-slate-950',
-    aurora: 'from-emerald-950/80 via-teal-900/90 to-slate-950',
-    /** T2.6 演示：结构化背景配置，含渐变 fallback + 占位图片 */
+    /** 第一场景 intro：Leadenhall Market */
+    night: {
+      gradientClassName: 'from-indigo-950 via-slate-900 to-slate-950',
+      imageUrl: '/assets/backgrounds/Leadenhall-Market.jpg',
+    },
+    /** 第二场景 energy_choice：Lambeth Bridge */
+    aurora: {
+      gradientClassName: 'from-emerald-950/80 via-teal-900/90 to-slate-950',
+      imageUrl: '/assets/backgrounds/Lambeth-Bridge.jpg',
+    },
     dawn: {
       gradientClassName: 'from-amber-950/90 via-orange-900/80 to-slate-950',
-      imageUrl: '/assets/backgrounds/dawn-placeholder.png',
     },
   },
   nodes: {

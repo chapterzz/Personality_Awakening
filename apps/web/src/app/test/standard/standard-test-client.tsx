@@ -20,12 +20,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-const QUESTIONNAIRE_ID = 'standard-v1';
-
 const FALLBACK_SPRITE_GETTERS = { getHesitationLine, getMutexLine };
 
 export function StandardTestClient() {
-  const t = useRandomStandardTest(QUESTIONNAIRE_ID);
+  const t = useRandomStandardTest();
   const router = useRouter();
   const [spriteGetters, setSpriteGetters] = useState(FALLBACK_SPRITE_GETTERS);
   const sprite = useSpriteInteraction(spriteGetters);
@@ -105,7 +103,7 @@ export function StandardTestClient() {
       setBuildingReport(true);
       setReportError(null);
       const signals = buildStandardSignals(t.progressData, {
-        questionnaireId: QUESTIONNAIRE_ID,
+        questionnaireId: t.questionnaireId ?? undefined,
         orderedQuestionIds: ordered,
         questions: t.questionsMap,
       });

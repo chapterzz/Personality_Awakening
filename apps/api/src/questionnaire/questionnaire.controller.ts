@@ -1,5 +1,6 @@
 /**
  * 问卷 HTTP 接口（T2.7）：
+ * - GET /questionnaire/published/active — 当前生效的已发布问卷
  * - GET /questionnaire/:id — 获取问卷结构
  * - POST /questionnaire/:id/sequence — 生成随机 48 题题序
  */
@@ -12,6 +13,21 @@ import { QuestionnaireService } from './questionnaire.service';
 @Controller('questionnaire')
 export class QuestionnaireController {
   constructor(private readonly service: QuestionnaireService) {}
+
+  @Get('published/active')
+  @ApiOperation({ summary: '获取当前生效的已发布问卷（最新 publishedAt）' })
+  async getActivePublishedQuestionnaire() {
+    const data = await this.service.getActivePublishedQuestionnaire();
+    return {
+      success: true,
+      data: {
+        id: data.id,
+        title: data.title,
+        published_at: data.publishedAt?.toISOString() ?? null,
+      },
+      message: 'ok',
+    };
+  }
 
   @Get(':id')
   @ApiOperation({ summary: '获取问卷结构（题目 + 选项）' })

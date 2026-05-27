@@ -9,11 +9,16 @@ export const DEMO_AVG_SCRIPT_TITLE = '星港夜话';
 export const DEMO_AVG_NODES_JSON = {
   start_node_id: 'intro',
   backgrounds: {
-    night: 'from-indigo-950 via-slate-900 to-slate-950',
-    aurora: 'from-emerald-950/80 via-teal-900/90 to-slate-950',
+    night: {
+      gradientClassName: 'from-indigo-950 via-slate-900 to-slate-950',
+      imageUrl: '/assets/backgrounds/Leadenhall-Market.jpg',
+    },
+    aurora: {
+      gradientClassName: 'from-emerald-950/80 via-teal-900/90 to-slate-950',
+      imageUrl: '/assets/backgrounds/Lambeth-Bridge.jpg',
+    },
     dawn: {
       gradientClassName: 'from-amber-950/90 via-orange-900/80 to-slate-950',
-      imageUrl: '/assets/backgrounds/dawn-placeholder.png',
     },
   },
   nodes: {

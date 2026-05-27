@@ -187,7 +187,7 @@ function AvgTestRunner({ config, spriteGetters }: AvgTestRunnerProps) {
         )}
 
         {t.currentNode && t.isComplete && (
-          <div className="rounded-2xl border-2 border-border/60 bg-background/90 p-6 shadow-sm backdrop-blur-md">
+          <div className="rounded-2xl p-6">
             <AvgDialogueBubbles lines={t.currentNode.lines} />
             <p className="mt-6 text-center text-sm font-medium text-foreground">本段剧情已完成</p>
             <p className="mt-2 text-center text-sm text-muted-foreground">
@@ -226,7 +226,7 @@ function AvgTestRunner({ config, spriteGetters }: AvgTestRunnerProps) {
         )}
 
         {t.currentNode && !t.isComplete && t.currentNode.kind === 'dialogue' && (
-          <div className="rounded-2xl border-2 border-border/60 bg-background/90 p-6 shadow-sm backdrop-blur-md">
+          <div className="p-6">
             <AvgDialogueBubbles lines={t.currentNode.lines} />
             <div className="mt-6 flex justify-end">
               <Button type="button" disabled={t.saving} onClick={() => void t.continueDialogue()}>
@@ -237,7 +237,7 @@ function AvgTestRunner({ config, spriteGetters }: AvgTestRunnerProps) {
         )}
 
         {t.currentNode && !t.isComplete && t.currentNode.kind === 'choice' && (
-          <div className="rounded-2xl border-2 border-border/60 bg-background/90 p-6 shadow-sm backdrop-blur-md">
+          <div className="p-6">
             <AvgDialogueBubbles lines={t.currentNode.lines} />
             <div className="mt-6">
               <AvgOptionButtons

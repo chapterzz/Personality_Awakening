@@ -21,6 +21,28 @@ export class QuestionnaireService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
+   * 获取当前生效的已发布问卷（按 publishedAt 降序取最新一条）。
+   * Admin 换库后学生端无需硬编码问卷 ID。
+   */
+  async getActivePublishedQuestionnaire() {
+    const questionnaire = await this.prisma.standardQuestionnaire.findFirst({
+      where: { isPublished: true },
+      orderBy: { publishedAt: 'desc' },
+      select: { id: true, title: true, publishedAt: true },
+    });
+
+    if (!questionnaire) {
+      throw new NotFoundException({
+        success: false,
+        data: null,
+        message: 'no_published_questionnaire',
+      });
+    }
+
+    return questionnaire;
+  }
+
+  /**
    * 获取已发布问卷的完整结构（题目 + 选项）。
    */
   async getPublishedQuestionnaire(questionnaireId: string) {

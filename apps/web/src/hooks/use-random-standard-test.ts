@@ -6,7 +6,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type { QuestionnaireQuestion } from '@/data/questionnaire-types';
-import { getAccessToken } from '@/lib/auth-token';
+import { getAccessToken, clearAccessToken } from '@/lib/auth-token';
 import { getOrCreateGuestSessionId } from '@/lib/guest-session-id';
 import {
   applyStandardAnswer,
@@ -21,6 +21,7 @@ import {
   putProgress,
 } from '@/lib/progress-api';
 import {
+  fetchPublishedActiveQuestionnaire,
   fetchQuestionnaire,
   fetchQuestionSequence,
   QuestionnaireApiError,
@@ -32,6 +33,7 @@ export type RandomStandardTestPhase = 'loading' | 'ready' | 'error';
 
 export type UseRandomStandardTestResult = {
   phase: RandomStandardTestPhase;
+  questionnaireId: string | null;
   loadError: string | null;
   saveError: string | null;
   clearSaveError: () => void;
@@ -50,8 +52,11 @@ export type UseRandomStandardTestResult = {
   selectOption: (optionId: string | number) => Promise<void>;
 };
 
-export function useRandomStandardTest(questionnaireId: string): UseRandomStandardTestResult {
+export function useRandomStandardTest(questionnaireId?: string): UseRandomStandardTestResult {
   const [phase, setPhase] = useState<RandomStandardTestPhase>('loading');
+  const [resolvedQuestionnaireId, setResolvedQuestionnaireId] = useState<string | null>(
+    questionnaireId ?? null,
+  );
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [revision, setRevision] = useState(0);
@@ -98,28 +103,87 @@ export function useRandomStandardTest(questionnaireId: string): UseRandomStandar
     [],
   );
 
+  /** 题序中的题目 ID 是否均存在于当前已发布题库 */
+  const isProgressCompatible = useCallback(
+    (progress: StandardProgressDataV1, qMap: Record<string, QuestionnaireQuestion>): boolean => {
+      const ordered = progress.standard.ordered_question_ids ?? [];
+      if (ordered.length === 0) return false;
+      return ordered.every((id) => id in qMap);
+    },
+    [],
+  );
+
   useEffect(() => {
     let cancelled = false;
 
     (async () => {
       try {
-        const questionnairePromise = fetchQuestionnaire(questionnaireId);
-        const token = getAccessToken();
-        const mode: 'guest' | 'user' = token ? 'user' : 'guest';
-        const sid = token ? null : getOrCreateGuestSessionId();
+        const activeQuestionnaire = questionnaireId
+          ? { id: questionnaireId }
+          : await fetchPublishedActiveQuestionnaire();
+        const effectiveQuestionnaireId = activeQuestionnaire.id;
         if (cancelled) return;
-        setAuthMode(mode);
-        setGuestSessionId(sid);
+        setResolvedQuestionnaireId(effectiveQuestionnaireId);
+
+        const questionnairePromise = fetchQuestionnaire(effectiveQuestionnaireId);
 
         const questionnaireData = await questionnairePromise;
         if (cancelled) return;
-        setQuestionsMap(toQuestionsMap(questionnaireData));
+        const qMap = toQuestionsMap(questionnaireData);
+        setQuestionsMap(qMap);
 
-        try {
+        const startFreshProgress = async (opts?: {
+          ifMatchRevision?: number;
+          accessToken?: string | null;
+          sessionId?: string;
+        }) => {
+          const seqData = await fetchQuestionSequence(effectiveQuestionnaireId, {
+            strategy: 'shuffle',
+          });
+          if (cancelled) return;
+          const initial = createInitialStandardProgress(
+            seqData.ordered_question_ids,
+            effectiveQuestionnaireId,
+          );
+
+          const useToken = opts?.accessToken ?? null;
+          const useSid = opts?.sessionId;
+          if (opts?.ifMatchRevision !== undefined && (useToken || useSid)) {
+            try {
+              const out = await putProgress(
+                { progress_data: initial, if_match_revision: opts.ifMatchRevision },
+                {
+                  mode: 'STANDARD',
+                  accessToken: useToken,
+                  sessionId: useSid,
+                },
+              );
+              if (cancelled) return;
+              setRevision(out.progress_revision);
+              setProgressData(out.progress_data);
+              setConflictNotice(false);
+              setPhase('ready');
+              return;
+            } catch {
+              /* 服务端写入失败时仍允许本地开卷 */
+            }
+          }
+
+          setRevision(0);
+          setProgressData(initial);
+          setConflictNotice(false);
+          setPhase('ready');
+        };
+
+        const loadProgress = async (params: {
+          accessToken?: string | null;
+          sessionId?: string;
+          authMode: 'guest' | 'user';
+        }) => {
           const snap = await getProgress({
             mode: 'STANDARD',
-            accessToken: token,
-            sessionId: sid ?? undefined,
+            accessToken: params.accessToken,
+            sessionId: params.sessionId,
           });
           if (cancelled) return;
 
@@ -129,24 +193,73 @@ export function useRandomStandardTest(questionnaireId: string): UseRandomStandar
             return;
           }
 
+          const savedQuestionnaireId = snap.progress_data.questionnaire_id;
+          const questionnaireChanged =
+            savedQuestionnaireId != null && savedQuestionnaireId !== effectiveQuestionnaireId;
+          const progressStale = !isProgressCompatible(snap.progress_data, qMap);
+
+          if (questionnaireChanged || progressStale) {
+            await startFreshProgress({
+              ifMatchRevision: snap.progress_revision,
+              accessToken: params.accessToken,
+              sessionId: params.sessionId,
+            });
+            return;
+          }
+
           setRevision(snap.progress_revision);
           setProgressData(snap.progress_data);
           setConflictNotice(false);
           setPhase('ready');
+        };
+
+        let token = getAccessToken();
+        let mode: 'guest' | 'user' = token ? 'user' : 'guest';
+        let sid = token ? null : getOrCreateGuestSessionId();
+        if (cancelled) return;
+        setAuthMode(mode);
+        setGuestSessionId(sid);
+
+        try {
+          await loadProgress({
+            accessToken: token,
+            sessionId: sid ?? undefined,
+            authMode: mode,
+          });
         } catch (e) {
           if (cancelled) return;
-          if (e instanceof ProgressNotFoundError) {
-            const seqData = await fetchQuestionSequence(questionnaireId, { strategy: 'shuffle' });
-            if (cancelled) return;
-
-            const initial = createInitialStandardProgress(
-              seqData.ordered_question_ids,
-              questionnaireId,
-            );
-            setRevision(0);
-            setProgressData(initial);
-            setConflictNotice(false);
-            setPhase('ready');
+          if (e instanceof ProgressHttpError && e.status === 401 && token) {
+            clearAccessToken();
+            token = null;
+            mode = 'guest';
+            sid = getOrCreateGuestSessionId();
+            setAuthMode(mode);
+            setGuestSessionId(sid);
+            try {
+              await loadProgress({
+                sessionId: sid ?? undefined,
+                authMode: mode,
+              });
+            } catch (retryErr) {
+              if (cancelled) return;
+              if (retryErr instanceof ProgressNotFoundError) {
+                await startFreshProgress({ sessionId: sid ?? undefined });
+              } else {
+                const msg =
+                  retryErr instanceof ProgressHttpError
+                    ? `请求失败（HTTP ${retryErr.status}）`
+                    : retryErr instanceof Error
+                      ? retryErr.message
+                      : 'load_failed';
+                setLoadError(msg);
+                setPhase('error');
+              }
+            }
+          } else if (e instanceof ProgressNotFoundError) {
+            await startFreshProgress({
+              accessToken: token,
+              sessionId: sid ?? undefined,
+            });
           } else {
             const msg =
               e instanceof ProgressHttpError
@@ -165,6 +278,11 @@ export function useRandomStandardTest(questionnaireId: string): UseRandomStandar
           setPhase('error');
           return;
         }
+        if (e instanceof QuestionnaireApiError && e.message === 'no_published_questionnaire') {
+          setLoadError('当前没有已发布的标准题库，请联系管理员');
+          setPhase('error');
+          return;
+        }
         const msg = e instanceof Error ? e.message : 'load_failed';
         setLoadError(msg);
         setPhase('error');
@@ -174,7 +292,9 @@ export function useRandomStandardTest(questionnaireId: string): UseRandomStandar
     return () => {
       cancelled = true;
     };
-  }, [questionnaireId, loadKey, toQuestionsMap]);
+  }, [questionnaireId, loadKey, toQuestionsMap, isProgressCompatible]);
+
+  const effectiveQuestionnaireId = resolvedQuestionnaireId ?? questionnaireId ?? '';
 
   const orderedIds = useMemo(() => {
     if (progressData?.standard.ordered_question_ids) {
@@ -227,7 +347,7 @@ export function useRandomStandardTest(questionnaireId: string): UseRandomStandar
 
       let initialIds: string[];
       try {
-        const seqData = await fetchQuestionSequence(questionnaireId, {
+        const seqData = await fetchQuestionSequence(effectiveQuestionnaireId, {
           strategy,
           previousOrderedQuestionIds:
             strategy === 'reuse'
@@ -244,7 +364,7 @@ export function useRandomStandardTest(questionnaireId: string): UseRandomStandar
         }
       }
 
-      const initial = createInitialStandardProgress(initialIds, questionnaireId);
+      const initial = createInitialStandardProgress(initialIds, effectiveQuestionnaireId);
 
       setSaving(true);
       setConflictNotice(false);
@@ -280,7 +400,7 @@ export function useRandomStandardTest(questionnaireId: string): UseRandomStandar
         setSaving(false);
       }
     },
-    [questionnaireId, orderedIds, persist, phase, progressData, revision, saving],
+    [effectiveQuestionnaireId, orderedIds, persist, phase, progressData, revision, saving],
   );
 
   const selectOption = useCallback(
@@ -332,6 +452,7 @@ export function useRandomStandardTest(questionnaireId: string): UseRandomStandar
 
   return {
     phase,
+    questionnaireId: resolvedQuestionnaireId,
     loadError,
     saveError,
     clearSaveError,

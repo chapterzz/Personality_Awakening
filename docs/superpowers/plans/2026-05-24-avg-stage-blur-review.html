@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AVG 舞台模糊背景 — 方案审阅样板</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --page-bg: #ece8e3;
+      --panel-bg: #faf8f5;
+      --ink: #1a1614;
+      --muted: #6b6560;
+      --border: rgba(26, 22, 20, 0.22);
+      --accent: #c45c3e;
+      --accent-soft: #f3e4de;
+      --stage-radius: 24px;
+      --bubble-radius: 16px;
+      --stage-border: 3px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "DM Sans", system-ui, sans-serif;
+      background: var(--page-bg);
+      color: var(--ink);
+      line-height: 1.5;
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 1.25rem 1rem 2.5rem;
+    }
+
+    header {
+      margin-bottom: 1rem;
+    }
+
+    header h1 {
+      font-family: Syne, sans-serif;
+      font-size: 1.35rem;
+      font-weight: 800;
+      margin: 0 0 0.35rem;
+      letter-spacing: -0.02em;
+    }
+
+    header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+      max-width: 62ch;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 340px) 1fr;
+      gap: 1rem;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    /* ── 控制面板 ── */
+    .controls {
+      background: var(--panel-bg);
+      border: 2px solid var(--border);
+      border-radius: 18px;
+      padding: 1rem;
+      position: sticky;
+      top: 1rem;
+      box-shadow: 4px 4px 0 rgba(26, 22, 20, 0.06);
+    }
+
+    .controls h2 {
+      font-family: Syne, sans-serif;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin: 0 0 0.65rem;
+      color: var(--muted);
+    }
+
+    .control-block + .control-block {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+    }
+
+    .option-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .opt-btn {
+      appearance: none;
+      border: 2px solid var(--border);
+      background: #fff;
+      border-radius: 12px;
+      padding: 0.55rem 0.7rem;
+      text-align: left;
+      cursor: pointer;
+      font: inherit;
+      font-size: 0.84rem;
+      transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    }
+
+    .opt-btn:hover { border-color: var(--accent); }
+    .opt-btn:active { transform: scale(0.985); }
+    .opt-btn.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      box-shadow: inset 0 0 0 1px var(--accent);
+    }
+
+    .opt-btn .label { font-weight: 700; display: block; }
+    .opt-btn .desc { color: var(--muted); font-size: 0.76rem; margin-top: 0.15rem; }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+
+    .chip {
+      appearance: none;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      padding: 0.28rem 0.65rem;
+      font: inherit;
+      font-size: 0.76rem;
+      cursor: pointer;
+    }
+
+    .chip.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      font-weight: 600;
+    }
+
+    .note {
+      font-size: 0.76rem;
+      color: var(--muted);
+      margin-top: 0.55rem;
+      padding: 0.55rem 0.65rem;
+      background: #fff;
+      border-radius: 10px;
+      border: 1px dashed var(--border);
+    }
+
+    .selection-summary {
+      margin-top: 0.75rem;
+      padding: 0.65rem 0.75rem;
+      background: #1a1614;
+      color: #f5f0ea;
+      border-radius: 12px;
+      font-size: 0.78rem;
+      font-family: ui-monospace, monospace;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    /* ── 预览区 ── */
+    .preview-wrap {
+      background: var(--panel-bg);
+      border: 2px solid var(--border);
+      border-radius: 18px;
+      padding: 1rem;
+      box-shadow: 4px 4px 0 rgba(26, 22, 20, 0.06);
+    }
+
+    .preview-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.65rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 0.15rem 0.45rem;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+
+    /* ── AVG 舞台（对齐 avg-story-stage + avg-test-client 结构）── */
+    .avg-stage {
+      position: relative;
+      min-height: min(70vh, 520px);
+      overflow: hidden;
+      border-radius: var(--stage-radius);
+      border: var(--stage-border) solid var(--border);
+      box-shadow: 0 18px 40px rgba(26, 22, 20, 0.18);
+    }
+
+    .avg-bg-gradient {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(6, 40, 30, 0.35), rgba(15, 23, 42, 0.55));
+      pointer-events: none;
+    }
+
+    .avg-bg-image {
+      position: absolute;
+      inset: 0;
+      background: center / cover no-repeat url("../../../apps/web/public/assets/backgrounds/Lambeth-Bridge.jpg");
+      pointer-events: none;
+    }
+
+    .avg-content {
+      position: relative;
+      z-index: 2;
+      min-height: min(70vh, 520px);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 1.5rem;
+      padding: 1rem 1.5rem 1.5rem;
+    }
+
+    /* 外层内容框 — 对应 avg-test-client 中 choice/dialogue 包裹 div */
+    .avg-outer-panel {
+      border-radius: var(--bubble-radius);
+      padding: 1.5rem;
+      transition: background 0.2s, backdrop-filter 0.2s, border 0.2s;
+    }
+
+    .avg-outer-panel.has-border {
+      border: 2px solid rgba(26, 22, 20, 0.18);
+    }
+
+    /* 气泡 — 对应 avg-dialogue-bubbles */
+    .bubble {
+      max-width: min(95%, 520px);
+      border-radius: var(--bubble-radius);
+      border: 2px solid rgba(26, 22, 20, 0.14);
+      padding: 0.75rem 1rem;
+      box-shadow: 0 2px 8px rgba(26, 22, 20, 0.06);
+      transition: background 0.2s, backdrop-filter 0.2s;
+    }
+
+    .bubble + .bubble { margin-top: 0.75rem; }
+
+    .bubble-label {
+      font-family: Syne, sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 0.35rem;
+    }
+
+    .bubble-text {
+      margin: 0;
+      font-size: 1rem;
+      color: var(--ink);
+    }
+
+    .options-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .option-btn {
+      flex: 1 1 220px;
+      min-height: 3rem;
+      border-radius: 999px;
+      padding: 0.75rem 1rem;
+      font: inherit;
+      font-size: 0.92rem;
+      font-weight: 600;
+      text-align: center;
+      cursor: default;
+      transition: background 0.2s, backdrop-filter 0.2s, border 0.2s;
+    }
+
+    /* 模糊工具类 */
+    .blur-none { backdrop-filter: none; -webkit-backdrop-filter: none; }
+    .blur-sm { backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+    .blur-md { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .blur-lg { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+
+    /* 背景透明度工具类 */
+    .bg-clear { background: transparent !important; }
+    .bg-glass-60 { background: rgba(250, 248, 245, 0.6) !important; }
+    .bg-glass-75 { background: rgba(250, 248, 245, 0.75) !important; }
+    .bg-glass-90 { background: rgba(250, 248, 245, 0.9) !important; }
+    .bg-solid { background: #faf8f5 !important; }
+
+    .btn-solid {
+      background: #fff;
+      border: 2px solid rgba(26, 22, 20, 0.14);
+      color: var(--ink);
+    }
+
+    .btn-glass {
+      background: rgba(255, 255, 255, 0.72);
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      color: var(--ink);
+    }
+
+    .btn-outline-clear {
+      background: rgba(255, 255, 255, 0.92);
+      border: 2px solid rgba(26, 22, 20, 0.12);
+      color: var(--ink);
+    }
+
+    /* 对比：标注模糊区域 */
+    .debug-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 5;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .debug-overlay.on { opacity: 1; }
+
+    .debug-outer {
+      position: absolute;
+      inset: 1rem 1.5rem 1.5rem;
+      border: 2px dashed rgba(255, 60, 60, 0.75);
+      border-radius: var(--bubble-radius);
+    }
+
+    .debug-outer::after {
+      content: "外层框（应无模糊）";
+      position: absolute;
+      top: -1.4rem;
+      left: 0;
+      font-size: 0.65rem;
+      color: #c0392b;
+      font-weight: 700;
+      background: rgba(255,255,255,0.9);
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+    }
+
+    .debug-bubble-hint {
+      position: absolute;
+      bottom: 7.5rem;
+      left: 2.5rem;
+      font-size: 0.65rem;
+      color: #1a7f4b;
+      font-weight: 700;
+      background: rgba(255,255,255,0.92);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      border: 1px solid #1a7f4b;
+    }
+
+    .toggle-debug {
+      margin-top: 0.5rem;
+      font-size: 0.78rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--muted);
+    }
+
+    .compare-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 700px) {
+      .compare-row { grid-template-columns: 1fr; }
+    }
+
+    .mini-stage {
+      min-height: 280px;
+    }
+
+    .mini-stage .avg-content { min-height: 280px; padding: 0.75rem; }
+    .mini-stage .avg-outer-panel { padding: 0.75rem; }
+    .mini-stage .bubble-text { font-size: 0.82rem; }
+    .mini-stage .option-btn { font-size: 0.75rem; min-height: 2.4rem; padding: 0.5rem; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>AVG 舞台模糊背景 — 方案审阅</h1>
+      <p>
+        目标：<strong>仅旁白框 / 对话框内部</strong>保留毛玻璃模糊；舞台大边框与内外框之间的留白区域保持背景图清晰。
+        左侧选型，右侧实时预览（背景图：<code>Lambeth-Bridge.jpg</code>）。
+      </p>
+    </header>
+
+    <div class="layout">
+      <!-- 控制面板 -->
+      <aside class="controls">
+        <h2>主方案</h2>
+        <div class="option-grid" id="scheme-options">
+          <button type="button" class="opt-btn" data-scheme="current">
+            <span class="label">现状 · 外层整块模糊</span>
+            <span class="desc">对应 avg-test-client 外层 div 的 backdrop-blur-md（问题复现）</span>
+          </button>
+          <button type="button" class="opt-btn active" data-scheme="a">
+            <span class="label">方案 A · 仅气泡模糊（推荐）</span>
+            <span class="desc">移除外层 blur/bg；旁白框内 blur-md + 75% 白底</span>
+          </button>
+          <button type="button" class="opt-btn" data-scheme="b">
+            <span class="label">方案 B · 外框透明 + 按钮玻璃化</span>
+            <span class="desc">气泡 blur；选项按钮也加轻度 blur，整体更统一</span>
+          </button>
+          <button type="button" class="opt-btn" data-scheme="c">
+            <span class="label">方案 C · 极简外框</span>
+            <span class="desc">去掉外层 border；仅气泡有边框+blur，背景最大化露出</span>
+          </button>
+        </div>
+
+        <div class="control-block">
+          <h2>气泡模糊强度</h2>
+          <div class="chip-row" id="bubble-blur-chips">
+            <button type="button" class="chip" data-bblur="none">无 blur</button>
+            <button type="button" class="chip" data-bblur="sm">blur-sm</button>
+            <button type="button" class="chip active" data-bblur="md">blur-md</button>
+            <button type="button" class="chip" data-bblur="lg">blur-lg</button>
+          </div>
+        </div>
+
+        <div class="control-block">
+          <h2>气泡底色透明度</h2>
+          <div class="chip-row" id="bubble-bg-chips">
+            <button type="button" class="chip" data-bbg="60">60%</button>
+            <button type="button" class="chip active" data-bbg="75">75%</button>
+            <button type="button" class="chip" data-bbg="90">90%</button>
+            <button type="button" class="chip" data-bbg="solid">不透明</button>
+          </div>
+        </div>
+
+        <div class="control-block">
+          <h2>选项按钮样式</h2>
+          <div class="chip-row" id="btn-style-chips">
+            <button type="button" class="chip active" data-btn="solid">实心白（现状）</button>
+            <button type="button" class="chip" data-btn="glass">玻璃 blur-sm</button>
+            <button type="button" class="chip" data-btn="outline">高透描边</button>
+          </div>
+        </div>
+
+        <div class="control-block">
+          <h2>外层内容框 border</h2>
+          <div class="chip-row" id="outer-border-chips">
+            <button type="button" class="chip active" data-oborder="on">显示（透明底）</button>
+            <button type="button" class="chip" data-oborder="off">隐藏</button>
+          </div>
+        </div>
+
+        <label class="toggle-debug">
+          <input type="checkbox" id="debug-toggle" />
+          显示区域标注（红=外层应清晰，绿=气泡应模糊）
+        </label>
+
+        <div class="note">
+          审阅通过后，将按选定方案修改：<br />
+          <code>avg-test-client.tsx</code>（移除外层 blur）<br />
+          <code>avg-dialogue-bubbles.tsx</code>（保留/微调气泡 blur）
+        </div>
+
+        <div class="selection-summary" id="summary"></div>
+      </aside>
+
+      <!-- 主预览 -->
+      <section class="preview-wrap">
+        <div class="preview-label">
+          <span>实时预览 · 第二场景（选项分支）</span>
+          <span class="badge" id="active-badge">方案 A</span>
+        </div>
+
+        <div class="avg-stage" id="main-stage">
+          <div class="avg-bg-image"></div>
+          <div class="avg-bg-gradient"></div>
+          <div class="debug-overlay" id="debug-overlay">
+            <div class="debug-outer"></div>
+            <div class="debug-bubble-hint">旁白框内 · 应有 blur</div>
+          </div>
+          <div class="avg-content">
+            <div class="avg-outer-panel has-border" id="outer-panel">
+              <div class="bubble" id="narrator-bubble">
+                <p class="bubble-label">旁白</p>
+                <p class="bubble-text">周末有空时，你更常主动约朋友出门，还是独自充电？</p>
+              </div>
+              <div class="options-row">
+                <button type="button" class="option-btn" id="opt-a">更常约朋友、参加活动</button>
+                <button type="button" class="option-btn" id="opt-b">更常独处或小范围相处</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 前后对比 -->
+        <div class="compare-row">
+          <div>
+            <div class="preview-label"><span>对比 · 现状</span></div>
+            <div class="avg-stage mini-stage" id="compare-current"></div>
+          </div>
+          <div>
+            <div class="preview-label"><span>对比 · 选定方案</span></div>
+            <div class="avg-stage mini-stage" id="compare-selected"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      scheme: 'a',
+      bubbleBlur: 'md',
+      bubbleBg: '75',
+      btnStyle: 'solid',
+      outerBorder: 'on',
+    };
+
+    const schemePresets = {
+      current: {
+        label: '现状',
+        outer: { blur: 'md', bg: '90', border: true },
+        bubble: { blur: 'md', bg: '75' },
+        btn: 'solid',
+      },
+      a: {
+        label: '方案 A',
+        outer: { blur: 'none', bg: 'clear', border: true },
+        bubble: { blur: 'md', bg: '75' },
+        btn: 'solid',
+      },
+      b: {
+        label: '方案 B',
+        outer: { blur: 'none', bg: 'clear', border: true },
+        bubble: { blur: 'md', bg: '75' },
+        btn: 'glass',
+      },
+      c: {
+        label: '方案 C',
+        outer: { blur: 'none', bg: 'clear', border: false },
+        bubble: { blur: 'lg', bg: '60' },
+        btn: 'glass',
+      },
+    };
+
+    function blurClass(level) {
+      return level === 'none' ? 'blur-none' : `blur-${level}`;
+    }
+
+    function bgClass(target, level) {
+      if (level === 'clear') return 'bg-clear';
+      if (level === 'solid') return 'bg-solid';
+      return `bg-glass-${level}`;
+    }
+
+    function btnClass(style) {
+      if (style === 'glass') return 'btn-glass blur-sm';
+      if (style === 'outline') return 'btn-outline-clear';
+      return 'btn-solid';
+    }
+
+    function applyStyles(root, cfg) {
+      const outer = root.querySelector('.avg-outer-panel') || root.querySelector('#outer-panel');
+      const bubble = root.querySelector('.bubble') || root.querySelector('#narrator-bubble');
+      const btns = root.querySelectorAll('.option-btn');
+
+      if (outer) {
+        outer.className = 'avg-outer-panel';
+        if (cfg.outer.border) outer.classList.add('has-border');
+        outer.classList.add(blurClass(cfg.outer.blur), bgClass('outer', cfg.outer.bg));
+      }
+
+      if (bubble) {
+        bubble.className = 'bubble';
+        bubble.classList.add(blurClass(cfg.bubble.blur), bgClass('bubble', cfg.bubble.bg));
+      }
+
+      btns.forEach((btn) => {
+        btn.className = 'option-btn ' + btnClass(cfg.btn);
+      });
+    }
+
+    function buildConfig() {
+      const preset = schemePresets[state.scheme];
+      return {
+        outer: {
+          blur: state.scheme === 'current' ? 'md' : state.bubbleBlur === preset.outer.blur ? preset.outer.blur : (state.scheme === 'current' ? 'md' : 'none'),
+          bg: state.scheme === 'current' ? '90' : 'clear',
+          border: state.outerBorder === 'on' ? (state.scheme === 'c' ? false : true) : false,
+        },
+        bubble: {
+          blur: state.bubbleBlur,
+          bg: state.bubbleBg,
+        },
+        btn: state.btnStyle,
+      };
+    }
+
+    function buildConfigFromPreset(key) {
+      const p = schemePresets[key];
+      return {
+        outer: { ...p.outer },
+        bubble: { ...p.bubble },
+        btn: p.btn,
+      };
+    }
+
+    function render() {
+      const cfg = buildConfig();
+      const main = document.getElementById('main-stage');
+      applyStyles(main, cfg);
+
+      // 若选了主方案，同步 chip 高亮（方案切换时重置子选项到 preset）
+      document.getElementById('active-badge').textContent = schemePresets[state.scheme].label;
+
+      // 对比区
+      applyStyles(document.getElementById('compare-current'), buildConfigFromPreset('current'));
+      applyStyles(document.getElementById('compare-selected'), buildConfigFromPreset(state.scheme));
+
+      // 手动微调时也更新主预览
+      if (state._customized) {
+        applyStyles(main, cfg);
+      }
+
+      document.getElementById('summary').textContent =
+        `选定：${schemePresets[state.scheme].label}\n` +
+        `外层：blur=${cfg.outer.blur}, bg=${cfg.outer.bg}, border=${cfg.outer.border}\n` +
+        `气泡：blur=${cfg.bubble.blur}, bg=${cfg.bubble.bg}\n` +
+        `按钮：${cfg.btn}\n\n` +
+        `实现要点：删除 avg-test-client 外层 div 的 backdrop-blur-md / bg-background/90`;
+    }
+
+    function setScheme(key) {
+      state.scheme = key;
+      state._customized = false;
+      const p = schemePresets[key];
+      state.bubbleBlur = p.bubble.blur;
+      state.bubbleBg = p.bubble.bg;
+      state.btnStyle = p.btn;
+      state.outerBorder = p.outer.border ? 'on' : 'off';
+      syncChips();
+      document.querySelectorAll('[data-scheme]').forEach((el) => {
+        el.classList.toggle('active', el.dataset.scheme === key);
+      });
+      render();
+    }
+
+    function syncChips() {
+      document.querySelectorAll('[data-bblur]').forEach((el) => {
+        el.classList.toggle('active', el.dataset.bblur === state.bubbleBlur);
+      });
+      document.querySelectorAll('[data-bbg]').forEach((el) => {
+        el.classList.toggle('active', el.dataset.bbg === state.bubbleBg);
+      });
+      document.querySelectorAll('[data-btn]').forEach((el) => {
+        el.classList.toggle('active', el.dataset.btn === state.btnStyle);
+      });
+      document.querySelectorAll('[data-oborder]').forEach((el) => {
+        el.classList.toggle('active', el.dataset.oborder === state.outerBorder);
+      });
+    }
+
+    // 初始化对比区 DOM
+    ['compare-current', 'compare-selected'].forEach((id) => {
+      document.getElementById(id).innerHTML = `
+        <div class="avg-bg-image"></div>
+        <div class="avg-bg-gradient"></div>
+        <div class="avg-content">
+          <div class="avg-outer-panel has-border">
+            <div class="bubble">
+              <p class="bubble-label">旁白</p>
+              <p class="bubble-text">周末有空时，你更常主动约朋友出门，还是独自充电？</p>
+            </div>
+            <div class="options-row">
+              <button type="button" class="option-btn">更常约朋友</button>
+              <button type="button" class="option-btn">更常独处</button>
+            </div>
+          </div>
+        </div>`;
+    });
+
+    document.getElementById('scheme-options').addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-scheme]');
+      if (btn) setScheme(btn.dataset.scheme);
+    });
+
+    document.getElementById('bubble-blur-chips').addEventListener('click', (e) => {
+      const chip = e.target.closest('[data-bblur]');
+      if (!chip) return;
+      state._customized = true;
+      state.bubbleBlur = chip.dataset.bblur;
+      syncChips();
+      render();
+    });
+
+    document.getElementById('bubble-bg-chips').addEventListener('click', (e) => {
+      const chip = e.target.closest('[data-bbg]');
+      if (!chip) return;
+      state._customized = true;
+      state.bubbleBg = chip.dataset.bbg;
+      syncChips();
+      render();
+    });
+
+    document.getElementById('btn-style-chips').addEventListener('click', (e) => {
+      const chip = e.target.closest('[data-btn]');
+      if (!chip) return;
+      state._customized = true;
+      state.btnStyle = chip.dataset.btn;
+      syncChips();
+      render();
+    });
+
+    document.getElementById('outer-border-chips').addEventListener('click', (e) => {
+      const chip = e.target.closest('[data-oborder]');
+      if (!chip) return;
+      state._customized = true;
+      state.outerBorder = chip.dataset.oborder;
+      syncChips();
+      render();
+    });
+
+    document.getElementById('debug-toggle').addEventListener('change', (e) => {
+      document.getElementById('debug-overlay').classList.toggle('on', e.target.checked);
+    });
+
+    setScheme('a');
+  </script>
+</body>
+</html>

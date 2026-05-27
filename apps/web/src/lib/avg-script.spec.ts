@@ -21,17 +21,23 @@ describe('countChoiceNodes', () => {
 });
 
 describe('getBackgroundDescriptor', () => {
-  it('纯渐变 string 条目返回仅 gradientClassName', () => {
+  it('第一场景 night 返回渐变 + 背景图 URL', () => {
     const desc = getBackgroundDescriptor(DEMO_AVG_SCRIPT, 'night');
     expect(desc.gradientClassName).toContain('indigo');
-    expect(desc.imageUrl).toBeUndefined();
+    expect(desc.imageUrl).toContain('Leadenhall-Market.jpg');
     expect(desc.lottieUrl).toBeUndefined();
   });
 
-  it('结构化条目返回 gradientClassName + imageUrl', () => {
+  it('第二场景 aurora 返回渐变 + 背景图 URL', () => {
+    const desc = getBackgroundDescriptor(DEMO_AVG_SCRIPT, 'aurora');
+    expect(desc.gradientClassName).toContain('emerald');
+    expect(desc.imageUrl).toContain('Lambeth-Bridge.jpg');
+  });
+
+  it('仅渐变的结构化条目不含 imageUrl', () => {
     const desc = getBackgroundDescriptor(DEMO_AVG_SCRIPT, 'dawn');
     expect(desc.gradientClassName).toContain('amber');
-    expect(desc.imageUrl).toContain('dawn-placeholder');
+    expect(desc.imageUrl).toBeUndefined();
   });
 
   it('未知 key 回退默认渐变', () => {

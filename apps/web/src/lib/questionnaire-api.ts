@@ -56,6 +56,39 @@ function isRecord(v: unknown): v is Record<string, unknown> {
   return v !== null && typeof v === 'object' && !Array.isArray(v);
 }
 
+/** 当前生效的已发布问卷元数据 */
+export type ApiPublishedActiveQuestionnaire = {
+  id: string;
+  title: string;
+  published_at: string | null;
+};
+
+/**
+ * 获取当前生效的已发布问卷 ID（Admin 换库后自动对齐最新发布）。
+ */
+export async function fetchPublishedActiveQuestionnaire(): Promise<ApiPublishedActiveQuestionnaire> {
+  const base = getBrowserApiBaseUrl();
+  const response = await fetch(`${base.replace(/\/$/, '')}/questionnaire/published/active`, {
+    credentials: 'omit',
+  });
+
+  const text = await response.text();
+  let body: unknown = null;
+  try {
+    body = text ? (JSON.parse(text) as unknown) : null;
+  } catch {
+    throw new QuestionnaireApiError('questionnaire_response_invalid', response.status);
+  }
+  if (!response.ok) {
+    throw new QuestionnaireApiError('no_published_questionnaire', response.status);
+  }
+  if (!isRecord(body) || body.success !== true || !isRecord(body.data)) {
+    throw new QuestionnaireApiError('questionnaire_response_invalid', response.status);
+  }
+
+  return body.data as ApiPublishedActiveQuestionnaire;
+}
+
 /**
  * 获取已发布问卷的完整结构（题目 + 选项）。
  */
