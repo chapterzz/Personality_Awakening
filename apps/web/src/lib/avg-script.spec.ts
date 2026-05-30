@@ -34,10 +34,10 @@ describe('getBackgroundDescriptor', () => {
     expect(desc.imageUrl).toContain('Lambeth-Bridge.jpg');
   });
 
-  it('仅渐变的结构化条目不含 imageUrl', () => {
+  it('path_e 场景 dawn 返回渐变 + train 背景图', () => {
     const desc = getBackgroundDescriptor(DEMO_AVG_SCRIPT, 'dawn');
     expect(desc.gradientClassName).toContain('amber');
-    expect(desc.imageUrl).toBeUndefined();
+    expect(desc.imageUrl).toContain('train.png');
   });
 
   it('未知 key 回退默认渐变', () => {

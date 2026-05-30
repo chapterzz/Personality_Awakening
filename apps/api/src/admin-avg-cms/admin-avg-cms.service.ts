@@ -93,10 +93,11 @@ export class AdminAvgCmsService {
     const incomingIds = items.map((item) => item.id);
     const existingRows = await this.prisma.avgScript.findMany({
       where: { id: { in: incomingIds } },
-      select: { id: true, title: true },
+      select: { id: true, title: true, isPublished: true },
     });
     const existingIds = new Set(existingRows.map((row) => row.id));
     const titleById = new Map(existingRows.map((row) => [row.id, row.title]));
+    const wasPublishedById = new Map(existingRows.map((row) => [row.id, row.isPublished]));
 
     const onConflict: OnConflict = opts.on_conflict ?? 'cancel';
     const newIdSuffix = opts.new_id_suffix ?? this.randomImportSuffix();
@@ -140,6 +141,7 @@ export class AdminAvgCmsService {
     }
 
     const imported: Array<{ id: string; title: string }> = [];
+    const autoRepublishIds = new Set<string>();
 
     for (let index = 0; index < items.length; index += 1) {
       const item = items[index];
@@ -149,6 +151,9 @@ export class AdminAvgCmsService {
       const nodesJson = avgImportItemToNodesJson(item);
 
       if (isOverwrite) {
+        if (wasPublishedById.get(item.id)) {
+          autoRepublishIds.add(targetId);
+        }
         await this.prisma.avgScript.update({
           where: { id: targetId },
           data: {
@@ -172,10 +177,18 @@ export class AdminAvgCmsService {
       imported.push({ id: targetId, title: item.title });
     }
 
+    const publishIds = new Set<string>();
     if (opts.publish_after) {
       for (const row of imported) {
-        await this.publishAvgScript(row.id);
+        publishIds.add(row.id);
       }
+    } else {
+      for (const id of autoRepublishIds) {
+        publishIds.add(id);
+      }
+    }
+    for (const id of publishIds) {
+      await this.publishAvgScript(id);
     }
 
     return {
@@ -278,10 +291,18 @@ export class AdminAvgCmsService {
       throw err;
     }
 
-    return this.prisma.avgScript.update({
-      where: { id },
-      data: { isPublished: true, publishedAt: new Date() },
-    });
+    const now = new Date();
+    const [, published] = await this.prisma.$transaction([
+      this.prisma.avgScript.updateMany({
+        where: { id: { not: id }, isPublished: true },
+        data: { isPublished: false },
+      }),
+      this.prisma.avgScript.update({
+        where: { id },
+        data: { isPublished: true, publishedAt: now },
+      }),
+    ]);
+    return published;
   }
 
   /** 下架 AVG 脚本 */

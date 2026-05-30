@@ -10,6 +10,14 @@ import { AvgScriptService } from './avg-script.service';
 export class AvgScriptController {
   constructor(private readonly service: AvgScriptService) {}
 
+  @Get('active')
+  @Header('Cache-Control', 'no-cache')
+  @ApiOperation({ summary: '获取当前生效的已发布 AVG 脚本（最近发布）' })
+  async getActiveScript() {
+    const data = await this.service.getActivePublishedScriptOrThrow();
+    return { success: true, data, message: 'ok' };
+  }
+
   @Get(':id')
   @Header('Cache-Control', 'no-cache')
   @ApiOperation({ summary: '获取已发布 AVG 脚本' })

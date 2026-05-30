@@ -27,7 +27,7 @@ import {
   putProgress,
 } from '@/lib/progress-api';
 
-export type AvgTestPhase = 'loading' | 'ready' | 'error' | 'script_mismatch';
+export type AvgTestPhase = 'loading' | 'ready' | 'error';
 
 export type UseAvgTestResult = {
   phase: AvgTestPhase;
@@ -40,6 +40,8 @@ export type UseAvgTestResult = {
   revision: number;
   saving: boolean;
   conflictNotice: boolean;
+  /** 服务端进度 script_id 与当前生效剧本不一致，已本地重置为新剧本起点 */
+  scriptSwitchedNotice: boolean;
   currentNode: AvgNode | null;
   isComplete: boolean;
   /** 已完成的「关键分支」步数（`avg.answers` 键数；纯对白继续不计入） */
@@ -60,6 +62,7 @@ export function useAvgTest(config: AvgScriptConfig): UseAvgTestResult {
   const [progressData, setProgressData] = useState<AvgProgressDataV1 | null>(null);
   const [saving, setSaving] = useState(false);
   const [conflictNotice, setConflictNotice] = useState(false);
+  const [scriptSwitchedNotice, setScriptSwitchedNotice] = useState(false);
   const [authMode, setAuthMode] = useState<'guest' | 'user'>('guest');
   const [guestSessionId, setGuestSessionId] = useState<string | null>(null);
   const [loadKey, setLoadKey] = useState(0);
@@ -71,6 +74,7 @@ export function useAvgTest(config: AvgScriptConfig): UseAvgTestResult {
   const reload = useCallback(() => {
     setLoadError(null);
     setSaveError(null);
+    setScriptSwitchedNotice(false);
     setPhase('loading');
     setLoadKey((k) => k + 1);
   }, []);
@@ -101,13 +105,26 @@ export function useAvgTest(config: AvgScriptConfig): UseAvgTestResult {
         }
 
         if (snap.progress_data.avg.script_id !== config.script_id) {
-          setPhase('script_mismatch');
+          const start = getAvgNode(config, config.start_node_id);
+          if (!start) {
+            setLoadError('invalid_start_node');
+            setPhase('error');
+            return;
+          }
+          setRevision(snap.progress_revision);
+          setProgressData(
+            createInitialAvgProgress(config.script_id, config.start_node_id, start.chapter),
+          );
+          setConflictNotice(false);
+          setScriptSwitchedNotice(true);
+          setPhase('ready');
           return;
         }
 
         setRevision(snap.progress_revision);
         setProgressData(snap.progress_data);
         setConflictNotice(false);
+        setScriptSwitchedNotice(false);
         setPhase('ready');
       } catch (e) {
         if (cancelled) return;
@@ -122,6 +139,7 @@ export function useAvgTest(config: AvgScriptConfig): UseAvgTestResult {
             createInitialAvgProgress(config.script_id, config.start_node_id, start?.chapter),
           );
           setConflictNotice(false);
+          setScriptSwitchedNotice(false);
           setPhase('ready');
         } else {
           const msg =
@@ -321,6 +339,7 @@ export function useAvgTest(config: AvgScriptConfig): UseAvgTestResult {
     revision,
     saving,
     conflictNotice,
+    scriptSwitchedNotice,
     currentNode,
     isComplete,
     stepIndex,

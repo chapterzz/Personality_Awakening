@@ -11,11 +11,10 @@ import { AvgStoryStage } from '@/components/avg-test/avg-story-stage';
 import { SpriteBubble } from '@/components/sprite/sprite-bubble';
 import { Button, buttonVariants } from '@/components/ui/button';
 import type { AvgScriptConfig } from '@/data/avg-demo-script';
-import { DEMO_AVG_SCRIPT_ID } from '@/data/avg-demo-script';
 import { getHesitationLine, getMutexLine } from '@/data/sprite-lines';
 import { useAvgTest } from '@/hooks/use-avg-test';
 import { useSpriteInteraction } from '@/hooks/use-sprite-interaction';
-import { fetchPublishedAvgScript } from '@/lib/avg-script-api';
+import { fetchActivePublishedAvgScript } from '@/lib/avg-script-api';
 import { getBackgroundDescriptor } from '@/lib/avg-script';
 import { buildAvgSignals, fetchMbtiReport, ReportScoringError } from '@/lib/report-scoring';
 import { saveReportSnapshot } from '@/lib/report-storage';
@@ -61,25 +60,6 @@ function AvgTestRunner({ config, spriteGetters }: AvgTestRunnerProps) {
         </div>
         <div className="flex min-h-[40vh] items-center justify-center text-muted-foreground">
           加载剧情进度…
-        </div>
-      </div>
-    );
-  }
-
-  if (t.phase === 'script_mismatch') {
-    return (
-      <div className="mx-auto flex max-w-3xl flex-col gap-4">
-        <div>
-          <Link className={cn(buttonVariants({ variant: 'outline', size: 'sm' }))} href="/">
-            返回首页
-          </Link>
-        </div>
-        <div className="space-y-4 rounded-2xl border border-destructive/30 bg-destructive/5 p-6">
-          <p className="font-medium text-destructive">剧情版本不一致</p>
-          <p className="text-sm text-muted-foreground">
-            服务器上的 AVG 进度不属于本演示脚本（{config.script_id}
-            ）。请在正式流程中续答，或联系管理员清理进行中会话。
-          </p>
         </div>
       </div>
     );
@@ -146,9 +126,9 @@ function AvgTestRunner({ config, spriteGetters }: AvgTestRunnerProps) {
       </div>
 
       <div className="space-y-1">
-        <p className="text-sm font-medium text-muted-foreground">AVG 模式 · 演示剧情</p>
+        <p className="text-sm font-medium text-muted-foreground">AVG 模式</p>
         <h1 className="font-display text-2xl font-extrabold tracking-tight text-foreground">
-          星港夜话
+          {config.title?.trim() || '性格星球 · 觉醒之旅'}
         </h1>
         <p className="text-sm text-muted-foreground">
           每个节点确认后写入服务端（含登录后续答）。当前身份：
@@ -159,6 +139,12 @@ function AvgTestRunner({ config, spriteGetters }: AvgTestRunnerProps) {
       </div>
 
       <AvgStoryProgressBar stepIndex={t.stepIndex} totalSteps={t.totalSteps} />
+
+      {t.scriptSwitchedNotice && (
+        <p className="rounded-2xl border border-sky-500/40 bg-sky-500/10 px-3 py-2 text-sm text-sky-950 dark:text-sky-100">
+          剧情已更新为新版本（{config.script_id}），已从开头重新开始。点击「继续」后将保存新进度。
+        </p>
+      )}
 
       {t.conflictNotice && (
         <p className="rounded-2xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-950 dark:text-amber-100">
@@ -282,7 +268,7 @@ export function AvgTestClient() {
     setLoadError(null);
     try {
       const [script, prompts] = await Promise.all([
-        fetchPublishedAvgScript(DEMO_AVG_SCRIPT_ID),
+        fetchActivePublishedAvgScript(),
         fetchPublishedSpritePrompts().catch(() => null),
       ]);
       setConfig(script);

@@ -87,8 +87,8 @@ export default function AdminAvgScriptsPage() {
       ) : null}
 
       <p className="text-sm text-muted-foreground">
-        学生端默认使用 <code className="rounded bg-muted px-1">demo-avg-v1</code>；原地编辑同一 ID
-        发布后对学生生效。修改节点 id 可能导致进行中会话 script_mismatch。
+        学生端自动加载<strong>最近发布</strong>的剧本（任意脚本 ID
+        均可）；发布新剧本时会下架其它已发布剧本。 修改节点 id 可能导致进行中会话 script_mismatch。
       </p>
       <div className="overflow-x-auto rounded-2xl border-2 border-[var(--border)] bg-card shadow-clay-sm">
         <table className="min-w-full text-left text-sm">

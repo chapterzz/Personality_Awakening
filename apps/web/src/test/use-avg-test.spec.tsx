@@ -91,6 +91,29 @@ describe('useAvgTest', () => {
     expect(progressApi.putProgress).not.toHaveBeenCalled();
   });
 
+  it('服务端 script_id 与当前剧本不一致时从起点续玩并提示已切换', async () => {
+    const oldProgress: AvgProgressDataV1 = {
+      schema_version: 1,
+      mode: 'AVG',
+      questionnaire_id: 'demo-avg-v1',
+      avg: {
+        script_id: 'demo-avg-v1',
+        node_id: 'energy_choice',
+        chapter: 'EI',
+        answers: {},
+        visited_node_ids: ['intro', 'energy_choice'],
+      },
+    };
+    vi.mocked(progressApi.getProgress).mockResolvedValue(baseSnap(oldProgress, 3));
+
+    render(<AvgHarness />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('phase')).toHaveTextContent('ready');
+    });
+    expect(screen.getByTestId('node')).toHaveTextContent(DEMO_AVG_SCRIPT.start_node_id);
+  });
+
   it('对白推进后 putProgress 返回 409 时采用服务端 avg 并标记 conflict', async () => {
     const intro = createInitialAvgProgress(
       DEMO_AVG_SCRIPT.script_id,

@@ -45,7 +45,7 @@ export function CmsImportDialog({ kind, onSuccess }: CmsImportDialogProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalPhase, setModalPhase] = useState<ModalPhase>('preview');
   const [onConflict, setOnConflict] = useState<OnConflict | null>(null);
-  const [publishAfter, setPublishAfter] = useState(false);
+  const [publishAfter, setPublishAfter] = useState(kind === 'avg');
   const [newIdSuffix, setNewIdSuffix] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -62,7 +62,7 @@ export function CmsImportDialog({ kind, onSuccess }: CmsImportDialogProps) {
     setModalOpen(false);
     setModalPhase('preview');
     setOnConflict(null);
-    setPublishAfter(false);
+    setPublishAfter(kind === 'avg');
     setNewIdSuffix('');
     setError(null);
     setSuccessNote(null);

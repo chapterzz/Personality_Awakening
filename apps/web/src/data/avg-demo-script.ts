@@ -68,6 +68,8 @@ export type AvgBackgroundEntry = {
 
 export type AvgScriptConfig = {
   script_id: string;
+  /** CMS 标题，学生端页眉展示 */
+  title?: string;
   start_node_id: string;
   /** 背景 key → Tailwind 渐变类名（string）或结构化背景配置（AvgBackgroundEntry） */
   backgrounds: Record<string, string | AvgBackgroundEntry>;
@@ -94,8 +96,10 @@ export const DEMO_AVG_SCRIPT: AvgScriptConfig = {
       gradientClassName: 'from-emerald-950/80 via-teal-900/90 to-slate-950',
       imageUrl: '/assets/backgrounds/Lambeth-Bridge.jpg',
     },
+    /** path_e 分支：train */
     dawn: {
       gradientClassName: 'from-amber-950/90 via-orange-900/80 to-slate-950',
+      imageUrl: '/assets/backgrounds/train.png',
     },
   },
   nodes: {

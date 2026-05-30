@@ -19,6 +19,7 @@ export const DEMO_AVG_NODES_JSON = {
     },
     dawn: {
       gradientClassName: 'from-amber-950/90 via-orange-900/80 to-slate-950',
+      imageUrl: '/assets/backgrounds/train.png',
     },
   },
   nodes: {
