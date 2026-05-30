@@ -41,7 +41,7 @@ export type UseStandardTestResult = {
   answeredCount: number;
   currentQuestion: DemoQuestion | null;
   isComplete: boolean;
-  /** 完成态重新开始一轮（覆盖服务端 STANDARD 进度，丢弃当前进度）。 */
+  /** 重新开始一轮（覆盖服务端 STANDARD 进度）。 */
   restart: () => Promise<void>;
   selectOption: (optionId: string | number) => Promise<void>;
 };

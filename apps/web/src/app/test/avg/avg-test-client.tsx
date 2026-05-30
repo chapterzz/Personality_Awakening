@@ -112,12 +112,30 @@ function AvgTestRunner({ config, spriteGetters }: AvgTestRunnerProps) {
     }
   };
 
+  const handleRestart = () => {
+    const ok = window.confirm('重新开始将丢弃当前剧情进度，确定重新开始吗？');
+    if (ok) {
+      void t.restart();
+    }
+  };
+
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
-      <div>
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <Link className={cn(buttonVariants({ variant: 'outline', size: 'sm' }))} href="/">
           返回首页
         </Link>
+        {t.phase === 'ready' ? (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={t.saving || buildingReport}
+            onClick={handleRestart}
+          >
+            重新开始
+          </Button>
+        ) : null}
       </div>
       <div className="pointer-events-none fixed bottom-6 right-6 z-50 w-[min(92vw,420px)]">
         {sprite.prompt && (
@@ -177,12 +195,12 @@ function AvgTestRunner({ config, spriteGetters }: AvgTestRunnerProps) {
             <AvgDialogueBubbles lines={t.currentNode.lines} />
             <p className="mt-6 text-center text-sm font-medium text-foreground">本段剧情已完成</p>
             <p className="mt-2 text-center text-sm text-muted-foreground">
-              你可以查看结果报告，或重新开始一轮测试。
+              你可以查看结果报告，或使用右上角「重新开始」重做剧情。
             </p>
             {reportError && (
               <p className="mt-2 text-center text-sm text-destructive">{reportError}</p>
             )}
-            <div className="mt-6 flex justify-center">
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
               <Button
                 type="button"
                 disabled={buildingReport || t.saving}
@@ -190,21 +208,7 @@ function AvgTestRunner({ config, spriteGetters }: AvgTestRunnerProps) {
               >
                 {buildingReport ? '正在生成报告…' : '查看结果报告'}
               </Button>
-              <span className="w-3" />
-              <Button
-                type="button"
-                disabled={buildingReport || t.saving}
-                onClick={() => {
-                  const ok = window.confirm('重新开始将丢弃当前测试结果，确定重新开始吗？');
-                  if (ok) {
-                    void t.restart();
-                  }
-                }}
-              >
-                重新开始
-              </Button>
-              <span className="w-3" />
-              <Link className={cn(buttonVariants())} href="/">
+              <Link className={cn(buttonVariants({ variant: 'outline' }), 'inline-flex')} href="/">
                 返回首页
               </Link>
             </div>

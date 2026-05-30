@@ -48,7 +48,7 @@ export type UseAvgTestResult = {
   stepIndex: number;
   /** 脚本中选项节点总数；无选项节点时回退为全节点数（兼容异常脚本） */
   totalSteps: number;
-  /** 完成态重新开始一轮（覆盖服务端 AVG 进度，丢弃当前进度）。 */
+  /** 重新开始一轮（覆盖服务端 AVG 进度，从剧本起点重置）。 */
   restart: () => Promise<void>;
   continueDialogue: () => Promise<void>;
   selectOption: (optionId: string) => Promise<void>;
@@ -188,6 +188,7 @@ export function useAvgTest(config: AvgScriptConfig): UseAvgTestResult {
 
     setSaving(true);
     setConflictNotice(false);
+    setScriptSwitchedNotice(false);
     try {
       const out = await persist(initial, revision);
       setRevision(out.progress_revision);

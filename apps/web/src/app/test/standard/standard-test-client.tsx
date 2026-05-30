@@ -125,15 +125,28 @@ export function StandardTestClient() {
     }
   };
 
+  const canRestart = t.phase === 'ready';
+
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
-      <div>
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <Link
           className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'inline-flex')}
           href="/"
         >
           返回首页
         </Link>
+        {canRestart ? (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={t.saving || buildingReport}
+            onClick={() => setRestartOpen(true)}
+          >
+            重新开始
+          </Button>
+        ) : null}
       </div>
       <div className="pointer-events-none fixed bottom-6 right-6 z-50 w-[min(92vw,420px)]">
         {sprite.prompt && (
@@ -183,9 +196,7 @@ export function StandardTestClient() {
           <p className="mt-2 text-sm text-muted-foreground">
             你已完成本轮标准模式测评，现在可生成并查看结果报告。
           </p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            你可以重新开始一轮测试。重新开始将丢弃当前测试结果。
-          </p>
+          <p className="mt-2 text-sm text-muted-foreground">需要重做可使用右上角「重新开始」。</p>
           {reportError && <p className="mt-2 text-sm text-destructive">{reportError}</p>}
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Button
@@ -195,15 +206,7 @@ export function StandardTestClient() {
             >
               {buildingReport ? '正在生成报告…' : '查看结果报告'}
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              disabled={buildingReport || t.saving}
-              onClick={() => setRestartOpen(true)}
-            >
-              重新开始
-            </Button>
-            <Link className={cn(buttonVariants(), 'inline-flex')} href="/">
+            <Link className={cn(buttonVariants({ variant: 'outline' }), 'inline-flex')} href="/">
               返回首页
             </Link>
           </div>
@@ -220,7 +223,11 @@ export function StandardTestClient() {
             <p id="restart-dialog-title" className="font-display text-lg font-bold text-foreground">
               重新开始
             </p>
-            <p className="mt-2 text-sm text-muted-foreground">请选择如何开始新一轮测试：</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {t.isComplete
+                ? '请选择如何开始新一轮测试：'
+                : '将丢弃当前答题进度。请选择如何开始新一轮测试：'}
+            </p>
             <div className="mt-6 flex flex-col gap-3">
               <Button
                 type="button"
