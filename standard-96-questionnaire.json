@@ -1,0 +1,2503 @@
+{
+  "schema_version": 1,
+  "id": "standard-96-v1",
+  "title": "标准模式MBTI测试题库（96题总库）",
+  "questions": [
+    {
+      "id": "q_ei_01",
+      "prompt": "连续几天的社团活动后，周末你更想怎么回血？",
+      "sort_order": 1,
+      "dimension": "EI",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_ei_01_A",
+          "label": "约朋友出去逛逛，聊天吐槽，人越多越开心",
+          "value_key": "A",
+          "dimension": "EI",
+          "side": "E",
+          "weight": 3
+        },
+        {
+          "id": "q_ei_01_B",
+          "label": "一个人待着，看喜欢的书或追番，安安静静充电",
+          "value_key": "B",
+          "dimension": "EI",
+          "side": "I",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_ei_02",
+      "prompt": "放学后的傍晚，你更倾向于？",
+      "sort_order": 2,
+      "dimension": "EI",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_ei_02_A",
+          "label": "约同学一起回家，路上聊今天发生的事",
+          "value_key": "A",
+          "dimension": "EI",
+          "side": "E",
+          "weight": 2
+        },
+        {
+          "id": "q_ei_02_B",
+          "label": "独自走一条安静的近路，在脑子里整理今天的想法",
+          "value_key": "B",
+          "dimension": "EI",
+          "side": "I",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_ei_03",
+      "prompt": "如果你是一只忍者小队的成员，任务结束后的你会？",
+      "sort_order": 3,
+      "dimension": "EI",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_ei_03_A",
+          "label": "拉着队友去吃拉面，分享任务中的细节和感受",
+          "value_key": "A",
+          "dimension": "EI",
+          "side": "E",
+          "weight": 3
+        },
+        {
+          "id": "q_ei_03_B",
+          "label": "独自去修炼场复盘，在安静中消化任务经历",
+          "value_key": "B",
+          "dimension": "EI",
+          "side": "I",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_ei_04",
+      "prompt": "长假最后一天，你的理想状态是？",
+      "sort_order": 4,
+      "dimension": "EI",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_ei_04_A",
+          "label": "和好朋友最后聚一聚，把假期聊到最后一刻",
+          "value_key": "A",
+          "dimension": "EI",
+          "side": "E",
+          "weight": 2
+        },
+        {
+          "id": "q_ei_04_B",
+          "label": "提前收心，一个人整理书包和心情，准备开学",
+          "value_key": "B",
+          "dimension": "EI",
+          "side": "I",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_ei_05",
+      "prompt": "当你心情低落时，你更可能？",
+      "sort_order": 5,
+      "dimension": "EI",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_ei_05_A",
+          "label": "找信任的人倾诉，说出来就好多了",
+          "value_key": "A",
+          "dimension": "EI",
+          "side": "E",
+          "weight": 2
+        },
+        {
+          "id": "q_ei_05_B",
+          "label": "自己待一会儿，写日记或发呆，等情绪自然过去",
+          "value_key": "B",
+          "dimension": "EI",
+          "side": "I",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_ei_06",
+      "prompt": "班级组织去博物馆参观，你更期待的是？",
+      "sort_order": 6,
+      "dimension": "EI",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_ei_06_A",
+          "label": "和同学们一起看展品，边逛边讨论",
+          "value_key": "A",
+          "dimension": "EI",
+          "side": "E",
+          "weight": 1
+        },
+        {
+          "id": "q_ei_06_B",
+          "label": "一个人慢慢看感兴趣的展区，按自己的节奏来",
+          "value_key": "B",
+          "dimension": "EI",
+          "side": "I",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "q_ei_07",
+      "prompt": "班级要组织一次读书分享会，你会？",
+      "sort_order": 7,
+      "dimension": "EI",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_ei_07_A",
+          "label": "主动报名主持或推荐书目，带动气氛",
+          "value_key": "A",
+          "dimension": "EI",
+          "side": "E",
+          "weight": 3
+        },
+        {
+          "id": "q_ei_07_B",
+          "label": "等看看别人怎么组织，再决定是否发言",
+          "value_key": "B",
+          "dimension": "EI",
+          "side": "I",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_ei_08",
+      "prompt": "在小组作业群里，你通常是？",
+      "sort_order": 8,
+      "dimension": "EI",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_ei_08_A",
+          "label": "先发起话题、分配任务的那个人",
+          "value_key": "A",
+          "dimension": "EI",
+          "side": "E",
+          "weight": 2
+        },
+        {
+          "id": "q_ei_08_B",
+          "label": "等有人带头后，再补充自己的想法",
+          "value_key": "B",
+          "dimension": "EI",
+          "side": "I",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_ei_09",
+      "prompt": "如果你是霍格沃茨的新生，分院晚宴上你会？",
+      "sort_order": 9,
+      "dimension": "EI",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_ei_09_A",
+          "label": "主动和邻座聊天，认识新朋友",
+          "value_key": "A",
+          "dimension": "EI",
+          "side": "E",
+          "weight": 3
+        },
+        {
+          "id": "q_ei_09_B",
+          "label": "先观察四周，在心里默默感受这个新环境",
+          "value_key": "B",
+          "dimension": "EI",
+          "side": "I",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_ei_10",
+      "prompt": "朋友约你去一个你不太熟的人的生日会，你会？",
+      "sort_order": 10,
+      "dimension": "EI",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_ei_10_A",
+          "label": "想去！正好认识新朋友，人多热闹",
+          "value_key": "A",
+          "dimension": "EI",
+          "side": "E",
+          "weight": 2
+        },
+        {
+          "id": "q_ei_10_B",
+          "label": "有点犹豫，更想只和几个熟悉的朋友过",
+          "value_key": "B",
+          "dimension": "EI",
+          "side": "I",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_ei_11",
+      "prompt": "课间十分钟，你通常？",
+      "sort_order": 11,
+      "dimension": "EI",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_ei_11_A",
+          "label": "离开座位找同学聊天或去走廊逛逛",
+          "value_key": "A",
+          "dimension": "EI",
+          "side": "E",
+          "weight": 2
+        },
+        {
+          "id": "q_ei_11_B",
+          "label": "坐在位子上，看看窗外或继续看书",
+          "value_key": "B",
+          "dimension": "EI",
+          "side": "I",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_ei_12",
+      "prompt": "新学期的第一节课，你会？",
+      "sort_order": 12,
+      "dimension": "EI",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_ei_12_A",
+          "label": "主动和同桌自我介绍，快速破冰",
+          "value_key": "A",
+          "dimension": "EI",
+          "side": "E",
+          "weight": 1
+        },
+        {
+          "id": "q_ei_12_B",
+          "label": "等对方先开口，或者专注听课不急着社交",
+          "value_key": "B",
+          "dimension": "EI",
+          "side": "I",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "q_ei_13",
+      "prompt": "课堂上老师提问，你心里其实有答案时，你会？",
+      "sort_order": 13,
+      "dimension": "EI",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_ei_13_A",
+          "label": "直接举手，边说边整理思路",
+          "value_key": "A",
+          "dimension": "EI",
+          "side": "E",
+          "weight": 3
+        },
+        {
+          "id": "q_ei_13_B",
+          "label": "先在脑子里想一遍怎么说，再决定举不举手",
+          "value_key": "B",
+          "dimension": "EI",
+          "side": "I",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_ei_14",
+      "prompt": "和朋友聊天时，你更习惯？",
+      "sort_order": 14,
+      "dimension": "EI",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_ei_14_A",
+          "label": "想到什么说什么，在交流中理清想法",
+          "value_key": "A",
+          "dimension": "EI",
+          "side": "E",
+          "weight": 2
+        },
+        {
+          "id": "q_ei_14_B",
+          "label": "先在脑子里过一遍，再选择性地说",
+          "value_key": "B",
+          "dimension": "EI",
+          "side": "I",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_ei_15",
+      "prompt": "和朋友讨论《哈利波特》的剧情时，你更？",
+      "sort_order": 15,
+      "dimension": "EI",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_ei_15_A",
+          "label": "一边说一边想，聊的过程中不断产生新观点",
+          "value_key": "A",
+          "dimension": "EI",
+          "side": "E",
+          "weight": 3
+        },
+        {
+          "id": "q_ei_15_B",
+          "label": "先在脑子里组织好观点，再完整表达出来",
+          "value_key": "B",
+          "dimension": "EI",
+          "side": "I",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_ei_16",
+      "prompt": "班会上被要求即兴发言，你通常？",
+      "sort_order": 16,
+      "dimension": "EI",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_ei_16_A",
+          "label": "站起来就说，说得过程中思路越来越清晰",
+          "value_key": "A",
+          "dimension": "EI",
+          "side": "E",
+          "weight": 2
+        },
+        {
+          "id": "q_ei_16_B",
+          "label": "先在脑子里打个草稿，再说得有条理一些",
+          "value_key": "B",
+          "dimension": "EI",
+          "side": "I",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_ei_17",
+      "prompt": "发微信消息时，你更？",
+      "sort_order": 17,
+      "dimension": "EI",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_ei_17_A",
+          "label": "边想边发，经常一条拆成好几条发出去",
+          "value_key": "A",
+          "dimension": "EI",
+          "side": "E",
+          "weight": 2
+        },
+        {
+          "id": "q_ei_17_B",
+          "label": "先在输入框里把话写完整，检查一遍再发",
+          "value_key": "B",
+          "dimension": "EI",
+          "side": "I",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_ei_18",
+      "prompt": "遇到一道难题，你更习惯？",
+      "sort_order": 18,
+      "dimension": "EI",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_ei_18_A",
+          "label": "立刻找人讨论，在交流中找到思路",
+          "value_key": "A",
+          "dimension": "EI",
+          "side": "E",
+          "weight": 1
+        },
+        {
+          "id": "q_ei_18_B",
+          "label": "先自己琢磨一会儿，实在想不通再问",
+          "value_key": "B",
+          "dimension": "EI",
+          "side": "I",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "q_ei_19",
+      "prompt": "在班级合唱或集体活动中，你更自然的位置是？",
+      "sort_order": 19,
+      "dimension": "EI",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_ei_19_A",
+          "label": "站在显眼的位置，带动大家的气氛",
+          "value_key": "A",
+          "dimension": "EI",
+          "side": "E",
+          "weight": 3
+        },
+        {
+          "id": "q_ei_19_B",
+          "label": "站在人群中或后排，跟着大家一起做",
+          "value_key": "B",
+          "dimension": "EI",
+          "side": "I",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_ei_20",
+      "prompt": "学校社团招新时，你更可能？",
+      "sort_order": 20,
+      "dimension": "EI",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_ei_20_A",
+          "label": "主动加入并很快融入，认识很多新社友",
+          "value_key": "A",
+          "dimension": "EI",
+          "side": "E",
+          "weight": 2
+        },
+        {
+          "id": "q_ei_20_B",
+          "label": "先默默观察一段时间，再决定投入多少",
+          "value_key": "B",
+          "dimension": "EI",
+          "side": "I",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_ei_21",
+      "prompt": "如果你是昆虫观察社团的一员，社团活动时你更？",
+      "sort_order": 21,
+      "dimension": "EI",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_ei_21_A",
+          "label": "积极和大家分享观察发现，带动讨论",
+          "value_key": "A",
+          "dimension": "EI",
+          "side": "E",
+          "weight": 3
+        },
+        {
+          "id": "q_ei_21_B",
+          "label": "安静地做记录，在心里整理自己的观察",
+          "value_key": "B",
+          "dimension": "EI",
+          "side": "I",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_ei_22",
+      "prompt": "多人聚会中，你通常？",
+      "sort_order": 22,
+      "dimension": "EI",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_ei_22_A",
+          "label": "和不同的人聊天，话题不断切换",
+          "value_key": "A",
+          "dimension": "EI",
+          "side": "E",
+          "weight": 2
+        },
+        {
+          "id": "q_ei_22_B",
+          "label": "主要和身边的一两个人深入聊",
+          "value_key": "B",
+          "dimension": "EI",
+          "side": "I",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_ei_23",
+      "prompt": "班级开班会讨论事情，你的角色更像？",
+      "sort_order": 23,
+      "dimension": "EI",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_ei_23_A",
+          "label": "积极发言、提出想法，推动讨论进行",
+          "value_key": "A",
+          "dimension": "EI",
+          "side": "E",
+          "weight": 2
+        },
+        {
+          "id": "q_ei_23_B",
+          "label": "认真听大家讲，适时补充关键观点",
+          "value_key": "B",
+          "dimension": "EI",
+          "side": "I",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_ei_24",
+      "prompt": "一群人出去玩，回来后的你通常？",
+      "sort_order": 24,
+      "dimension": "EI",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_ei_24_A",
+          "label": "意犹未尽，还在群里回味今天的趣事",
+          "value_key": "A",
+          "dimension": "EI",
+          "side": "E",
+          "weight": 1
+        },
+        {
+          "id": "q_ei_24_B",
+          "label": "觉得该回归自己的节奏，享受安静",
+          "value_key": "B",
+          "dimension": "EI",
+          "side": "I",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "q_sn_01",
+      "prompt": "观察一只昆虫时，你更关注它的？",
+      "sort_order": 25,
+      "dimension": "SN",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_sn_01_A",
+          "label": "翅膀纹理、触角形状、腿的数量这些具体特征",
+          "value_key": "A",
+          "dimension": "SN",
+          "side": "S",
+          "weight": 3
+        },
+        {
+          "id": "q_sn_01_B",
+          "label": "它在这个生态系统中的角色，或者让我联想到的故事",
+          "value_key": "B",
+          "dimension": "SN",
+          "side": "N",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_sn_02",
+      "prompt": "看一部电影时，你更容易记住？",
+      "sort_order": 26,
+      "dimension": "SN",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_sn_02_A",
+          "label": "具体的台词、服装细节和场景画面",
+          "value_key": "A",
+          "dimension": "SN",
+          "side": "S",
+          "weight": 2
+        },
+        {
+          "id": "q_sn_02_B",
+          "label": "电影传达的主题、隐喻和给我的整体感受",
+          "value_key": "B",
+          "dimension": "SN",
+          "side": "N",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_sn_03",
+      "prompt": "读完《西游记》后，你对哪个印象更深？",
+      "sort_order": 27,
+      "dimension": "SN",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_sn_03_A",
+          "label": "取经路上经过的具体国家和妖怪的本领",
+          "value_key": "A",
+          "dimension": "SN",
+          "side": "S",
+          "weight": 3
+        },
+        {
+          "id": "q_sn_03_B",
+          "label": "整个取经故事象征的人生修行和团队精神",
+          "value_key": "B",
+          "dimension": "SN",
+          "side": "N",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_sn_04",
+      "prompt": "朋友描述她去过的地方时，你更希望听到？",
+      "sort_order": 28,
+      "dimension": "SN",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_sn_04_A",
+          "label": "具体吃了什么、天气怎样、路怎么走",
+          "value_key": "A",
+          "dimension": "SN",
+          "side": "S",
+          "weight": 2
+        },
+        {
+          "id": "q_sn_04_B",
+          "label": "那个地方给她的感觉，以及她联想到的事情",
+          "value_key": "B",
+          "dimension": "SN",
+          "side": "N",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_sn_05",
+      "prompt": "做手工或实验时，你更享受？",
+      "sort_order": 29,
+      "dimension": "SN",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_sn_05_A",
+          "label": "按照步骤精确操作，看到具体成果",
+          "value_key": "A",
+          "dimension": "SN",
+          "side": "S",
+          "weight": 2
+        },
+        {
+          "id": "q_sn_05_B",
+          "label": "尝试不同的做法，发现意想不到的效果",
+          "value_key": "B",
+          "dimension": "SN",
+          "side": "N",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_sn_06",
+      "prompt": "看一幅风景画时，你首先注意到？",
+      "sort_order": 30,
+      "dimension": "SN",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_sn_06_A",
+          "label": "画中的具体元素：树、山、水的位置和颜色",
+          "value_key": "A",
+          "dimension": "SN",
+          "side": "S",
+          "weight": 1
+        },
+        {
+          "id": "q_sn_06_B",
+          "label": "整幅画营造的氛围，以及它让你想到什么",
+          "value_key": "B",
+          "dimension": "SN",
+          "side": "N",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "q_sn_07",
+      "prompt": "学习新知识时，你更喜欢？",
+      "sort_order": 31,
+      "dimension": "SN",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_sn_07_A",
+          "label": "具体的例子、操作步骤和实际应用",
+          "value_key": "A",
+          "dimension": "SN",
+          "side": "S",
+          "weight": 3
+        },
+        {
+          "id": "q_sn_07_B",
+          "label": "背后的原理、概念框架和可能的延伸",
+          "value_key": "B",
+          "dimension": "SN",
+          "side": "N",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_sn_08",
+      "prompt": "读《博物杂志》时，你更感兴趣的是？",
+      "sort_order": 32,
+      "dimension": "SN",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_sn_08_A",
+          "label": "物种的具体分类、生活习性和分布地区",
+          "value_key": "A",
+          "dimension": "SN",
+          "side": "S",
+          "weight": 2
+        },
+        {
+          "id": "q_sn_08_B",
+          "label": "这些生物现象背后的演化逻辑和生态关系",
+          "value_key": "B",
+          "dimension": "SN",
+          "side": "N",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_sn_09",
+      "prompt": "如果你是忍者学校的学员，你更想学？",
+      "sort_order": 33,
+      "dimension": "SN",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_sn_09_A",
+          "label": "具体的忍术招式、结印手法和实战技巧",
+          "value_key": "A",
+          "dimension": "SN",
+          "side": "S",
+          "weight": 3
+        },
+        {
+          "id": "q_sn_09_B",
+          "label": "忍术背后的查克拉原理，以及开发新术的可能性",
+          "value_key": "B",
+          "dimension": "SN",
+          "side": "N",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_sn_10",
+      "prompt": "朋友问你今天过得怎么样，你更可能？",
+      "sort_order": 34,
+      "dimension": "SN",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_sn_10_A",
+          "label": "描述具体发生了哪些事",
+          "value_key": "A",
+          "dimension": "SN",
+          "side": "S",
+          "weight": 2
+        },
+        {
+          "id": "q_sn_10_B",
+          "label": "总结今天整体的感觉和意义",
+          "value_key": "B",
+          "dimension": "SN",
+          "side": "N",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_sn_11",
+      "prompt": "做阅读理解题时，你更擅长？",
+      "sort_order": 35,
+      "dimension": "SN",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_sn_11_A",
+          "label": "从文中找到具体细节和依据",
+          "value_key": "A",
+          "dimension": "SN",
+          "side": "S",
+          "weight": 2
+        },
+        {
+          "id": "q_sn_11_B",
+          "label": "推测作者的言外之意和文章深层含义",
+          "value_key": "B",
+          "dimension": "SN",
+          "side": "N",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_sn_12",
+      "prompt": "在选择兴趣班时，你更在意？",
+      "sort_order": 36,
+      "dimension": "SN",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_sn_12_A",
+          "label": "课程内容具体学什么、有什么实际收获",
+          "value_key": "A",
+          "dimension": "SN",
+          "side": "S",
+          "weight": 1
+        },
+        {
+          "id": "q_sn_12_B",
+          "label": "这个领域未来的发展方向和想象空间",
+          "value_key": "B",
+          "dimension": "SN",
+          "side": "N",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "q_sn_13",
+      "prompt": "面对未来，你更倾向于？",
+      "sort_order": 37,
+      "dimension": "SN",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_sn_13_A",
+          "label": "关注当下能把握的具体事情，一步一步来",
+          "value_key": "A",
+          "dimension": "SN",
+          "side": "S",
+          "weight": 3
+        },
+        {
+          "id": "q_sn_13_B",
+          "label": "想象各种可能的发展方向，期待惊喜",
+          "value_key": "B",
+          "dimension": "SN",
+          "side": "N",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_sn_14",
+      "prompt": "计划周末活动时，你更习惯？",
+      "sort_order": 38,
+      "dimension": "SN",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_sn_14_A",
+          "label": "安排具体的行程和地点，有可执行的计划",
+          "value_key": "A",
+          "dimension": "SN",
+          "side": "S",
+          "weight": 2
+        },
+        {
+          "id": "q_sn_14_B",
+          "label": "定个大方向，到现场看心情决定",
+          "value_key": "B",
+          "dimension": "SN",
+          "side": "N",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_sn_15",
+      "prompt": "读历史故事时，你更感兴趣的是？",
+      "sort_order": 39,
+      "dimension": "SN",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_sn_15_A",
+          "label": "具体的历史事件、人物言行和时代细节",
+          "value_key": "A",
+          "dimension": "SN",
+          "side": "S",
+          "weight": 3
+        },
+        {
+          "id": "q_sn_15_B",
+          "label": "历史背后的规律，以及对未来的启示",
+          "value_key": "B",
+          "dimension": "SN",
+          "side": "N",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_sn_16",
+      "prompt": "描述一个你期待的事情时，你更常？",
+      "sort_order": 40,
+      "dimension": "SN",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_sn_16_A",
+          "label": "想象具体的场景和画面",
+          "value_key": "A",
+          "dimension": "SN",
+          "side": "S",
+          "weight": 2
+        },
+        {
+          "id": "q_sn_16_B",
+          "label": "想象这件事带来的各种可能性和变化",
+          "value_key": "B",
+          "dimension": "SN",
+          "side": "N",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_sn_17",
+      "prompt": "当别人说将来你可能成为作家，你会？",
+      "sort_order": 41,
+      "dimension": "SN",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_sn_17_A",
+          "label": "考虑现在需要练习哪些具体技能",
+          "value_key": "A",
+          "dimension": "SN",
+          "side": "S",
+          "weight": 2
+        },
+        {
+          "id": "q_sn_17_B",
+          "label": "想象成为作家的各种可能生活方式",
+          "value_key": "B",
+          "dimension": "SN",
+          "side": "N",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_sn_18",
+      "prompt": "做作业遇到难题时，你更可能？",
+      "sort_order": 42,
+      "dimension": "SN",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_sn_18_A",
+          "label": "回归课本找具体的知识点和例题",
+          "value_key": "A",
+          "dimension": "SN",
+          "side": "S",
+          "weight": 1
+        },
+        {
+          "id": "q_sn_18_B",
+          "label": "尝试用不同的思路去重新发明解法",
+          "value_key": "B",
+          "dimension": "SN",
+          "side": "N",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "q_sn_19",
+      "prompt": "去一个从没去过的地方，你更享受？",
+      "sort_order": 43,
+      "dimension": "SN",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_sn_19_A",
+          "label": "用五官感受当下的环境：气味、声音、触感",
+          "value_key": "A",
+          "dimension": "SN",
+          "side": "S",
+          "weight": 3
+        },
+        {
+          "id": "q_sn_19_B",
+          "label": "联想这个地方的历史、文化或虚构故事",
+          "value_key": "B",
+          "dimension": "SN",
+          "side": "N",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_sn_20",
+      "prompt": "养一盆植物时，你更关注？",
+      "sort_order": 44,
+      "dimension": "SN",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_sn_20_A",
+          "label": "浇水的频率、土壤湿度和叶子状态",
+          "value_key": "A",
+          "dimension": "SN",
+          "side": "S",
+          "weight": 2
+        },
+        {
+          "id": "q_sn_20_B",
+          "label": "这盆植物在你房间里营造的氛围和生命力",
+          "value_key": "B",
+          "dimension": "SN",
+          "side": "N",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_sn_21",
+      "prompt": "看《火影忍者》时，战斗中你更注意？",
+      "sort_order": 45,
+      "dimension": "SN",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_sn_21_A",
+          "label": "具体的招式名称、忍术效果和战术配合",
+          "value_key": "A",
+          "dimension": "SN",
+          "side": "S",
+          "weight": 3
+        },
+        {
+          "id": "q_sn_21_B",
+          "label": "角色的信念、成长轨迹和战斗的象征意义",
+          "value_key": "B",
+          "dimension": "SN",
+          "side": "N",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_sn_22",
+      "prompt": "听到一首新歌时，你首先？",
+      "sort_order": 46,
+      "dimension": "SN",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_sn_22_A",
+          "label": "注意旋律、节奏和歌词的具体内容",
+          "value_key": "A",
+          "dimension": "SN",
+          "side": "S",
+          "weight": 2
+        },
+        {
+          "id": "q_sn_22_B",
+          "label": "感受歌曲整体的情绪，联想它适合什么场景",
+          "value_key": "B",
+          "dimension": "SN",
+          "side": "N",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_sn_23",
+      "prompt": "写作文时，你更擅长？",
+      "sort_order": 47,
+      "dimension": "SN",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_sn_23_A",
+          "label": "描写具体的人物、场景和事件经过",
+          "value_key": "A",
+          "dimension": "SN",
+          "side": "S",
+          "weight": 2
+        },
+        {
+          "id": "q_sn_23_B",
+          "label": "构建象征性的意象和哲理性的主题",
+          "value_key": "B",
+          "dimension": "SN",
+          "side": "N",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_sn_24",
+      "prompt": "逛书店时，什么更容易吸引你？",
+      "sort_order": 48,
+      "dimension": "SN",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_sn_24_A",
+          "label": "封面设计精美、内容具体实用的书",
+          "value_key": "A",
+          "dimension": "SN",
+          "side": "S",
+          "weight": 1
+        },
+        {
+          "id": "q_sn_24_B",
+          "label": "书名充满想象空间、简介让你好奇的书",
+          "value_key": "B",
+          "dimension": "SN",
+          "side": "N",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "q_tf_01",
+      "prompt": "小组讨论去哪里秋游，你更支持？",
+      "sort_order": 49,
+      "dimension": "TF",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_tf_01_A",
+          "label": "方案最合理、性价比最高的那个，不管谁提的",
+          "value_key": "A",
+          "dimension": "TF",
+          "side": "T",
+          "weight": 3
+        },
+        {
+          "id": "q_tf_01_B",
+          "label": "能让最多人开心、气氛最好的那个方案",
+          "value_key": "B",
+          "dimension": "TF",
+          "side": "F",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_tf_02",
+      "prompt": "朋友问你她新买的衣服好不好看，你其实觉得一般，你会？",
+      "sort_order": 50,
+      "dimension": "TF",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_tf_02_A",
+          "label": "直接说出真实想法，告诉她哪里可以改进",
+          "value_key": "A",
+          "dimension": "TF",
+          "side": "T",
+          "weight": 2
+        },
+        {
+          "id": "q_tf_02_B",
+          "label": "先看她是不是很喜欢，再决定怎么说",
+          "value_key": "B",
+          "dimension": "TF",
+          "side": "F",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_tf_03",
+      "prompt": "如果你是霍格沃茨的级长，遇到同学违反校规但情有可原，你会？",
+      "sort_order": 51,
+      "dimension": "TF",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_tf_03_A",
+          "label": "按规则处理，规矩就是规矩，特殊情况再申诉",
+          "value_key": "A",
+          "dimension": "TF",
+          "side": "T",
+          "weight": 3
+        },
+        {
+          "id": "q_tf_03_B",
+          "label": "先了解他的处境，找既不伤感情又解决问题的方法",
+          "value_key": "B",
+          "dimension": "TF",
+          "side": "F",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_tf_04",
+      "prompt": "选班干部时，你更看重候选人？",
+      "sort_order": 52,
+      "dimension": "TF",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_tf_04_A",
+          "label": "办事能力强、公平公正、有责任心",
+          "value_key": "A",
+          "dimension": "TF",
+          "side": "T",
+          "weight": 2
+        },
+        {
+          "id": "q_tf_04_B",
+          "label": "关心同学、善于倾听、能带动气氛",
+          "value_key": "B",
+          "dimension": "TF",
+          "side": "F",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_tf_05",
+      "prompt": "看辩论赛时，你更容易被说服的是？",
+      "sort_order": 53,
+      "dimension": "TF",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_tf_05_A",
+          "label": "逻辑严密、论据充分、推理清晰的观点",
+          "value_key": "A",
+          "dimension": "TF",
+          "side": "T",
+          "weight": 2
+        },
+        {
+          "id": "q_tf_05_B",
+          "label": "能打动人心、引发共鸣、有感染力的观点",
+          "value_key": "B",
+          "dimension": "TF",
+          "side": "F",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_tf_06",
+      "prompt": "帮朋友分析她和家人的矛盾时，你更倾向？",
+      "sort_order": 54,
+      "dimension": "TF",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_tf_06_A",
+          "label": "帮她理清事情的来龙去脉，找出问题所在",
+          "value_key": "A",
+          "dimension": "TF",
+          "side": "T",
+          "weight": 1
+        },
+        {
+          "id": "q_tf_06_B",
+          "label": "先安慰她的情绪，让她感到被理解",
+          "value_key": "B",
+          "dimension": "TF",
+          "side": "F",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "q_tf_07",
+      "prompt": "和朋友因为一件事争论起来，你更在意？",
+      "sort_order": 55,
+      "dimension": "TF",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_tf_07_A",
+          "label": "谁的观点更有道理、更符合事实",
+          "value_key": "A",
+          "dimension": "TF",
+          "side": "T",
+          "weight": 3
+        },
+        {
+          "id": "q_tf_07_B",
+          "label": "争论会不会伤害彼此的关系和感情",
+          "value_key": "B",
+          "dimension": "TF",
+          "side": "F",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_tf_08",
+      "prompt": "小组作业有人没做好自己的部分，你会？",
+      "sort_order": 56,
+      "dimension": "TF",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_tf_08_A",
+          "label": "直接指出来，讨论怎么补救，对事不对人",
+          "value_key": "A",
+          "dimension": "TF",
+          "side": "T",
+          "weight": 2
+        },
+        {
+          "id": "q_tf_08_B",
+          "label": "先关心他是不是遇到困难了，再一起想办法",
+          "value_key": "B",
+          "dimension": "TF",
+          "side": "F",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_tf_09",
+      "prompt": "如果你是《西游记》取经团队的一员，看到八戒偷懒，你会？",
+      "sort_order": 57,
+      "dimension": "TF",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_tf_09_A",
+          "label": "直接批评他，指出这样做会拖累整个团队",
+          "value_key": "A",
+          "dimension": "TF",
+          "side": "T",
+          "weight": 3
+        },
+        {
+          "id": "q_tf_09_B",
+          "label": "先私下聊聊，了解他是不是累了或有别的想法",
+          "value_key": "B",
+          "dimension": "TF",
+          "side": "F",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_tf_10",
+      "prompt": "班级投票有争议时，你更支持？",
+      "sort_order": 58,
+      "dimension": "TF",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_tf_10_A",
+          "label": "重新按规则计票，结果怎样就怎样",
+          "value_key": "A",
+          "dimension": "TF",
+          "side": "T",
+          "weight": 2
+        },
+        {
+          "id": "q_tf_10_B",
+          "label": "听听各方的感受，找一个大家都能接受的方案",
+          "value_key": "B",
+          "dimension": "TF",
+          "side": "F",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_tf_11",
+      "prompt": "朋友做了你觉得不太对的事，你会？",
+      "sort_order": 59,
+      "dimension": "TF",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_tf_11_A",
+          "label": "直接告诉她你的想法，希望她改进",
+          "value_key": "A",
+          "dimension": "TF",
+          "side": "T",
+          "weight": 2
+        },
+        {
+          "id": "q_tf_11_B",
+          "label": "委婉地表达，或者先观察她自己会不会意识到",
+          "value_key": "B",
+          "dimension": "TF",
+          "side": "F",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_tf_12",
+      "prompt": "被误解时，你更希望对方？",
+      "sort_order": 60,
+      "dimension": "TF",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_tf_12_A",
+          "label": "冷静下来听你把事情解释清楚",
+          "value_key": "A",
+          "dimension": "TF",
+          "side": "T",
+          "weight": 1
+        },
+        {
+          "id": "q_tf_12_B",
+          "label": "先相信你不是故意的，站在你这边",
+          "value_key": "B",
+          "dimension": "TF",
+          "side": "F",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "q_tf_13",
+      "prompt": "评价一部小说的好坏，你更看重？",
+      "sort_order": 61,
+      "dimension": "TF",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_tf_13_A",
+          "label": "情节是否合理、结构是否严谨、逻辑是否自洽",
+          "value_key": "A",
+          "dimension": "TF",
+          "side": "T",
+          "weight": 3
+        },
+        {
+          "id": "q_tf_13_B",
+          "label": "是否触动内心、人物是否真实可感、有没有共鸣",
+          "value_key": "B",
+          "dimension": "TF",
+          "side": "F",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_tf_14",
+      "prompt": "看《罪与罚》时，你对拉斯柯尔尼科夫更？",
+      "sort_order": 62,
+      "dimension": "TF",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_tf_14_A",
+          "label": "分析他的行为逻辑和心理动机是否合理",
+          "value_key": "A",
+          "dimension": "TF",
+          "side": "T",
+          "weight": 2
+        },
+        {
+          "id": "q_tf_14_B",
+          "label": "感受他内心的挣扎和痛苦，理解他的处境",
+          "value_key": "B",
+          "dimension": "TF",
+          "side": "F",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_tf_15",
+      "prompt": "选择同桌或室友时，你更看重？",
+      "sort_order": 63,
+      "dimension": "TF",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_tf_15_A",
+          "label": "学习习惯好、守时、做事有条理",
+          "value_key": "A",
+          "dimension": "TF",
+          "side": "T",
+          "weight": 3
+        },
+        {
+          "id": "q_tf_15_B",
+          "label": "性格合得来、能互相理解和支持",
+          "value_key": "B",
+          "dimension": "TF",
+          "side": "F",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_tf_16",
+      "prompt": "评价一次活动成功与否，你更在意？",
+      "sort_order": 64,
+      "dimension": "TF",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_tf_16_A",
+          "label": "目标是否达成、流程是否顺畅、效率如何",
+          "value_key": "A",
+          "dimension": "TF",
+          "side": "T",
+          "weight": 2
+        },
+        {
+          "id": "q_tf_16_B",
+          "label": "大家是否开心、有没有留下美好回忆",
+          "value_key": "B",
+          "dimension": "TF",
+          "side": "F",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_tf_17",
+      "prompt": "看历史人物的功过时，你更倾向？",
+      "sort_order": 65,
+      "dimension": "TF",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_tf_17_A",
+          "label": "客观分析他的政策和行为带来的影响",
+          "value_key": "A",
+          "dimension": "TF",
+          "side": "T",
+          "weight": 2
+        },
+        {
+          "id": "q_tf_17_B",
+          "label": "理解他所处的时代和个人的处境与选择",
+          "value_key": "B",
+          "dimension": "TF",
+          "side": "F",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_tf_18",
+      "prompt": "选一本书送朋友，你更依据？",
+      "sort_order": 66,
+      "dimension": "TF",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_tf_18_A",
+          "label": "书的内容质量、口碑和实用性",
+          "value_key": "A",
+          "dimension": "TF",
+          "side": "T",
+          "weight": 1
+        },
+        {
+          "id": "q_tf_18_B",
+          "label": "这本书给她的感觉，以及你们共同的回忆",
+          "value_key": "B",
+          "dimension": "TF",
+          "side": "F",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "q_tf_19",
+      "prompt": "朋友请你帮她检查作文，你更倾向于？",
+      "sort_order": 67,
+      "dimension": "TF",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_tf_19_A",
+          "label": "直接标出语法错误和逻辑不通的地方",
+          "value_key": "A",
+          "dimension": "TF",
+          "side": "T",
+          "weight": 3
+        },
+        {
+          "id": "q_tf_19_B",
+          "label": "先肯定写得好的部分，再委婉提建议",
+          "value_key": "B",
+          "dimension": "TF",
+          "side": "F",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_tf_20",
+      "prompt": "在群里看到有人发了一个明显错误的观点，你会？",
+      "sort_order": 68,
+      "dimension": "TF",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_tf_20_A",
+          "label": "直接指出问题，摆出事实依据",
+          "value_key": "A",
+          "dimension": "TF",
+          "side": "T",
+          "weight": 2
+        },
+        {
+          "id": "q_tf_20_B",
+          "label": "考虑要不要说，怎么说才不会让对方尴尬",
+          "value_key": "B",
+          "dimension": "TF",
+          "side": "F",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_tf_21",
+      "prompt": "如果你是火影小队的队长，队员训练出错时，你会？",
+      "sort_order": 69,
+      "dimension": "TF",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_tf_21_A",
+          "label": "直接指出错误，告诉他正确的做法",
+          "value_key": "A",
+          "dimension": "TF",
+          "side": "T",
+          "weight": 3
+        },
+        {
+          "id": "q_tf_21_B",
+          "label": "先鼓励他，再一起分析哪里可以改进",
+          "value_key": "B",
+          "dimension": "TF",
+          "side": "F",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_tf_22",
+      "prompt": "朋友向你倾诉烦恼，你更自然地？",
+      "sort_order": 70,
+      "dimension": "TF",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_tf_22_A",
+          "label": "帮她分析问题，提供解决方案",
+          "value_key": "A",
+          "dimension": "TF",
+          "side": "T",
+          "weight": 2
+        },
+        {
+          "id": "q_tf_22_B",
+          "label": "倾听和陪伴，让她感到被理解",
+          "value_key": "B",
+          "dimension": "TF",
+          "side": "F",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_tf_23",
+      "prompt": "给别人的作品提意见时，你更习惯？",
+      "sort_order": 71,
+      "dimension": "TF",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_tf_23_A",
+          "label": "开门见山说优缺点，效率最高",
+          "value_key": "A",
+          "dimension": "TF",
+          "side": "T",
+          "weight": 2
+        },
+        {
+          "id": "q_tf_23_B",
+          "label": "先建立信任，再慢慢引导对方自己发现问题",
+          "value_key": "B",
+          "dimension": "TF",
+          "side": "F",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_tf_24",
+      "prompt": "老师问你对课堂的意见，你会？",
+      "sort_order": 72,
+      "dimension": "TF",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_tf_24_A",
+          "label": "直接说出你觉得可以改进的地方",
+          "value_key": "A",
+          "dimension": "TF",
+          "side": "T",
+          "weight": 1
+        },
+        {
+          "id": "q_tf_24_B",
+          "label": "先想想怎么说不会让老师不舒服",
+          "value_key": "B",
+          "dimension": "TF",
+          "side": "F",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "q_jp_01",
+      "prompt": "面对一个大作业，你通常？",
+      "sort_order": 73,
+      "dimension": "JP",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_jp_01_A",
+          "label": "提前规划好每天做什么，按计划推进",
+          "value_key": "A",
+          "dimension": "JP",
+          "side": "J",
+          "weight": 3
+        },
+        {
+          "id": "q_jp_01_B",
+          "label": "先放着，等有灵感或临近截止再集中搞定",
+          "value_key": "B",
+          "dimension": "JP",
+          "side": "P",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_jp_02",
+      "prompt": "周末到了，你更习惯？",
+      "sort_order": 74,
+      "dimension": "JP",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_jp_02_A",
+          "label": "提前想好要做什么，有个大概的安排",
+          "value_key": "A",
+          "dimension": "JP",
+          "side": "J",
+          "weight": 2
+        },
+        {
+          "id": "q_jp_02_B",
+          "label": "睡到自然醒，看心情决定今天干嘛",
+          "value_key": "B",
+          "dimension": "JP",
+          "side": "P",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_jp_03",
+      "prompt": "如果你是霍格沃茨的学生，面对期末考试你会？",
+      "sort_order": 75,
+      "dimension": "JP",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_jp_03_A",
+          "label": "提前制定复习计划，按科目分配时间",
+          "value_key": "A",
+          "dimension": "JP",
+          "side": "J",
+          "weight": 3
+        },
+        {
+          "id": "q_jp_03_B",
+          "label": "根据当时的状态和兴趣，灵活调整复习内容",
+          "value_key": "B",
+          "dimension": "JP",
+          "side": "P",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_jp_04",
+      "prompt": "和朋友约出去玩，你更希望？",
+      "sort_order": 76,
+      "dimension": "JP",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_jp_04_A",
+          "label": "提前定好时间地点，大家都清楚计划",
+          "value_key": "A",
+          "dimension": "JP",
+          "side": "J",
+          "weight": 2
+        },
+        {
+          "id": "q_jp_04_B",
+          "label": "说个大概，到时候再具体商量",
+          "value_key": "B",
+          "dimension": "JP",
+          "side": "P",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_jp_05",
+      "prompt": "写作业时，你更倾向？",
+      "sort_order": 77,
+      "dimension": "JP",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_jp_05_A",
+          "label": "一科一科按顺序完成，做完一项勾一项",
+          "value_key": "A",
+          "dimension": "JP",
+          "side": "J",
+          "weight": 2
+        },
+        {
+          "id": "q_jp_05_B",
+          "label": "哪科有感觉就先写哪科，穿插着来",
+          "value_key": "B",
+          "dimension": "JP",
+          "side": "P",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_jp_06",
+      "prompt": "旅行前，你的行李箱？",
+      "sort_order": 78,
+      "dimension": "JP",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_jp_06_A",
+          "label": "提前列清单，按清单收拾",
+          "value_key": "A",
+          "dimension": "JP",
+          "side": "J",
+          "weight": 1
+        },
+        {
+          "id": "q_jp_06_B",
+          "label": "出发前随手装，想到什么带什么",
+          "value_key": "B",
+          "dimension": "JP",
+          "side": "P",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "q_jp_07",
+      "prompt": "做小组项目时，你更希望？",
+      "sort_order": 79,
+      "dimension": "JP",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_jp_07_A",
+          "label": "有明确的分工和截止时间点",
+          "value_key": "A",
+          "dimension": "JP",
+          "side": "J",
+          "weight": 3
+        },
+        {
+          "id": "q_jp_07_B",
+          "label": "有个大致方向，大家灵活配合",
+          "value_key": "B",
+          "dimension": "JP",
+          "side": "P",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_jp_08",
+      "prompt": "你喜欢的生活环境是？",
+      "sort_order": 80,
+      "dimension": "JP",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_jp_08_A",
+          "label": "东西各归其位，整洁有序",
+          "value_key": "A",
+          "dimension": "JP",
+          "side": "J",
+          "weight": 2
+        },
+        {
+          "id": "q_jp_08_B",
+          "label": "乱中有序，随手能拿到需要的东西",
+          "value_key": "B",
+          "dimension": "JP",
+          "side": "P",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_jp_09",
+      "prompt": "读《安娜·卡列尼娜》这类多线叙事的小说时，你更？",
+      "sort_order": 81,
+      "dimension": "JP",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_jp_09_A",
+          "label": "希望理清每条线索的时间线和人物关系",
+          "value_key": "A",
+          "dimension": "JP",
+          "side": "J",
+          "weight": 3
+        },
+        {
+          "id": "q_jp_09_B",
+          "label": "享受随着阅读自然展开，不急着梳理",
+          "value_key": "B",
+          "dimension": "JP",
+          "side": "P",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_jp_10",
+      "prompt": "老师突然改变课堂安排，你更？",
+      "sort_order": 82,
+      "dimension": "JP",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_jp_10_A",
+          "label": "有点不适应，希望能提前通知",
+          "value_key": "A",
+          "dimension": "JP",
+          "side": "J",
+          "weight": 2
+        },
+        {
+          "id": "q_jp_10_B",
+          "label": "觉得新鲜，灵活调整就好",
+          "value_key": "B",
+          "dimension": "JP",
+          "side": "P",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_jp_11",
+      "prompt": "你的笔记本通常？",
+      "sort_order": 83,
+      "dimension": "JP",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_jp_11_A",
+          "label": "分门别类，每科有固定的记录方式",
+          "value_key": "A",
+          "dimension": "JP",
+          "side": "J",
+          "weight": 2
+        },
+        {
+          "id": "q_jp_11_B",
+          "label": "想到什么记什么，经常混着写",
+          "value_key": "B",
+          "dimension": "JP",
+          "side": "P",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_jp_12",
+      "prompt": "玩开放式游戏（如沙盒游戏）时，你更？",
+      "sort_order": 84,
+      "dimension": "JP",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_jp_12_A",
+          "label": "给自己设定目标和规则来玩",
+          "value_key": "A",
+          "dimension": "JP",
+          "side": "J",
+          "weight": 1
+        },
+        {
+          "id": "q_jp_12_B",
+          "label": "随心所欲探索，不给自己设限",
+          "value_key": "B",
+          "dimension": "JP",
+          "side": "P",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "q_jp_13",
+      "prompt": "一件事做到一半发现更好的方法，你会？",
+      "sort_order": 85,
+      "dimension": "JP",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_jp_13_A",
+          "label": "坚持把当前的做完，下次再改进",
+          "value_key": "A",
+          "dimension": "JP",
+          "side": "J",
+          "weight": 3
+        },
+        {
+          "id": "q_jp_13_B",
+          "label": "立刻调整，跟着新的灵感走",
+          "value_key": "B",
+          "dimension": "JP",
+          "side": "P",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_jp_14",
+      "prompt": "写读后感时，你更可能？",
+      "sort_order": 86,
+      "dimension": "JP",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_jp_14_A",
+          "label": "按固定的结构写：内容概括→感受→总结",
+          "value_key": "A",
+          "dimension": "JP",
+          "side": "J",
+          "weight": 2
+        },
+        {
+          "id": "q_jp_14_B",
+          "label": "想到哪写到哪，跟着感觉组织语言",
+          "value_key": "B",
+          "dimension": "JP",
+          "side": "P",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_jp_15",
+      "prompt": "如果像火影忍者执行任务，面对突发状况你会？",
+      "sort_order": 87,
+      "dimension": "JP",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_jp_15_A",
+          "label": "按照原定计划执行，不轻易改变",
+          "value_key": "A",
+          "dimension": "JP",
+          "side": "J",
+          "weight": 3
+        },
+        {
+          "id": "q_jp_15_B",
+          "label": "根据现场情况灵活调整战术",
+          "value_key": "B",
+          "dimension": "JP",
+          "side": "P",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_jp_16",
+      "prompt": "收拾房间时，你通常？",
+      "sort_order": 88,
+      "dimension": "JP",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_jp_16_A",
+          "label": "一鼓作气全部收拾完，不留尾巴",
+          "value_key": "A",
+          "dimension": "JP",
+          "side": "J",
+          "weight": 2
+        },
+        {
+          "id": "q_jp_16_B",
+          "label": "收拾一会儿，发现有趣的东西就玩起来",
+          "value_key": "B",
+          "dimension": "JP",
+          "side": "P",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_jp_17",
+      "prompt": "做一个决定后，你更？",
+      "sort_order": 89,
+      "dimension": "JP",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_jp_17_A",
+          "label": "确定了就不再纠结，按决定执行",
+          "value_key": "A",
+          "dimension": "JP",
+          "side": "J",
+          "weight": 2
+        },
+        {
+          "id": "q_jp_17_B",
+          "label": "偶尔会想如果当时选另一个会怎样",
+          "value_key": "B",
+          "dimension": "JP",
+          "side": "P",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_jp_18",
+      "prompt": "和朋友玩游戏时，你更享受？",
+      "sort_order": 90,
+      "dimension": "JP",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_jp_18_A",
+          "label": "有明确规则和胜负，玩得尽兴",
+          "value_key": "A",
+          "dimension": "JP",
+          "side": "J",
+          "weight": 1
+        },
+        {
+          "id": "q_jp_18_B",
+          "label": "过程有趣就行，输赢无所谓",
+          "value_key": "B",
+          "dimension": "JP",
+          "side": "P",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "q_jp_19",
+      "prompt": "原本定好的计划被打乱，你更？",
+      "sort_order": 91,
+      "dimension": "JP",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_jp_19_A",
+          "label": "有点烦躁，希望能回到原计划",
+          "value_key": "A",
+          "dimension": "JP",
+          "side": "J",
+          "weight": 3
+        },
+        {
+          "id": "q_jp_19_B",
+          "label": "顺势而为，看看新情况能有什么可能",
+          "value_key": "B",
+          "dimension": "JP",
+          "side": "P",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_jp_20",
+      "prompt": "新学期换了一批新同学，你更？",
+      "sort_order": 92,
+      "dimension": "JP",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_jp_20_A",
+          "label": "希望尽快熟悉新环境，建立新秩序",
+          "value_key": "A",
+          "dimension": "JP",
+          "side": "J",
+          "weight": 2
+        },
+        {
+          "id": "q_jp_20_B",
+          "label": "觉得有意思，慢慢观察适应",
+          "value_key": "B",
+          "dimension": "JP",
+          "side": "P",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_jp_21",
+      "prompt": "如果像《西游记》取经路上遇到变故，你更？",
+      "sort_order": 93,
+      "dimension": "JP",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_jp_21_A",
+          "label": "想办法回到原定路线，完成使命",
+          "value_key": "A",
+          "dimension": "JP",
+          "side": "J",
+          "weight": 3
+        },
+        {
+          "id": "q_jp_21_B",
+          "label": "把这当作新的历练，看看能学到什么",
+          "value_key": "B",
+          "dimension": "JP",
+          "side": "P",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "id": "q_jp_22",
+      "prompt": "一道题快解完时发现条件看错了，你会？",
+      "sort_order": 94,
+      "dimension": "JP",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_jp_22_A",
+          "label": "有点懊恼，但重新按正确条件做",
+          "value_key": "A",
+          "dimension": "JP",
+          "side": "J",
+          "weight": 2
+        },
+        {
+          "id": "q_jp_22_B",
+          "label": "干脆看看按错条件能得出什么有趣结论",
+          "value_key": "B",
+          "dimension": "JP",
+          "side": "P",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_jp_23",
+      "prompt": "朋友临时提议换个地方吃饭，你更？",
+      "sort_order": 95,
+      "dimension": "JP",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_jp_23_A",
+          "label": "觉得被打乱，希望按原计划",
+          "value_key": "A",
+          "dimension": "JP",
+          "side": "J",
+          "weight": 2
+        },
+        {
+          "id": "q_jp_23_B",
+          "label": "好啊，说不定有意外惊喜",
+          "value_key": "B",
+          "dimension": "JP",
+          "side": "P",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "id": "q_jp_24",
+      "prompt": "假期最后一天，你的心情更偏向？",
+      "sort_order": 96,
+      "dimension": "JP",
+      "group_tag": null,
+      "group_sort_order": null,
+      "options": [
+        {
+          "id": "q_jp_24_A",
+          "label": "希望假期不要结束，舍不得打乱 routine",
+          "value_key": "A",
+          "dimension": "JP",
+          "side": "J",
+          "weight": 1
+        },
+        {
+          "id": "q_jp_24_B",
+          "label": "期待开学的新变化和新可能",
+          "value_key": "B",
+          "dimension": "JP",
+          "side": "P",
+          "weight": 1
+        }
+      ]
+    }
+  ]
+}

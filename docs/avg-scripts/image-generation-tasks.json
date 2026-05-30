@@ -1,0 +1,381 @@
+{
+  "_instructions_for_codex": "使用gpt-image-2或其他多模态AI工具，按以下列表逐条生成背景图。每张图保存到本地项目目录 /assets/backgrounds/hp-chamber/ 下，文件名使用 node_id + .png 的格式。所有提示词末尾自动追加统一的风格后缀。",
+  "output_directory": "/assets/backgrounds/hp-chamber",
+  "file_extension": ".png",
+  "style_suffix": "fantasy illustration, Harry Potter magical world style, cinematic wide angle composition, 16:9 aspect ratio, suitable for visual novel background, no text overlay, no close-up faces, detailed environment",
+  "total_tasks": 62,
+  "tasks": [
+    {
+      "node_id": "welcome",
+      "filename": "welcome.png",
+      "scene_name": "深圳市福田区的家，出发前一晚，猫头鹰送信",
+      "prompt": "A cozy teenager bedroom in a modern Shenzhen apartment at night, city skyline visible through window with warm lights, half-packed suitcase on bed, magical acceptance letter with owl feather and wax seal, anticipation and wonder atmosphere, warm amber and soft blue tones"
+    },
+    {
+      "node_id": "q01_ei",
+      "filename": "q01_ei.png",
+      "scene_name": "深圳家中收拾行李，手机震动",
+      "prompt": "Teenager bedroom at night, phone glowing on desk, open suitcase with clothes and magical items peeking out, city lights through window, cozy and anticipatory atmosphere, amber and soft blue tones"
+    },
+    {
+      "node_id": "transition_diagon_alley",
+      "filename": "transition_diagon_alley.png",
+      "scene_name": "对角巷，罗恩挥手，赫敏走过来",
+      "prompt": "Diagon Alley bustling magical shopping street, Gringotts bank tower in background, colorful magical storefronts with glowing signs and cauldrons, red-haired boy waving enthusiastically, curly-haired girl with stack of books approaching, families with trunks and owls, warm afternoon golden light"
+    },
+    {
+      "node_id": "q02_ei",
+      "filename": "q02_ei.png",
+      "scene_name": "对角巷弗洛林冷饮店",
+      "prompt": "Magical ice cream parlor in Diagon Alley, colorful frozen treats with sparkles and rainbow smoke, outdoor seating with magical striped umbrellas, bustling shoppers in background, warm afternoon light, orange and cream tones"
+    },
+    {
+      "node_id": "transition_platform",
+      "filename": "transition_platform.png",
+      "scene_name": "9¾站台，赫敏跑来拉emma",
+      "prompt": "Platform 9 3/4 with vintage red steam train Hogwarts Express, thick white steam and smoke billowing, excited students with trunks and owl cages, brick wall with magical shimmer barrier, brown curly-haired girl running toward foreground with bright smile, warm sepia and crimson tones"
+    },
+    {
+      "node_id": "q03_ei",
+      "filename": "q03_ei.png",
+      "scene_name": "霍格沃茨特快选座位",
+      "prompt": "Hogwarts Express train corridor with polished dark wood paneling and brass fixtures, large windows showing Scottish highlands and green hills rolling by, compartment doors on both sides, warm golden sunlight streaming through windows, amber and green tones"
+    },
+    {
+      "node_id": "transition_sorting",
+      "filename": "transition_sorting.png",
+      "scene_name": "霍格沃茨大厅，分院帽唱歌",
+      "prompt": "Hogwarts great hall with thousands of floating candles above, enchanted ceiling showing swirling night sky and clouds, four long house tables with students, grand stone staircase, old patched singing hat on stool at center, warm magical glow, golden and deep blue tones"
+    },
+    {
+      "node_id": "q04_ei",
+      "filename": "q04_ei.png",
+      "scene_name": "分院仪式开始，旁边紧张的男孩",
+      "prompt": "Hogwarts great hall during sorting ceremony, nervous students sitting on wooden bench waiting, grand Gothic architecture, floating candles illuminating enchanted ceiling showing stars, old hat on stool, warm magical atmosphere, golden and indigo tones"
+    },
+    {
+      "node_id": "sorting_hat_emma",
+      "filename": "sorting_hat_emma.png",
+      "scene_name": "分院帽分院emma到格兰芬多，朋友们鼓掌",
+      "prompt": "Hogwarts great hall sorting ceremony celebration moment, old tattered hat on student head glowing slightly, Gryffindor long table erupting in enthusiastic applause and cheering, red and gold house banners and lion emblem, students standing and clapping, warm golden celebratory light"
+    },
+    {
+      "node_id": "q05_ei",
+      "filename": "q05_ei.png",
+      "scene_name": "格兰芬多公共休息室，哈利欢迎emma",
+      "prompt": "Gryffindor common room interior with red and gold decor, crackling fireplace with dancing flames, comfortable leather armchairs and sofas, students playing magical exploding cards and wizard chess, lion statue above fireplace, warm cozy atmosphere, amber and crimson tones"
+    },
+    {
+      "node_id": "q06_ei",
+      "filename": "q06_ei.png",
+      "scene_name": "洛哈特课堂分组",
+      "prompt": "Hogwarts Defense Against Dark Arts classroom, walls covered with dramatic framed portraits of vain handsome wizard in various heroic poses, chalkboard with spell diagrams and drawings, students at wooden desks forming practice groups, bright morning light through tall windows, cream and gold tones"
+    },
+    {
+      "node_id": "q07_ei",
+      "filename": "q07_ei.png",
+      "scene_name": "走廊遇皮皮鬼捣乱",
+      "prompt": "Hogwarts castle corridor with floating candles in mid-air, suits of armor along walls, mischievous magical pranks visible like floating water balloons and flying papers, playful chaos atmosphere, stone Gothic arches, warm golden and silver tones"
+    },
+    {
+      "node_id": "q08_ei",
+      "filename": "q08_ei.png",
+      "scene_name": "草药课曼德拉草，斯普劳特教授",
+      "prompt": "Hogwarts greenhouse filled with magical plants and herbs, mandrake plants in terracotta pots with visible roots, students wearing large earmuffs while gardening, earthy humid atmosphere, sunlight streaming through glass ceiling, green and brown tones"
+    },
+    {
+      "node_id": "q09_ei",
+      "filename": "q09_ei.png",
+      "scene_name": "走廊壁画茶会",
+      "prompt": "Hogwarts magical corridor with living paintings in golden ornate frames on stone walls, tea party scene with painted figures moving and inviting passersby, elegant Gothic stone architecture with arches, warm afternoon light, golden and cream tones"
+    },
+    {
+      "node_id": "q10_ei",
+      "filename": "q10_ei.png",
+      "scene_name": "马尔福当众挑衅",
+      "prompt": "Hogwarts corridor with tall arched stained glass windows, dramatic spotlight through colored glass creating patterns, confrontation atmosphere, Slytherin house banners green and silver on walls, tense charged environment, cold silver and grey tones"
+    },
+    {
+      "node_id": "q11_ei",
+      "filename": "q11_ei.png",
+      "scene_name": "魁地奇比赛",
+      "prompt": "Hogwarts Quidditch stadium pitch with three tall goal hoops, four house banners flying in wind, crowd in stone grandstands, golden snitch glinting in cloudy sky, broomsticks flying in distance, exciting sports atmosphere, golden and blue tones"
+    },
+    {
+      "node_id": "q12_ei",
+      "filename": "q12_ei.png",
+      "scene_name": "周末公共休息室",
+      "prompt": "Gryffindor common room at night, fire crackling warmly in large stone fireplace, magical chess board with glowing pieces on wooden table, cozy relaxed evening atmosphere, warm amber and deep red tones, comfortable sofas"
+    },
+    {
+      "node_id": "ei_sn_transition",
+      "filename": "ei_sn_transition.png",
+      "scene_name": "走廊血字，发现异常",
+      "prompt": "Hogwarts corridor at twilight, ominous red glowing words written in blood on ancient stone wall, flickering torchlight casting long shadows, eerie mist creeping along floor, sense of danger and foreboding, deep indigo and crimson tones"
+    },
+    {
+      "node_id": "sn_opening",
+      "filename": "sn_opening.png",
+      "scene_name": "赫敏拉emma看血字",
+      "prompt": "Hogwarts dark corridor with ancient stone walls and serpent carvings, mysterious red glowing symbols written in blood, curly-haired girl pulling someone's arm urgently, flickering green torchlight, shadows creeping along walls, magical mist, dark indigo and crimson tones"
+    },
+    {
+      "node_id": "q13_sn",
+      "filename": "q13_sn.png",
+      "scene_name": "洛哈特课吹嘘英雄事迹",
+      "prompt": "Hogwarts Defense Against Dark Arts classroom, walls covered with excessive framed portraits of same smiling wizard in various heroic poses and costumes, chalkboard with dramatic drawings, students looking skeptical and bored, bright but artificial light, cream and pastel tones"
+    },
+    {
+      "node_id": "q14_sn",
+      "filename": "q14_sn.png",
+      "scene_name": "走廊血字密室已被打开",
+      "prompt": "Dark Hogwarts corridor with ancient stone walls, glowing red ominous writing in blood saying chamber opened, Gothic architecture with pointed arches, torchlight flickering ominously, sense of danger and mystery, deep red and black tones"
+    },
+    {
+      "node_id": "q15_sn",
+      "filename": "q15_sn.png",
+      "scene_name": "墙里奇怪声音",
+      "prompt": "Hogwarts empty corridor at night, magical sound waves visualized as shimmering ripples in air, ancient stone walls with serpent and rune carvings, mysterious atmosphere, faint green magical glow emanating from walls, deep indigo and emerald tones"
+    },
+    {
+      "node_id": "q16_sn",
+      "filename": "q16_sn.png",
+      "scene_name": "魔法史课传说",
+      "prompt": "Hogwarts History of Magic classroom, transparent ghost professor at front lecturing, ancient heavy textbooks open on wooden desks, dusty but magical atmosphere with floating dust motes, soft blue ethereal light, blue and grey tones"
+    },
+    {
+      "node_id": "q17_sn",
+      "filename": "q17_sn.png",
+      "scene_name": "图书馆查资料，赫敏找emma",
+      "prompt": "Hogwarts massive library with towering bookshelves reaching ceiling, floating candles providing warm light, curly-haired girl peeking from behind bookshelf holding stack of books, open ancient books on wooden table, magical dust particles in light beams, warm golden and deep brown tones"
+    },
+    {
+      "node_id": "q18_sn",
+      "filename": "q18_sn.png",
+      "scene_name": "草药课观察曼德拉草",
+      "prompt": "Hogwarts greenhouse close-up of magical mandrake plant with detailed wrinkled leaves and thick roots, earthy terracotta pots with soil, scientific observation setup, sunlight streaming through glass ceiling creating lens flare, green and gold tones"
+    },
+    {
+      "node_id": "q19_sn",
+      "filename": "q19_sn.png",
+      "scene_name": "魁地奇比赛失控",
+      "prompt": "Hogwarts Quidditch pitch dramatic moment, broomstick spiraling wildly out of control in stormy sky, dark thunderclouds gathering overhead, lightning flash illuminating stadium, intense action atmosphere, dark grey and electric blue tones"
+    },
+    {
+      "node_id": "q20_sn",
+      "filename": "q20_sn.png",
+      "scene_name": "蜘蛛往校外逃跑",
+      "prompt": "Hogwarts castle exterior stone walls at night, hundreds of spiders crawling away from castle in organized streams, full moon in dark sky casting silver light, eerie foreboding atmosphere, deep blue and black tones, gothic architecture"
+    },
+    {
+      "node_id": "q21_sn",
+      "filename": "q21_sn.png",
+      "scene_name": "复方汤剂材料",
+      "prompt": "Hogwarts dungeon potions storage room, stone shelves lined with magical ingredients in glass jars with glowing contents, dried herbs and roots hanging from ceiling, mysterious magical atmosphere, green and purple tones, dim lighting"
+    },
+    {
+      "node_id": "q22_sn",
+      "filename": "q22_sn.png",
+      "scene_name": "洛哈特办公室照片",
+      "prompt": "Hogwarts professor office with walls completely covered with framed photos of same wizard in various poses, excessive self-portraits, gaudy gold decorations and silk cushions, comical vanity atmosphere, bright gold and pink tones"
+    },
+    {
+      "node_id": "q23_sn",
+      "filename": "q23_sn.png",
+      "scene_name": "桃金娘浴室",
+      "prompt": "Hogwarts girls bathroom with cracked mirrors and broken tiles, water pooled on stone floor, ghostly mist and vapor hanging in air, broken sink with dripping faucet, pipes exposed, eerie bathroom atmosphere, cold blue and grey tones"
+    },
+    {
+      "node_id": "q24_sn",
+      "filename": "q24_sn.png",
+      "scene_name": "神秘日记本",
+      "prompt": "Close-up of ancient leather-bound diary on old wooden desk, blank pages with faint magical glow emanating from within, ornate quill pen and ink bottle beside it, mysterious atmosphere, warm candlelight, sepia and gold tones"
+    },
+    {
+      "node_id": "sn_tf_transition",
+      "filename": "sn_tf_transition.png",
+      "scene_name": "大厅紧张气氛",
+      "prompt": "Hogwarts great hall with students whispering nervously at long tables, dim candlelight creating shadows, tense and anxious atmosphere, dark rose and grey tones, gothic architecture"
+    },
+    {
+      "node_id": "tf_opening",
+      "filename": "tf_opening.png",
+      "scene_name": "哈利向emma倾诉被孤立",
+      "prompt": "Hogwarts dark corridor corner, boy with round glasses and lightning scar leaning against cold stone wall looking distressed and worried, curly-haired girl and red-haired boy standing nearby with concern, cold harsh lighting, tense emotional atmosphere, grey and dark red tones"
+    },
+    {
+      "node_id": "q25_tf",
+      "filename": "q25_tf.png",
+      "scene_name": "决斗俱乐部",
+      "prompt": "Hogwarts great hall transformed into dueling stage with raised platform, magical spotlights from floating orbs, two crossed wands glowing with sparks and light trails, dramatic atmosphere, competitive energy, silver and gold tones"
+    },
+    {
+      "node_id": "q26_tf",
+      "filename": "q26_tf.png",
+      "scene_name": "马尔福骂赫敏",
+      "prompt": "Hogwarts corridor with students gathered in circle around confrontation, tension visible in body language, house banners on stone walls, curly-haired girl looking upset and hurt, cold grey and harsh green tones"
+    },
+    {
+      "node_id": "q27_tf",
+      "filename": "q27_tf.png",
+      "scene_name": "赫敏邀请emma复方汤剂计划",
+      "prompt": "Hidden secret room with large cauldron bubbling with green smoke, magical potion ingredients scattered on table, curly-haired girl with bright excited eyes leaning forward conspiratorially, secretive atmosphere, dim candlelight, dark green and amber tones"
+    },
+    {
+      "node_id": "q28_tf",
+      "filename": "q28_tf.png",
+      "scene_name": "洛哈特作秀",
+      "prompt": "Hogwarts corridor with handsome blond professor posing heroically with wand and perfect smile, students watching with mixed expressions of admiration and skepticism, theatrical spotlight, fake heroic atmosphere, bright artificial gold tones"
+    },
+    {
+      "node_id": "q29_tf",
+      "filename": "q29_tf.png",
+      "scene_name": "石化恐慌",
+      "prompt": "Hogwarts corridor with students in panic running, petrified cat statue frozen mid-motion on stone floor, fear and confusion on faces, dark shadows from torchlight, emergency atmosphere, grey and dark blue tones"
+    },
+    {
+      "node_id": "q30_tf",
+      "filename": "q30_tf.png",
+      "scene_name": "孤立哈利",
+      "prompt": "Hogwarts great hall with students whispering and pointing from distance, isolated figure with glasses sitting alone at end of long table, empty seats around him, exclusion and loneliness atmosphere, cold grey harsh light"
+    },
+    {
+      "node_id": "q31_tf",
+      "filename": "q31_tf.png",
+      "scene_name": "赫敏坚持查真相",
+      "prompt": "Hogwarts library at night with determined curly-haired girl surrounded by towering stacks of ancient books, candlelight illuminating open pages, research and determination atmosphere, warm golden and deep blue tones"
+    },
+    {
+      "node_id": "q32_tf",
+      "filename": "q32_tf.png",
+      "scene_name": "海格被带走",
+      "prompt": "Hogwarts grounds at dusk with castle in background, large gentle giant with wild beard being escorted away by officials in dark robes, sad and unjust atmosphere, dramatic orange and purple sunset sky, orange and grey tones"
+    },
+    {
+      "node_id": "q33_tf",
+      "filename": "q33_tf.png",
+      "scene_name": "歧视言论",
+      "prompt": "Hogwarts corridor with house banners hanging from ceiling, tension between student groups facing each other, prejudice and division atmosphere, cold harsh lighting from windows, grey and green tones"
+    },
+    {
+      "node_id": "q34_tf",
+      "filename": "q34_tf.png",
+      "scene_name": "朋友分歧",
+      "prompt": "Hogwarts common room with two friends arguing face to face, others watching concerned from sofas, conflict and disagreement atmosphere, warm but tense lighting from fireplace, amber and red tones"
+    },
+    {
+      "node_id": "q35_tf",
+      "filename": "q35_tf.png",
+      "scene_name": "哈利问emma线索",
+      "prompt": "Hogwarts dark corner of corridor, boy with round glasses looking anxious and uncertain, hidden glowing evidence on stone wall, secret discovery moment, risk and dilemma atmosphere, mysterious blue light, deep blue and black tones"
+    },
+    {
+      "node_id": "q36_tf",
+      "filename": "q36_tf.png",
+      "scene_name": "金妮被抓",
+      "prompt": "Dark dungeon entrance with stone serpent carvings on archway, ominous green glow emanating from below, rescue mission urgency, ancient ominous atmosphere, dark emerald and black tones, gothic architecture"
+    },
+    {
+      "node_id": "tf_jp_transition",
+      "filename": "tf_jp_transition.png",
+      "scene_name": "复方汤剂准备好",
+      "prompt": "Hidden bathroom with large cauldron bubbling violently, steam rising in green and purple colors, secret potion preparation complete, magical ingredients scattered, dark emerald and violet tones"
+    },
+    {
+      "node_id": "jp_opening",
+      "filename": "jp_opening.png",
+      "scene_name": "最后冒险",
+      "prompt": "Dark underground stone chamber entrance with ancient worn stairs descending into abyss, torches on damp walls casting flickering light, green magical glow from below, rescue mission atmosphere, dark emerald and gold tones"
+    },
+    {
+      "node_id": "q37_jp",
+      "filename": "q37_jp.png",
+      "scene_name": "复方汤剂准备",
+      "prompt": "Hogwarts abandoned bathroom with multiple cauldrons bubbling simultaneously, magical steam in green and purple colors, potion ingredients scattered on wet stone floor, secret preparation atmosphere, dark emerald and violet tones"
+    },
+    {
+      "node_id": "q38_jp",
+      "filename": "q38_jp.png",
+      "scene_name": "潜入斯莱特林休息室",
+      "prompt": "Slytherin common room entrance hidden behind damp stone wall with silver serpent emblem, green magical glow from within, dungeon atmosphere with water on floor, mysterious and secretive, dark green and silver tones"
+    },
+    {
+      "node_id": "q39_jp",
+      "filename": "q39_jp.png",
+      "scene_name": "日记本对话",
+      "prompt": "Close-up of ancient leather diary with ink writing appearing magically on previously blank page, quill pen moving by itself, mysterious communication happening, warm candlelight, sepia and magical blue tones"
+    },
+    {
+      "node_id": "q40_jp",
+      "filename": "q40_jp.png",
+      "scene_name": "进入密室准备",
+      "prompt": "Dark underground stone chamber with ancient worn stairs descending into darkness, torches on rough walls, rescue equipment and potions laid out on ground, determined preparation atmosphere, dark emerald and gold tones"
+    },
+    {
+      "node_id": "transition_chamber_entrance",
+      "filename": "transition_chamber_entrance.png",
+      "scene_name": "哈利罗恩emma准备进入密室",
+      "prompt": "Hogwarts girls bathroom with cracked sinks and mirrors, one sink with serpent carving glowing bright green, magical light emanating from hidden entrance below, three students standing ready with wands drawn, cold blue and green tones"
+    },
+    {
+      "node_id": "q41_jp",
+      "filename": "q41_jp.png",
+      "scene_name": "桃金娘浴室入口",
+      "prompt": "Hogwarts girls bathroom with cracked mirrors and broken sinks, one faucet with serpent emblem glowing bright green, water dripping into hidden passage, secret entrance discovery moment, cold blue and green tones"
+    },
+    {
+      "node_id": "transition_final_battle",
+      "filename": "transition_final_battle.png",
+      "scene_name": "密室深处蛇怪",
+      "prompt": "Massive underground chamber with giant basilisk snake coiled around ancient stone pillars, glowing bright green eyes in darkness, three students with wands raised facing monster, terrifying battle atmosphere, dark green and black tones"
+    },
+    {
+      "node_id": "q42_jp",
+      "filename": "q42_jp.png",
+      "scene_name": "面对巨大蛇怪",
+      "prompt": "Massive underground chamber with giant serpent emerging from water, glowing green eyes, ancient Salazar Slytherin serpent statues on walls, students confronting monster with raised wands, terrifying battle atmosphere, dark green and black tones"
+    },
+    {
+      "node_id": "q43_jp",
+      "filename": "q43_jp.png",
+      "scene_name": "魔杖断了",
+      "prompt": "Dark underground chamber with broken wand pieces scattered on wet stone floor, fading sparks and dying embers, emergency crisis situation, dramatic spotlight from above, dark grey and dying orange tones"
+    },
+    {
+      "node_id": "q44_jp",
+      "filename": "q44_jp.png",
+      "scene_name": "分工合作",
+      "prompt": "Dark underground chamber with three students in back-to-back defensive stance, wands raised and glowing with magical light, teamwork and unity in danger, dramatic magical sparks, emerald and golden tones"
+    },
+    {
+      "node_id": "q45_jp",
+      "filename": "q45_jp.png",
+      "scene_name": "用蛇牙摧毁日记本",
+      "prompt": "Close-up dramatic shot of giant serpent fang piercing through leather-bound diary, black ink and dark magic energy seeping and dissolving out, destruction of evil object, dramatic lighting, dark red and black tones"
+    },
+    {
+      "node_id": "q46_jp",
+      "filename": "q46_jp.png",
+      "scene_name": "密室坍塌逃生",
+      "prompt": "Underground ancient chamber collapsing dramatically, large rocks falling from ceiling, dust clouds everywhere, emergency exit with golden rescue light visible in distance, dramatic escape atmosphere, dark grey and golden light tones"
+    },
+    {
+      "node_id": "q47_jp",
+      "filename": "q47_jp.png",
+      "scene_name": "学年结束",
+      "prompt": "Hogwarts great hall end of year feast celebration, thousands of floating candles above, colorful house banners and decorations, students cheering and celebrating, warm joyful atmosphere, golden and red house colors"
+    },
+    {
+      "node_id": "q48_jp",
+      "filename": "q48_jp.png",
+      "scene_name": "暑假来临",
+      "prompt": "Hogwarts castle exterior in bright summer sunshine, students walking on lawn with trunks and owls, blue sky with fluffy white clouds, bright hopeful atmosphere, green lawns and ancient stone towers, warm golden and azure tones"
+    },
+    {
+      "node_id": "ending",
+      "filename": "ending.png",
+      "scene_name": "学年总结，朋友们感谢emma",
+      "prompt": "Hogwarts castle courtyard in spring sunshine, blooming flowers and green vines on stone walls, students laughing and walking together in groups, peaceful warm reunion atmosphere, bright golden light, warm amber and gold tones"
+    }
+  ]
+}
