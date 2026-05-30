@@ -1,5 +1,5 @@
 /**
- * 科普图书馆列表 Hero：标题与伦理免责声明（T4.1）。
+ * 科普图书馆 Hero：标题与伦理免责声明。
  */
 'use client';
 
@@ -16,7 +16,7 @@ export function LibraryHero() {
           科普图书馆
         </h1>
         <p className="text-base text-muted-foreground">
-          用轻松的方式了解人格类型、反标签思维与趣味案例，拓展自我认知。
+          了解 MBTI 的科学边界、标签化风险，以及如何用更稳妥的方式看待人格测评。
         </p>
         <p className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-950 dark:text-amber-100">
           {LIBRARY_ETHICS_DISCLAIMER}

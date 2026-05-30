@@ -137,12 +137,6 @@ function AvgTestRunner({ config, spriteGetters }: AvgTestRunnerProps) {
           </Button>
         ) : null}
       </div>
-      <div className="pointer-events-none fixed bottom-6 right-6 z-50 w-[min(92vw,420px)]">
-        {sprite.prompt && (
-          <SpriteBubble text={sprite.prompt.text} onClose={() => sprite.dismissPrompt()} />
-        )}
-      </div>
-
       <div className="space-y-1">
         <p className="text-sm font-medium text-muted-foreground">AVG 模式</p>
         <h1 className="font-display text-2xl font-extrabold tracking-tight text-foreground">
@@ -186,12 +180,18 @@ function AvgTestRunner({ config, spriteGetters }: AvgTestRunnerProps) {
       {t.saving && <p className="text-sm text-muted-foreground">正在保存…</p>}
 
       <AvgStoryStage background={bgDescriptor}>
+        {sprite.prompt ? (
+          <div className="mb-4">
+            <SpriteBubble text={sprite.prompt.text} onClose={() => sprite.dismissPrompt()} />
+          </div>
+        ) : null}
+
         {!t.currentNode && (
           <p className="text-sm text-destructive">当前节点配置缺失，请刷新页面。</p>
         )}
 
         {t.currentNode && t.isComplete && (
-          <div className="rounded-2xl p-6">
+          <div>
             <AvgDialogueBubbles lines={t.currentNode.lines} />
             <p className="mt-6 text-center text-sm font-medium text-foreground">本段剧情已完成</p>
             <p className="mt-2 text-center text-sm text-muted-foreground">
@@ -216,7 +216,7 @@ function AvgTestRunner({ config, spriteGetters }: AvgTestRunnerProps) {
         )}
 
         {t.currentNode && !t.isComplete && t.currentNode.kind === 'dialogue' && (
-          <div className="p-6">
+          <div>
             <AvgDialogueBubbles lines={t.currentNode.lines} />
             <div className="mt-6 flex justify-end">
               <Button type="button" disabled={t.saving} onClick={() => void t.continueDialogue()}>
@@ -227,7 +227,7 @@ function AvgTestRunner({ config, spriteGetters }: AvgTestRunnerProps) {
         )}
 
         {t.currentNode && !t.isComplete && t.currentNode.kind === 'choice' && (
-          <div className="p-6">
+          <div>
             <AvgDialogueBubbles lines={t.currentNode.lines} />
             <div className="mt-6">
               <AvgOptionButtons

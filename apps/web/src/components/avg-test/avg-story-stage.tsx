@@ -1,7 +1,6 @@
 /**
- * AVG 舞台容器：全屏感背景渐变 + 可选图片层 + 内容安全区内嵌子组件。
- * T2.6 支持结构化背景描述符（渐变 + 图片/Lottie）。
- * 2026-05-24 采样背景冷暖，向子组件提供反差文字色调 Context。
+ * AVG 舞台容器：上方全幅场景背景图，下方独立剧情区（对白/选项不遮挡背景）。
+ * T2.6 支持结构化背景描述符（渐变 + 图片）；背景冷暖采样供子组件可选反差色。
  */
 'use client';
 
@@ -31,25 +30,27 @@ export function AvgStoryStage({ backgroundClassName, background, children }: Avg
     <AvgStageToneProvider tone={tone}>
       <div
         className={cn(
-          'relative min-h-[min(70vh,560px)] overflow-hidden rounded-3xl border-[3px] border-[var(--border)]/50 shadow-clay-lg',
+          'overflow-hidden rounded-3xl border-[3px] border-[var(--border)]/50 shadow-clay-lg',
         )}
       >
-        <div className={cn('absolute inset-0 bg-gradient-to-b', descriptor.gradientClassName)} />
-
-        {descriptor.imageUrl && (
-          <Image
-            src={descriptor.imageUrl}
-            alt=""
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 768px"
-            priority={false}
-          />
-        )}
-
-        <div className="relative z-10 flex min-h-[min(70vh,560px)] flex-col justify-end gap-6 p-4 sm:p-8">
-          {children}
+        <div
+          className="relative aspect-[16/10] w-full min-h-[200px] max-h-[min(52vh,440px)] bg-muted"
+          aria-hidden
+        >
+          <div className={cn('absolute inset-0 bg-gradient-to-b', descriptor.gradientClassName)} />
+          {descriptor.imageUrl ? (
+            <Image
+              src={descriptor.imageUrl}
+              alt=""
+              fill
+              className="object-cover object-center"
+              sizes="(max-width: 768px) 100vw, 768px"
+              priority={false}
+            />
+          ) : null}
         </div>
+
+        <div className="border-t-2 border-[var(--border)]/50 bg-card p-4 sm:p-6">{children}</div>
       </div>
     </AvgStageToneProvider>
   );
